@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.1-develop.2336" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6"/>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+        <PackageReference Include="Nethereum" Version="4.20.0--date20240411-0529.git-a691a3d" />
+        <PackageReference Include="Nethereum.ABI" Version="5.0.0" />
+        <PackageReference Include="Nethereum.Contracts" Version="5.0.0" />
+        <PackageReference Include="Nethereum.Generators.Net" Version="4.29.0" />
+        <PackageReference Include="Nethereum.Hex" Version="5.0.0" />
+        <PackageReference Include="Nethereum.RPC" Version="5.0.0" />
+        <PackageReference Include="Nethereum.Web3" Version="5.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+</Project>

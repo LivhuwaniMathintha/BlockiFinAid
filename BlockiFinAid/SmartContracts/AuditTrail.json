@@ -1,0 +1,74 @@
+[
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes16",
+          "name": "entityId",
+          "type": "bytes16"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "tableName",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "operation",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "byAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "AuditLogged",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "_entityId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "string",
+          "name": "_tableName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_operation",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_message",
+          "type": "string"
+        }
+      ],
+      "name": "logAudit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+

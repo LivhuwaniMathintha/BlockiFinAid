@@ -1,0 +1,405 @@
+[
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_auditTrailAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_institutionRegistryAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_status",
+          "type": "string"
+        }
+      ],
+      "name": "addPaymentStatus",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "auditTrail",
+      "outputs": [
+        {
+          "internalType": "contract AuditTrail",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "contractConditions",
+      "outputs": [
+        {
+          "internalType": "bytes16",
+          "name": "id",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "bool",
+          "name": "isFullCoverage",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "minimumYearsFunded",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "maxYearsFunded",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "foodAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tuitionAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "laptopBookAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accommodationAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monthlyFoodAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "monthlyAccommodationAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "paymentDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes16",
+          "name": "paymentStatusId",
+          "type": "bytes16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "contractConditionsExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_conditionsId",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "_isFullCoverage",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "_minYears",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "_maxYears",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_totalAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_foodAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tuitionAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_laptopBookAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_accommodationAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_monthlyFoodAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_monthlyAccommodationAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_paymentDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "_paymentStatusId",
+          "type": "string"
+        }
+      ],
+      "name": "createFunderContractConditions",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_id",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_funderId",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_studentId",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_funderContractConditionsId",
+          "type": "string"
+        }
+      ],
+      "name": "createFundingContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "fundingContractExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "fundingContracts",
+      "outputs": [
+        {
+          "internalType": "bytes16",
+          "name": "id",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "bytes16",
+          "name": "funderId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "bytes16",
+          "name": "studentId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "bytes16",
+          "name": "funderContractConditionsId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "bool",
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "internalType": "int256",
+          "name": "foodBalance",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "tuitionBalance",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "laptopBalance",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "institutionRegistry",
+      "outputs": [
+        {
+          "internalType": "contract InstitutionRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "paymentStatusExists",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "paymentStatuses",
+      "outputs": [
+        {
+          "internalType": "bytes16",
+          "name": "id",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "string",
+          "name": "status",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_contractId",
+          "type": "string"
+        },
+        {
+          "internalType": "int256",
+          "name": "_foodDelta",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "_tuitionDelta",
+          "type": "int256"
+        },
+        {
+          "internalType": "int256",
+          "name": "_laptopDelta",
+          "type": "int256"
+        }
+      ],
+      "name": "updateFundingBalance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
