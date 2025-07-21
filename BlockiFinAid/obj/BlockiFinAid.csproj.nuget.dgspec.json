@@ -56,6 +56,10 @@
               "target": "Package",
               "version": "[9.0.0, )"
             },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.4.1, )"
+            },
             "Nethereum": {
               "target": "Package",
               "version": "[4.20.0--date20240411-0529.git-a691a3d, )"
@@ -87,6 +91,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "SendGrid": {
+              "target": "Package",
+              "version": "[9.29.3, )"
             }
           },
           "imports": [
