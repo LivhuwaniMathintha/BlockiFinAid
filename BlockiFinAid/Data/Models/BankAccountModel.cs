@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BlockiFinAid.Data.Models;
 
-public class BankAccountModel 
+public abstract class BankAccountModel : IModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
@@ -30,4 +30,6 @@ public class BankAccountModel
     
     [BsonElement("updated_at")]
     public string UpdatedAt { get; set; } = string.Empty;
+
+ 
 }

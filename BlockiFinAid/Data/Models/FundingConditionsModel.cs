@@ -1,0 +1,30 @@
+using BlockiFinAid.Services.SmartContracts.Funding;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace BlockiFinAid.Data.Models;
+
+public abstract class FundingConditionsModel : IModel
+{
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public Guid Id { get; set; }
+    public bool IsFullCoverage { get; set; }
+    
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime StartDate { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime EndDate { get; set; }
+    public uint TotalAmount { get; set; }
+    public uint FoodAmount { get; set; }
+    public uint TuitionAmount { get; set; }
+    public uint LaptopAmount { get; set; }
+    public uint AccommodationAmount { get; set; }
+    public bool AccommodationDirectPay { get; set; }
+    public Guid DataConfirmedById { get; set; }
+    public string ModifiedBy { get; set; }
+    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+    public DateTime UpdatedAt { get; set; }
+    public bool IsActive { get; set; }
+    public uint AverageMark { get; set; }
+}

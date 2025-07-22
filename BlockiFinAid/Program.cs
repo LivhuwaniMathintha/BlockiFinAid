@@ -1,10 +1,13 @@
 using BlockiFinAid.Data.Configs;
+using BlockiFinAid.Data.Models;
 using BlockiFinAid.Services.Messaging;
+using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +21,66 @@ builder.Services.Configure<EthereumNodeSettings>(ethereumNodeSettings);
 
 var sendGridSettings = builder.Configuration.GetSection("SendGridSettings");
 builder.Services.Configure<SendGridSettings>(sendGridSettings);
+
+//configure databases
+
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("MongoDB");
+    return new MongoClient(connectionString);
+});
+
+// Configure IMongoDatabase
+builder.Services.AddScoped<IMongoDatabase>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var dbName = builder.Configuration["MongoDB:DatabaseName"];
+    return client.GetDatabase(dbName);
+});
+
+
+//Register the generic repository for the models
+builder.Services.AddScoped<IBaseRepository<UserModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<UserModel>(db, "students");
+});
+
+builder.Services.AddScoped<IBaseRepository<BankAccountModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<BankAccountModel>(db, "bankAccounts");
+});
+
+builder.Services.AddScoped<IBaseRepository<FundingModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<FundingModel>(db, "funding");
+});
+
+builder.Services.AddScoped<IBaseRepository<FundingConditionsModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<FundingConditionsModel>(db, "fundingConditions");
+});
+
+builder.Services.AddScoped<IBaseRepository<FunderModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<FunderModel>(db, "funders");
+});
+
+builder.Services.AddScoped<IBaseRepository<PaymentModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<PaymentModel>(db, "payments");
+});
+
+builder.Services.AddScoped<IBaseRepository<StudentTrackerModel>>(sp =>
+{
+    var db = sp.GetRequiredService<IMongoDatabase>();
+    return new BaseRepository<StudentTrackerModel>(db, "studentContractTrackers");
+});
 
 var smartContractAddressSettings = builder.Configuration.GetSection("SmartContractAddressSettings");
 builder.Services.Configure<SmartContractAddressSettings>(smartContractAddressSettings);

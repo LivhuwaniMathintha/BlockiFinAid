@@ -4,33 +4,33 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BlockiFinAid.Data.Models;
 
-public class UserModel
+public abstract class UserModel : IModel
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public Guid Id { get; set; }
-    [BsonElement("institution_id")]
+   // [BsonElement("institution_id")]
     public Guid InstitutionId { get; set; }
-    [BsonElement("funder_contract_id")]
+   // [BsonElement("funder_contract_id")]
     public Guid FunderContractId { get; set; }
-    [BsonElement("bank_account_id")]
+   // [BsonElement("bank_account_id")]
     public Guid BankAccountId { get; set; }
-    [BsonElement("student_number")] 
+   // [BsonElement("student_number")] 
     public string StudentNumber { get; set; } = string.Empty;
-    [BsonElement("name")]
+   // [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
-    [BsonElement("email")]
+   // [BsonElement("email")]
     public string Email { get; set; } = string.Empty;
-    [BsonElement("is_active")]
+  //  [BsonElement("is_active")]
     public bool IsActive { get; set; }
-    [BsonElement("is_change_confirmed")]
+   // [BsonElement("is_change_confirmed")]
     public bool IsChangeConfirmed { get; set; }
-    [BsonElement("modified_by")]
+   // [BsonElement("modified_by")]
     public string ModifiedBy { get; set; } = string.Empty;
-    [BsonElement("updated_at")]
+   // [BsonElement("updated_at")]
     public string UpdatedAt { get; set; } = string.Empty;
-    [BsonElement("course_name")]
+   // [BsonElement("course_name")]
     public string CourseName { get; set; } = string.Empty;
-    [BsonElement("role")]
+   // [BsonElement("role")]
     public string Role { get; set; } =  string.Empty;
 }

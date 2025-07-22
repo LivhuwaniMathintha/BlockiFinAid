@@ -7,13 +7,25 @@ public class MongoDbBackgroundPublisherService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MongoDbBackgroundPublisherService> _logger;
-    private readonly IUserRepository _userRepository;
+    private readonly IBaseRepository<UserModel> _userRepository;
+    private readonly IBaseRepository<FundingModel> _fundingRepository;
+    private readonly IBaseRepository<BankAccountModel> _bankAccountRepository;
+    private readonly IBaseRepository<FundingConditionsModel> _fundingConditionsRepository;
 
-    public MongoDbBackgroundPublisherService(IServiceScopeFactory scopeFactory, ILogger<MongoDbBackgroundPublisherService> logger, IUserRepository userRepository)
+
+    public MongoDbBackgroundPublisherService(IServiceScopeFactory scopeFactory, 
+        ILogger<MongoDbBackgroundPublisherService> logger, 
+        IBaseRepository<UserModel> userRepository,
+        IBaseRepository<BankAccountModel> bankAccountRepository,
+        IBaseRepository<FundingModel> fundingRepository,
+        IBaseRepository<FundingConditionsModel> fundingConditionsRepository)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
         _userRepository = userRepository;
+        _bankAccountRepository = bankAccountRepository;
+        _fundingRepository = fundingRepository;
+        _fundingConditionsRepository = fundingConditionsRepository;
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -24,24 +36,45 @@ public class MongoDbBackgroundPublisherService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Background Service is working.");
+
+
+            var user = await _userRepository.StreamInserts();
+            if (user != null)
+            {
+                _logger.LogInformation("MongoDB User Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
+                await Publish(user, stoppingToken);
+            } 
+           
+         
+            var bankAccount = await _bankAccountRepository.StreamInserts();
+            if (bankAccount != null)
+            {
+                _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
+                await Publish(bankAccount, stoppingToken);
+                
+            }
             
+            var funding = await _fundingRepository.StreamInserts();
+            if (funding != null)
+            {
+                _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
+                await Publish(funding, stoppingToken);
+                
+            }
             
-            var user = await _userRepository.StartStreamingAsync();
-            if (user == null) 
-                continue;
-            _logger.LogInformation("MongoDB User Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
-            await Publish(user, stoppingToken);
-            _logger.LogInformation("Publishing to Rabbit MQ has completed for User Repository.");
-            
-            // Add bank account repository streaming here
-            // _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
-            // await Publish(user, stoppingToken);
-            // _logger.LogInformation("Publishing to Rabbit MQ has completed for BankAccount Repository.");
+            var fundingConditions = await _fundingConditionsRepository.StreamInserts();
+            if (funding != null)
+            {
+                _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
+                await Publish(fundingConditions, stoppingToken);
+                
+            }
+           
         }
         _logger.LogInformation("Background Service is stopping.");
     }
 
-    public async Task Publish<T>(T model, CancellationToken stoppingToken) where T : class
+    private async Task Publish<T>(T model, CancellationToken stoppingToken) where T : class
     {
         // create a new scope for each iteration to resolve scoped services (like IPublisher)
         using var scope = _scopeFactory.CreateScope();
@@ -49,12 +82,13 @@ public class MongoDbBackgroundPublisherService : BackgroundService
         try
         {
             await publisher.Publish(model);
+            _logger.LogInformation($"Publishing to Rabbit MQ has completed for {typeof(T).Name}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
         }
             
-        await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+        await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
     }
 }
