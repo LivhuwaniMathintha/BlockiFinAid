@@ -31,54 +31,56 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 });
 
 // Configure IMongoDatabase
-builder.Services.AddScoped<IMongoDatabase>(sp =>
+
+builder.Services.AddKeyedSingleton<IMongoDatabase>("Financial_Aid.Funds", (sp, key) =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
-    var dbName = builder.Configuration["MongoDB:DatabaseName"];
+    var dbName = builder.Configuration["MongoDB:Funds"] ?? "Financial_Aid.Funds";
     return client.GetDatabase(dbName);
 });
 
-
-//Register the generic repository for the models
-builder.Services.AddScoped<IBaseRepository<UserModel>>(sp =>
+builder.Services.AddKeyedSingleton<IMongoDatabase>("Financial_Aid.Institution", (sp, key) =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
-    return new BaseRepository<UserModel>(db, "students");
+    var client = sp.GetRequiredService<IMongoClient>();
+    var dbName = builder.Configuration["MongoDB:Institution"] ?? "Financial_Aid.Institution";
+    return client.GetDatabase(dbName);
 });
 
-builder.Services.AddScoped<IBaseRepository<BankAccountModel>>(sp =>
+//Register the generic repository for the models
+
+builder.Services.AddSingleton<IBaseRepository<BankAccountModel>>(sp =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
+    var db = sp.GetRequiredKeyedService<IMongoDatabase>("Financial_Aid.Funds");
     return new BaseRepository<BankAccountModel>(db, "bankAccounts");
 });
 
-builder.Services.AddScoped<IBaseRepository<FundingModel>>(sp =>
+builder.Services.AddSingleton<IBaseRepository<FundingModel>>(sp =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
+    var db = sp.GetRequiredKeyedService<IMongoDatabase>("Financial_Aid.Funds");
     return new BaseRepository<FundingModel>(db, "funding");
 });
 
-builder.Services.AddScoped<IBaseRepository<FundingConditionsModel>>(sp =>
+builder.Services.AddSingleton<IBaseRepository<FundingConditionsModel>>(sp =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
+    var db = sp.GetRequiredKeyedService<IMongoDatabase>("Financial_Aid.Funds");
     return new BaseRepository<FundingConditionsModel>(db, "fundingConditions");
 });
 
-builder.Services.AddScoped<IBaseRepository<FunderModel>>(sp =>
+builder.Services.AddSingleton<IBaseRepository<FunderModel>>(sp =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
+    var db = sp.GetRequiredKeyedService<IMongoDatabase>("Financial_Aid.Funds");
     return new BaseRepository<FunderModel>(db, "funders");
 });
 
-builder.Services.AddScoped<IBaseRepository<PaymentModel>>(sp =>
+builder.Services.AddSingleton<IBaseRepository<PaymentModel>>(sp =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
+    var db = sp.GetRequiredKeyedService<IMongoDatabase>("Financial_Aid.Funds");
     return new BaseRepository<PaymentModel>(db, "payments");
 });
 
 builder.Services.AddScoped<IBaseRepository<StudentTrackerModel>>(sp =>
 {
-    var db = sp.GetRequiredService<IMongoDatabase>();
+    var db = sp.GetRequiredKeyedService<IMongoDatabase>("Financial_Aid.Institution");
     return new BaseRepository<StudentTrackerModel>(db, "studentContractTrackers");
 });
 
