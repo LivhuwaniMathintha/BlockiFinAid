@@ -40,8 +40,13 @@ public class BankAccountController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(model);
         }
+
+        var doesAccountExists = await _bankRepository.GetByIdAsync(model.Id);
+        
+        if (doesAccountExists is not null)
+            return Conflict();
         
         var result = await _bankRepository.CreateAsync(model);
 

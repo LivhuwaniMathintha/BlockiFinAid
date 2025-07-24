@@ -7,6 +7,7 @@ using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,7 @@ builder.Services.Configure<SendGridSettings>(sendGridSettings);
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var connectionString = builder.Configuration.GetConnectionString("MongoDB");
+    
     return new MongoClient(connectionString);
 });
 
@@ -35,7 +37,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddKeyedSingleton<IMongoDatabase>("Financial_Aid.Funds", (sp, key) =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
-    var dbName = builder.Configuration["MongoDB:Funds"] ?? "Financial_Aid.Funds";
+    var dbName = "Financial_Aid_Funds";
     return client.GetDatabase(dbName);
 });
 
@@ -116,7 +118,7 @@ builder.Services.AddMassTransit(busConfigurator =>
 
 // Add a background service for mongo db publishing to rabbit mq
   
-builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
+//builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
