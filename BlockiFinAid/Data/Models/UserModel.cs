@@ -7,12 +7,15 @@ namespace BlockiFinAid.Data.Models;
 public abstract class UserModel : IModel
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; set; }
    // [BsonElement("institution_id")]
+   [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid InstitutionId { get; set; }
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
    // [BsonElement("funder_contract_id")]
     public Guid FunderContractId { get; set; }
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
    // [BsonElement("bank_account_id")]
     public Guid BankAccountId { get; set; }
    // [BsonElement("student_number")] 
@@ -33,4 +36,6 @@ public abstract class UserModel : IModel
     public string CourseName { get; set; } = string.Empty;
    // [BsonElement("role")]
     public string Role { get; set; } =  string.Empty;
+    [BsonIgnore]
+    public Guid UserIdPerformingAction { get; set; }
 }

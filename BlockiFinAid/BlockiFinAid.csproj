@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.1-develop.2336" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6"/>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
         <PackageReference Include="MongoDB.Driver" Version="3.4.1" />
@@ -21,6 +22,10 @@
         <PackageReference Include="Nethereum.Web3" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="SendGrid" Version="9.29.3" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.1-dev-00953" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>

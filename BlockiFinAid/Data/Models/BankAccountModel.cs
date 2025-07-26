@@ -17,12 +17,14 @@ public class BankAccountModel : IModel
     public string BankBranchCode { get; set; } = string.Empty;
  
     public bool IsConfirmed { get; set; }
-    
-    public uint StudentNumber { get; set; }
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid UserId { get; set; }
  
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid DataConfirmedById { get; set; }
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-
+    public bool IsStudent { get; set; } = false;
+    [BsonIgnore]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid UserIdPerformingAction { get; set; }
 }

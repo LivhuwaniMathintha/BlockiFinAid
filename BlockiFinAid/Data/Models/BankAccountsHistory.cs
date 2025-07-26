@@ -1,9 +1,16 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace BlockiFinAid.Data.Models;
 
 public class BankAccountsHistory : IModel
 {
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; set; }
     public ICollection<AccountsAddedDetails> BankAccounts { get; set; } = new List<AccountsAddedDetails>();
+    [BsonIgnore]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid UserIdPerformingAction { get; set; }
 }
 
 public class AccountsAddedDetails

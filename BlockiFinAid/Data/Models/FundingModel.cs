@@ -7,16 +7,23 @@ namespace BlockiFinAid.Data.Models;
 public abstract class FundingModel : IModel
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; set; }
 
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid FunderId { get; set; }
+
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid StudentId { get; set; }
+
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid FunderContractConditionId { get; set; }
+
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid DataConfirmedById { get; set; }
 
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-    public DateTime SignedOn { get; set; } 
+    public DateTime SignedOn { get; set; }
 
     public bool IsActive { get; set; }
     public uint FoodBalance { get; set; }
@@ -27,5 +34,9 @@ public abstract class FundingModel : IModel
     public string ModifiedBy { get; set; }
 
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
-    public DateTime UpdatedAt { get; set; } 
+    public DateTime UpdatedAt { get; set; }
+
+    [BsonIgnore]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid UserIdPerformingAction { get; set; }
 }

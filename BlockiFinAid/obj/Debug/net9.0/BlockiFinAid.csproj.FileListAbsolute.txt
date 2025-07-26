@@ -255,3 +255,12 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Snappier.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/StarkbankEcdsa.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/ZstdSharp.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.AspNetCore.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Extensions.Hosting.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Extensions.Logging.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Formatting.Compact.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Settings.Configuration.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Sinks.Console.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Sinks.Debug.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.Sinks.File.dll

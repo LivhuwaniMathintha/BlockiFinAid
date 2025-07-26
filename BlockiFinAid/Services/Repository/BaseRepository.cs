@@ -1,35 +1,93 @@
 using BlockiFinAid.Data.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Reflection;
 
 namespace BlockiFinAid.Services.Repository;
 
 public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : IModel
 {
     private readonly IMongoCollection<TEntity> _db;
+    private readonly IMongoCollection<AuditTrail> _auditTrail;
+    private readonly string _collectionName;
+    private readonly ILogger<BaseRepository<TEntity>> _logger;
 
 
-    public BaseRepository(IMongoDatabase db, string collectionName)
+    public BaseRepository(IMongoDatabase db, string collectionName, ILogger<BaseRepository<TEntity>> logger)
     {
         _db = db.GetCollection<TEntity>(collectionName);
+        _collectionName = collectionName;
+        _auditTrail = db.GetCollection<AuditTrail>("audit_trail");
+        _logger = logger;
     }
-    public async Task<object?> CreateAsync(TEntity model)
+    public async Task<object?> CreateAsync(TEntity model, string userPerformingAction)
     {
         try
         {
+            if (model.Id == Guid.Empty)
+                model.Id = Guid.NewGuid();
+
             await _db.InsertOneAsync(model);
-            return model;
+            _logger.LogInformation($"Created {typeof(TEntity).Name} with id {model.Id} in the collection {_collectionName}");
+            // create audit trail entry for insert
+            var auditEntry = new AuditTrail
+            {
+                Timestamp = DateTime.UtcNow,
+                UserId = userPerformingAction,
+                ActionType = "Insert",
+                CollectionName = _collectionName,
+                DocumentId = model.Id,
+                PreImage = null,
+                PostImage = model.ToBsonDocument()
+
+            };
+
+            await _auditTrail.InsertOneAsync(auditEntry);
+            _logger.LogInformation($"Created audit trail with id {auditEntry.Id}");
+            return await _db.Find(x => x.Id == model.Id).FirstOrDefaultAsync();
         }
         catch (MongoWriteException ex)
         {
+            _logger.LogError($"Error creating document {ex.Message}");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"An unexpected error occured creating document {ex.Message}");
             return null;
         }
     }
 
-    public async Task<bool> UpdateAsync(TEntity model)
+    public async Task<bool> UpdateAsync(TEntity model, string userPerformingAction)
     {
         try
         {
-            await _db.ReplaceOneAsync(x => x.Id == model.Id, model);
+            // Get the current (pre-image) state of the document
+            var filter = Builders<TEntity>.Filter.Eq(x => x.Id, model.Id);
+            var existingDocument = await _db.Find(filter).FirstOrDefaultAsync();
+
+            if (existingDocument == null)
+            {
+                _logger.LogInformation($"No records found for {typeof(TEntity).Name} with id {model.Id}");
+                return false;
+            }
+            
+            await _db.ReplaceOneAsync(filter, model);
+            
+            // create audit trail entry for update
+            var auditEntry = new AuditTrail
+            {
+                Timestamp = DateTime.UtcNow,
+                UserId = userPerformingAction,
+                ActionType = "Update",
+                CollectionName = _collectionName,
+                DocumentId = model.Id,
+                PreImage = existingDocument.ToBsonDocument(),
+                PostImage = model.ToBsonDocument()
+            };
+            
+            await _auditTrail.InsertOneAsync(auditEntry);
+            _logger.LogInformation($"added audit trail with id {auditEntry.Id} for this entry");
             return true;
 
         }
@@ -70,4 +128,5 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
 
         return null;
     }
+
 }

@@ -7,7 +7,7 @@ namespace BlockiFinAid.Data.Models;
 public abstract class FundingConditionsModel : IModel
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; set; }
     public bool IsFullCoverage { get; set; }
     
@@ -21,10 +21,15 @@ public abstract class FundingConditionsModel : IModel
     public uint LaptopAmount { get; set; }
     public uint AccommodationAmount { get; set; }
     public bool AccommodationDirectPay { get; set; }
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid DataConfirmedById { get; set; }
     public string ModifiedBy { get; set; }
     [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTime UpdatedAt { get; set; }
     public bool IsActive { get; set; }
     public uint AverageMark { get; set; }
+    
+    [BsonIgnore]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid UserIdPerformingAction { get; set; }
 }
