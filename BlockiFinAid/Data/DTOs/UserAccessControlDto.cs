@@ -8,3 +8,9 @@ public class UserAccessControlDto
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
 }
+
+public class UAMResponse : UserAccessControlDto
+{
+    public Guid UserId { get; set; }
+  
+}

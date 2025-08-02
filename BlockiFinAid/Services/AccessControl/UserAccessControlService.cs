@@ -19,10 +19,19 @@ public class UserAccessControlService
         _logger = logger;
     }
 
-    public UserAccessControl HashPasswordForNewUser(UserAccessControl user, string plainTextPassword)
+    public UserAccessControl? HashPasswordForNewUser(UserAccessControl user, string plainTextPassword)
     {
-        user.PasswordHash = _passwordHasher.HashPassword(user, plainTextPassword);
-        return user;
+        _logger.LogInformation("Hashing password for new user: {user}", user);
+        try
+        {
+            user.PasswordHash = _passwordHasher.HashPassword(user, plainTextPassword);
+            return user;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error Hashing password for new user: {user}", user);
+            return null;
+        }
     }
 
     public bool VerifyPassword(UserAccessControl user, string plainTextPassword)
@@ -31,9 +40,10 @@ public class UserAccessControlService
         return result == PasswordVerificationResult.Success || result == PasswordVerificationResult.SuccessRehashNeeded;
     }
 
-    public async Task<UserAccessControl?> RegisterUser(UserAccessControlDto user)
+   
+    public async Task<UAMResponse?> RegisterUser(UserAccessControlDto user)
     {
-
+        
         var newUser = new UserAccessControl
         {
             Id = Guid.NewGuid(),
@@ -42,24 +52,41 @@ public class UserAccessControlService
             Permissions = user.Permissions,
             IsAccountConfirmed = false,
             Email = user.Email,
-            PasswordHash = string.Empty
+            PasswordHash = "",
         };
         
         var hashedUser =  HashPasswordForNewUser(newUser, user.Password);
 
         try
         {
-            await _db.InsertOneAsync(hashedUser);
-            _logger.LogInformation($"User {hashedUser.Name} has been registered");
-            return _db.Find(x => x.Id == hashedUser.Id).FirstOrDefault();
+            if (hashedUser is not null)
+            {
+                await _db.InsertOneAsync(hashedUser);
+                _logger.LogInformation($"User {hashedUser.Name} has been registered");
+                return new UAMResponse
+                {
+                    UserId = newUser.Id,
+                    Role = hashedUser.Role,
+                    Email = hashedUser.Email,
+                    Password = newUser.PasswordHash,
+                    Permissions = hashedUser.Permissions,
+                };
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error while registering user {hashedUser.Name}: {ex.Message}");
+            _logger.LogError($"Error while registering user {hashedUser?.Name}: {ex.Message}");
             return null;
         }
+        return null;
     }
-    
+
+    public async Task<UserAccessControl?> GetUserByEmail(string email)
+    {
+        var user = await _db.Find(x => x.Email == email).FirstOrDefaultAsync();
+
+        return user ?? null;
+    }
     public async Task<UserAccessControl?> LoginUser(string email, string plainTextPassword)
     {
         // 1. Retrieve the user by email from your database
@@ -80,5 +107,11 @@ public class UserAccessControlService
 
         _logger.LogError($"Invalid username or password");
         return null; // Invalid password
+    }
+
+    public async Task<UserAccessControl?> GetUserById(Guid modelUserIdPerformingAction)
+    {
+        var user = await _db.Find(x => x.Id == modelUserIdPerformingAction).FirstOrDefaultAsync();
+        return user ?? null;
     }
 }

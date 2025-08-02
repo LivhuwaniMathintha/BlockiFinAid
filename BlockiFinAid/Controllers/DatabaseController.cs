@@ -1,4 +1,5 @@
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +16,14 @@ namespace BlockiFinAid.Controllers
         private readonly IBaseRepository<FundingConditionsModel> _fundingConditionRepository;
         private readonly IBaseRepository<UserModel> _userRepository;
         private readonly ILogger<DatabaseController> _logger;
+        private readonly UserAccessControlService _uam;
 
         public DatabaseController(IBaseRepository<BankAccountModel> bankAccountRepository, 
             IBaseRepository<PaymentModel> paymentRepository, 
             IBaseRepository<FundingModel> fundingRepository,
             IBaseRepository<FundingConditionsModel> fundingConditionsRepository,
-            IBaseRepository<UserModel> userRepository, ILogger<DatabaseController> logger)
+            IBaseRepository<UserModel> userRepository, ILogger<DatabaseController> logger, 
+            UserAccessControlService userAccessControlService)
         {
             _bankRepository = bankAccountRepository;
             _paymentRepository = paymentRepository;
@@ -28,6 +31,7 @@ namespace BlockiFinAid.Controllers
             _fundingConditionRepository = fundingConditionsRepository;
             _userRepository = userRepository;
             _logger = logger;
+            _uam = userAccessControlService;
         }
 
         #region BankAccount
@@ -352,14 +356,19 @@ namespace BlockiFinAid.Controllers
         [HttpPost("users")]
         public async Task<IActionResult> PostUsers([FromBody] UserModel model)
         {
-            var actionUser = await _userRepository.GetByIdAsync(model.UserIdPerformingAction);
-
+            _logger.LogInformation($"Checking if user performing action with id {model.UserIdPerformingAction} exists...");
+            var actionUser = await _uam.GetUserById(model.UserIdPerformingAction);
+            
             if (actionUser == null)
             {
-                return Unauthorized();
+                return Unauthorized($"User with id {model.UserIdPerformingAction} does not exist.");
             }
             var doesUserExists = await _userRepository.GetByIdAsync(model.Id);
-            if (doesUserExists is not null) return Conflict();
+            if (doesUserExists is not null)
+            {
+                _logger.LogInformation($"User with id {model.UserIdPerformingAction} already exists. Returning an HTTP Status Code 409 (Conflict)");
+                return Conflict();
+            }
             try
             {
                 // check for institution data

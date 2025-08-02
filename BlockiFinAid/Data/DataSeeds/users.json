@@ -1,0 +1,119 @@
+[
+  {
+    "Name": "John Doe",
+    "Role": "admin",
+    "Permissions": [
+      "global_access"
+    ],
+    "Email": "john.doe@uj.ac.za",
+    "Password": "Password123!"
+  },
+  {
+    "Name": "Jane Smith",
+    "Role": "admin",
+    "Permissions": [
+      "smartcontract:add",
+      "smartcontract:update",
+      "smartcontract:get"
+    ],
+    "Email": "jane.smith@uj.ac.za",
+    "Password": "Password456!"
+  },
+  {
+    "Name": "api-admin",
+    "Role": "admin",
+    "Permissions": [
+      "api:global_access"
+    ],
+    "Email": "api-admin@uj.ac.za",
+    "Password": "Password789!"
+  },
+  {
+    "Name": "Peter Jones",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "peter.jones@student.uj.ac.za",
+    "Password": "StudentPass1"
+  },
+  {
+    "Name": "Mary Williams",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "mary.williams@student.uj.ac.za",
+    "Password": "StudentPass2"
+  },
+  {
+    "Name": "David Chen",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "david.chen@student.uj.ac.za",
+    "Password": "StudentPass3"
+  },
+  {
+    "Name": "Emily White",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "emily.white@student.uj.ac.za",
+    "Password": "StudentPass4"
+  },
+  {
+    "Name": "Chris Lee",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "chris.lee@student.uj.ac.za",
+    "Password": "StudentPass5"
+  },
+  {
+    "Name": "Sarah Brown",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "sarah.brown@student.uj.ac.za",
+    "Password": "StudentPass6"
+  },
+  {
+    "Name": "Michael Davis",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "michael.davis@student.uj.ac.za",
+    "Password": "StudentPass7"
+  },
+  {
+    "Name": "Olivia Wilson",
+    "Role": "student",
+    "Permissions": [
+      "smartcontract:get",
+      "api:get",
+      "update:own_data"
+    ],
+    "Email": "olivia.wilson@student.uj.ac.za",
+    "Password": "StudentPass8"
+  }
+]

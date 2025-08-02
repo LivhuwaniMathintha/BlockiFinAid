@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BlockiFinAid.Data.Models;
 
-public abstract class UserModel : IModel
+public class UserModel : IModel
 {
     [BsonId]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]

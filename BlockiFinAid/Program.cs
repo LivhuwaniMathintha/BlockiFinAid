@@ -1,5 +1,6 @@
 using BlockiFinAid.Data.Configs;
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Helpers;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Messaging;
 using BlockiFinAid.Services.Repository;
@@ -9,6 +10,7 @@ using BlockiFinAid.Services.SmartContracts.Funding;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Serilog;
 
@@ -40,7 +42,10 @@ try
 
     var sendGridSettings = builder.Configuration.GetSection("SendGridSettings");
     builder.Services.Configure<SendGridSettings>(sendGridSettings);
-
+    
+    var mongoDbSettings = builder.Configuration.GetSection("MongoDbSettings");
+    builder.Services.Configure<MongoDbSettings>(mongoDbSettings);
+    
     //configure databases
 
     builder.Services.AddSingleton<IMongoClient>(sp =>
@@ -124,7 +129,7 @@ try
         var logger = sp.GetRequiredService<ILogger<BaseRepository<UserModel>>>();
         return new BaseRepository<UserModel>(db, "users",  logger);
     });
-
+    builder.Services.AddSingleton<IPasswordHasher<UserAccessControl>, PasswordHasher<UserAccessControl>>();
     builder.Services.AddScoped<UserAccessControlService>(sp =>
     {
         var db = sp.GetRequiredKeyedService<IMongoDatabase>("DB.UserAccessControl");
@@ -144,6 +149,9 @@ try
     builder.Services.AddScoped<IPublisher, MassTransitPublisher>();
     builder.Services.AddScoped<UserDbConsumer>();
     builder.Services.AddScoped<BankAccountDbConsumer>();
+
+    builder.Services.AddScoped<DatabaseSeeder>();
+    
     // configure mass transit rabbit mq here
 
     builder.Services.AddMassTransit(busConfigurator =>
@@ -178,6 +186,16 @@ try
     app.UseHttpsRedirection();
     app.MapControllers();
 
+    using (var scope = app.Services.CreateScope())
+    {
+        // var accessControlService = scope.ServiceProvider.GetRequiredService<UserAccessControlService>();
+        // var logger  = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>();
+        // var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+        // var settings = scope.ServiceProvider.GetRequiredService<IOptions<MongoDbSettings>>();
+        //
+        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedDataAsync();
+    }
 
     app.Run();
 }
