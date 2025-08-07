@@ -51,8 +51,16 @@ try
     builder.Services.AddSingleton<IMongoClient>(sp =>
     {
         var connectionString = builder.Configuration.GetConnectionString("MongoDB");
-
-        return new MongoClient(connectionString);
+        var settings = MongoClientSettings.FromConnectionString(connectionString);
+        
+        // configure settings for replica set and better reliability
+        
+        settings.RetryWrites = true;
+        settings.RetryReads = true;
+        settings.ReadPreference = ReadPreference.Primary;
+        settings.WriteConcern = WriteConcern.WMajority;
+        
+        return new MongoClient(settings);
     });
 
     // Configure IMongoDatabase
@@ -67,7 +75,7 @@ try
     builder.Services.AddKeyedSingleton<IMongoDatabase>("DB.UserAccessControl", (sp, key) =>
     {
         var client = sp.GetRequiredService<IMongoClient>();
-        var dbName = builder.Configuration["MongoDB:Access"] ?? "UserAccessControl";
+        var dbName = builder.Configuration["MongoDB:Access"] ?? "FinAidDb";
         return client.GetDatabase(dbName);
     });
     
@@ -173,7 +181,7 @@ try
 
     // Add a background service for mongo db publishing to rabbit mq
 
-    //builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
+    builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
     builder.Services.AddControllers();
 
     var app = builder.Build();

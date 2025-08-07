@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using BlockiFinAid.Data.Models;
 
 namespace BlockiFinAid.Services.Repository;
@@ -8,5 +9,7 @@ public interface IBaseRepository<TEntity> where TEntity : IModel
     Task<bool> UpdateAsync(TEntity model, string userPerformingAction);
     Task<TEntity?> GetByIdAsync(Guid id);
     Task<IEnumerable<TEntity>> GetAllAsync();
-    Task<object?> StreamInserts();
+
+    IAsyncEnumerable<TEntity> StreamInserts(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default);
 }

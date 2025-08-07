@@ -109,9 +109,15 @@ public class UserAccessControlService
         return null; // Invalid password
     }
 
-    public async Task<UserAccessControl?> GetUserById(Guid modelUserIdPerformingAction)
+    public async Task<UserAccessControl?> GetUserPerformingActionById(Guid modelUserIdPerformingAction)
     {
         var user = await _db.Find(x => x.Id == modelUserIdPerformingAction).FirstOrDefaultAsync();
+        return user ?? null;
+    }
+    
+    public async Task<UserAccessControl?> GetUserById(Guid userId)
+    {
+        var user = await _db.Find(x => x.Id == userId).FirstOrDefaultAsync();
         return user ?? null;
     }
 }

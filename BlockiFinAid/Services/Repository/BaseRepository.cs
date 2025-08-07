@@ -2,6 +2,7 @@ using BlockiFinAid.Data.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace BlockiFinAid.Services.Repository;
 
@@ -107,26 +108,29 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         return await _db.Find(x => true).ToListAsync();
     }
 
-    public async Task<object?> StreamInserts()
+    public async IAsyncEnumerable<TEntity> StreamInserts(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<TEntity>>()
             .Match(change => change.OperationType == ChangeStreamOperationType.Insert);
-
 
         var options = new ChangeStreamOptions
         {
             FullDocument = ChangeStreamFullDocumentOption.UpdateLookup
         };
-        
-        using var cursor =  await _db.WatchAsync(pipeline, options);
 
-        foreach (var change in await cursor.ToListAsync())
+        // Note: Don't use `using var` here because we don't want to dispose the cursor immediately.
+        var cursor = await _db.WatchAsync(pipeline, options, cancellationToken);
+
+        // This loop will run forever, yielding new documents as they are inserted.
+        while (await cursor.MoveNextAsync(cancellationToken))
         {
-            var user = change.FullDocument;
-            return user;
+            foreach (var change in cursor.Current)
+            {
+                _logger.LogInformation("Found a change in the stream.");
+                yield return change.FullDocument;
+            }
         }
-
-        return null;
     }
 
 }

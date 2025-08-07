@@ -7,76 +7,48 @@ public class MongoDbBackgroundPublisherService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MongoDbBackgroundPublisherService> _logger;
-    private readonly IBaseRepository<UserModel> _userRepository;
-    private readonly IBaseRepository<FundingModel> _fundingRepository;
-    private readonly IBaseRepository<BankAccountModel> _bankAccountRepository;
-    private readonly IBaseRepository<FundingConditionsModel> _fundingConditionsRepository;
 
-
-    public MongoDbBackgroundPublisherService(IServiceScopeFactory scopeFactory, 
-        ILogger<MongoDbBackgroundPublisherService> logger, 
-        IBaseRepository<UserModel> userRepository,
-        IBaseRepository<BankAccountModel> bankAccountRepository,
-        IBaseRepository<FundingModel> fundingRepository,
-        IBaseRepository<FundingConditionsModel> fundingConditionsRepository)
+    public MongoDbBackgroundPublisherService(IServiceScopeFactory scopeFactory, ILogger<MongoDbBackgroundPublisherService> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
-        _userRepository = userRepository;
-        _bankAccountRepository = bankAccountRepository;
-        _fundingRepository = fundingRepository;
-        _fundingConditionsRepository = fundingConditionsRepository;
     }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Background Service is starting.");
-        
+
         stoppingToken.Register(() => _logger.LogInformation("Background Service is stopping."));
 
-        while (!stoppingToken.IsCancellationRequested)
+        // Create a separate task for each change stream to run concurrently.
+        var userTask = Task.Run(() => ProcessStreamAsync<UserModel>(stoppingToken), stoppingToken);
+        var bankAccountTask = Task.Run(() => ProcessStreamAsync<BankAccountModel>(stoppingToken), stoppingToken);
+        var fundingTask = Task.Run(() => ProcessStreamAsync<FundingModel>(stoppingToken), stoppingToken);
+        var fundingConditionsTask = Task.Run(() => ProcessStreamAsync<FundingConditionsModel>(stoppingToken), stoppingToken);
+
+        // Wait for all tasks to complete, which will only happen when the service is stopped.
+        await Task.WhenAll(userTask, bankAccountTask, fundingTask, fundingConditionsTask);
+
+        _logger.LogInformation("Background Service has stopped.");
+    }
+
+    private async Task ProcessStreamAsync<T>(CancellationToken stoppingToken) where T : class, IModel
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IBaseRepository<T>>();
+
+        _logger.LogInformation($"Starting to watch for new inserts in {typeof(T).Name}.");
+
+        // The 'await foreach' loop will consume the IAsyncEnumerable stream continuously.
+        await foreach (var model in repository.StreamInserts().WithCancellation(stoppingToken))
         {
-            _logger.LogInformation("Background Service is working.");
-
-
-            var user = await _userRepository.StreamInserts();
-            if (user != null)
-            {
-                _logger.LogInformation("MongoDB User Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
-                await Publish(user, stoppingToken);
-            } 
-           
-         
-            var bankAccount = await _bankAccountRepository.StreamInserts();
-            if (bankAccount != null)
-            {
-                _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
-                await Publish(bankAccount, stoppingToken);
-                
-            }
-            
-            var funding = await _fundingRepository.StreamInserts();
-            if (funding != null)
-            {
-                _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
-                await Publish(funding, stoppingToken);
-                
-            }
-            
-            var fundingConditions = await _fundingConditionsRepository.StreamInserts();
-            if (funding != null)
-            {
-                _logger.LogInformation("MongoDB BankAccount Repository Streaming has started and has found a new entry. Publishing to Rabbit MQ has started");
-                await Publish(fundingConditions, stoppingToken);
-                
-            }
-           
+            _logger.LogInformation($"New {typeof(T).Name} entry found. Publishing to Rabbit MQ.");
+            await Publish(model, stoppingToken);
         }
-        _logger.LogInformation("Background Service is stopping.");
     }
 
     private async Task Publish<T>(T model, CancellationToken stoppingToken) where T : class
     {
-        // create a new scope for each iteration to resolve scoped services (like IPublisher)
         using var scope = _scopeFactory.CreateScope();
         var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
         try
@@ -88,7 +60,7 @@ public class MongoDbBackgroundPublisherService : BackgroundService
         {
             _logger.LogError(ex, ex.Message);
         }
-            
-        await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+
+        // Removed the Task.Delay here as the stream will naturally wait for new inserts.
     }
 }

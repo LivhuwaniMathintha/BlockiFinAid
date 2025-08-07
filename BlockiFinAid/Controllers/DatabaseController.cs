@@ -63,7 +63,7 @@ namespace BlockiFinAid.Controllers
                 return BadRequest(model);
             }
             
-            var actionUser = await _userRepository.GetByIdAsync(model.UserIdPerformingAction);
+            var actionUser = await _uam.GetUserPerformingActionById(model.UserIdPerformingAction);
 
             if (actionUser == null)
             {
@@ -78,7 +78,7 @@ namespace BlockiFinAid.Controllers
         
             // check if the student exists
             
-            var doesStudentExists = await _userRepository.GetByIdAsync(model.UserId);
+            var doesStudentExists = await _uam.GetUserById(model.UserId);
             if (doesStudentExists is null)
             {
                 var userType = model.IsStudent ? "Student" : "Institution Service profile";

@@ -1,0 +1,95 @@
+networks:
+  mongo-cluster:
+    driver: bridge
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:
+
+services:
+  mongo1:
+    container_name: mongo_rs0
+    image: mongo:latest
+    hostname: mongo1
+    command: ["--replSet", "rs0", "--bind_ip", "127.0.0.1,mongo1", "--port", "27017", "--keyFile", "/etc/mongodb/pki/keyfile"]
+    volumes:
+      - mongo1-data:/data/db
+      - $PWD/scripts/mongo/rs_keyfile:/etc/mongodb/pki/keyfile
+      - $PWD/scripts/mongo/init.js:/docker-entrypoint-initdb.d/init-mongo.js
+    ports:
+      - "27017:27017"
+    networks:
+      - mongo-cluster
+    healthcheck:
+      test: echo "try {rs.status()} catch(err) {rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo1:27017',priority:1},{_id:1,host:'mongo2:27018',priority:0.5},{_id:2,host:'mongo3:27019',priority:0.5}]})}" | mongosh --port 27017 -u '${MONGO_ADMIN_USER:-admin}' -p '${MONGO_ADMIN_PASSWD:-veryStringPassword}' --authenticationDatabase admin --quiet
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: '${MONGO_ADMIN_USER:-admin}'
+      MONGO_INITDB_ROOT_PASSWORD: '${MONGO_ADMIN_PASSWD:-veryStringPassword}'
+      MONGO_INITDB_DATABASE: '${DB_NAME:-test}'
+      DB_USERNAME: ${DB_USERNAME:-myuser}
+      DB_PASSWORD: ${DB_PASSWORD:-mypassword}
+  mongo2:
+    container_name: mongo_rs1
+    image: mongo:latest
+    hostname: mongo2
+    command: ["--replSet", "rs0", "--bind_ip", "127.0.0.1,mongo2", "--port", "27018", "--keyFile", "/etc/mongodb/pki/keyfile"]
+    volumes:
+      - mongo2-data:/data/db
+      - $PWD/scripts/mongo/rs_keyfile:/etc/mongodb/pki/keyfile
+    ports:
+      - "27018:27017"
+    networks:
+      - mongo-cluster
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: '${MONGO_ADMIN_USER:-admin}'
+      MONGO_INITDB_ROOT_PASSWORD: '${MONGO_ADMIN_PASSWD:-veryStringPassword}'
+  mongo3:
+    container_name: mongo_rs2
+    image: mongo:latest
+    hostname: mongo3
+    command: ["--replSet", "rs0", "--bind_ip", "127.0.0.1,mongo3", "--port", "27019", "--keyFile", "/etc/mongodb/pki/keyfile"]
+    volumes:
+      - mongo3-data:/data/db
+      - $PWD/scripts/mongo/rs_keyfile:/etc/mongodb/pki/keyfile
+    ports:
+      - "27019:27017"
+    networks:
+      - mongo-cluster
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: '${MONGO_ADMIN_USER:-admin}'
+      MONGO_INITDB_ROOT_PASSWORD: '${MONGO_ADMIN_PASSWD:-veryStringPassword}'
+
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    ports:
+      - "8081:8081"
+    networks:
+      - mongo-cluster
+    environment:
+      ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: false
+      ME_CONFIG_MONGODB_ADMINUSERNAME: '${MONGO_ADMIN_USER}'
+      ME_CONFIG_MONGODB_ADMINPASSWORD: '${MONGO_ADMIN_PASSWD}'
+      ME_CONFIG_MONGODB_URL: mongodb://${DB_USERNAME}:${DB_PASSWORD}@mongo1:27017,mongo2:27018,mongo3:27019/${DB_NAME}?replicaSet=rs0
+    depends_on:
+      mongo1:
+        condition: service_healthy
+  
+  rabbitmq: # NEW RABBITMQ SERVICE
+    image: rabbitmq:4-management # Uses the 4.x management image as specified
+    container_name: victor_queues
+    ports:
+      - "5672:5672" # Standard AMQP port for client connections
+      - "15672:15672" # Management UI port
+    # You can add environment variables for user/password if needed, e.g.:
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    
+    restart: unless-stopped # Ensures RabbitMQ restarts with Docker

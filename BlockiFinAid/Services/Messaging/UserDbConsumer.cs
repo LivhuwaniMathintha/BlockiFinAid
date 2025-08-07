@@ -13,9 +13,17 @@ public class UserDbConsumer : IConsumer<UserModel>
 
 public class BankAccountDbConsumer : IConsumer<BankAccountModel>
 {
+    private readonly ILogger<BankAccountDbConsumer> _logger;
+
+    public BankAccountDbConsumer(ILogger<BankAccountDbConsumer> logger)
+    {
+        _logger = logger;
+    }
     public Task Consume(ConsumeContext<BankAccountModel> context)
     {
-        throw new NotImplementedException();
+        var account = context.Message.BankAccountNumber;
+        _logger.LogInformation($"BankAccountNumber: {account} has been added to the database and retrieved in real-time. Queue for Smart contract addition");
+        return Task.CompletedTask;
     }
 }
 

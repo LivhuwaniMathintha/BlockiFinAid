@@ -11,6 +11,7 @@
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.1-develop.2336" />
         <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6"/>
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.1" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
         <PackageReference Include="MongoDB.Driver" Version="3.4.1" />
         <PackageReference Include="Nethereum" Version="4.20.0--date20240411-0529.git-a691a3d" />

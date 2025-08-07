@@ -4,7 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockiFinAid", "BlockiFinAi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{17B502D3-B2F8-43DC-BA62-8955A48431F7}"
 	ProjectSection(SolutionItems) = preProject
-		compose.yaml = compose.yaml
+		_old.yaml1 = _old.yaml1
+		old-2.yml2 = old-2.yml2
+		compose.yml = compose.yml
+		.env = .env
 	EndProjectSection
 EndProject
 Global
@@ -17,5 +20,7 @@ Global
 		{100777DA-E193-4A7E-A19D-F3023751FB08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{100777DA-E193-4A7E-A19D-F3023751FB08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{100777DA-E193-4A7E-A19D-F3023751FB08}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

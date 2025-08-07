@@ -1,0 +1,29 @@
+
+Step 1: Create a network and Connect to the container and initiate the replica set:
+docker run --name mongo-rs -d -p 27017:27017 mongo:latest --replSet rs0
+docker network create mongo-network
+docker network connect mongo-network mongo-rs
+
+Step 2: Connect to the running container
+docker exec -it mongo-rs bash
+
+Step 3: type mongosh
+
+then:
+rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongo-rs:27017" }] })
+
+then verify the replica set status
+
+rs.status()
+
+
+Step 4:
+
+docker run \
+  --name mongo-express \
+  -d \
+  -p 8081:8081 \
+  --network mongo-network \
+  -e ME_CONFIG_MONGODB_SERVER=mongo-rs \
+  -e ME_CONFIG_MONGODB_ENABLE_ADMIN=true \
+  mongo-express
