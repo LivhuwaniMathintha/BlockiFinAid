@@ -12,6 +12,8 @@ public class UserAccessControl : IModel
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     [BsonIgnore]
     public Guid UserIdPerformingAction { get; set; }
+    [BsonIgnore]
+    public string StudentNumber { get; set; }
 
     public string Name { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
@@ -29,6 +31,8 @@ public class AccessControlPermissions : IModel
     public Guid Id { get; set; }
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserIdPerformingAction { get; set; }
+    [BsonIgnore]
+    public string StudentNumber { get; set; }
     public string Name { get; set; } = string.Empty;
     
 }

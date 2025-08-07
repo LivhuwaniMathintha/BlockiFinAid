@@ -30,6 +30,8 @@ public class PaymentModel : IModel
     [BsonIgnore]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserIdPerformingAction { get; set; }
+    [BsonIgnore]
+    public string StudentNumber { get; set; }
 }
 
 public class FraudDataModel : PaymentModel

@@ -27,4 +27,5 @@ public class BankAccountModel : IModel
     [BsonIgnore]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserIdPerformingAction { get; set; }
+    public string StudentNumber { get; set; }
 }

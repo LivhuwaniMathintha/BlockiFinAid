@@ -32,4 +32,6 @@ public abstract class FundingConditionsModel : IModel
     [BsonIgnore]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserIdPerformingAction { get; set; }
+
+    [BsonIgnore] public string StudentNumber { get; set; } = string.Empty;
 }

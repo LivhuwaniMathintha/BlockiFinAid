@@ -22,8 +22,8 @@ public class BankAccountContractsController : ControllerBase
         return Ok(await _bankAccount.GetAllAsync());
     }
 
-    [HttpGet("sudentNumber")]
-    public async Task<IActionResult> GetStudentNumber(uint studentNumber)
+    [HttpGet("studentNumber")]
+    public async Task<IActionResult> GetStudentNumber(string studentNumber)
     {
         return Ok(await _bankAccount.GetByStudentNumberAsync(studentNumber));
     }

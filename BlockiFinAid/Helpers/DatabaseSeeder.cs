@@ -4,6 +4,7 @@ using BlockiFinAid.Data.DTOs;
 using BlockiFinAid.Data.Models;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
+using BlockiFinAid.Services.SmartContracts.User;
 using Microsoft.Extensions.Options;
 using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
 
@@ -15,13 +16,15 @@ public class DatabaseSeeder
     private readonly IWebHostEnvironment _env;
     private readonly MongoDbSettings _mongoDbSettings;
     private readonly UserAccessControlService _uam;
+    private readonly IBaseRepository<UserModel> _userRepo;
 
-    public DatabaseSeeder(ILogger<DatabaseSeeder> logger, IWebHostEnvironment env, IOptions<MongoDbSettings> settings, UserAccessControlService userAccessControlService)
+    public DatabaseSeeder(ILogger<DatabaseSeeder> logger, IWebHostEnvironment env, IOptions<MongoDbSettings> settings, UserAccessControlService userAccessControlService, IBaseRepository<UserModel> user)
     {
         _logger = logger;
         _env = env;
         _mongoDbSettings = settings.Value;
         _uam = userAccessControlService;
+        _userRepo = user;
     }
 
     public async Task SeedDataAsync()
@@ -34,6 +37,32 @@ public class DatabaseSeeder
 
     private async Task SeedUsersFromJsonAsync()
     {
+        _logger.LogInformation("Seeding api admin...");
+        Guid adminId = Guid.Empty;
+        var adminUser = new UserAccessControlDto
+        {
+            Email = "sitoenando@outlook.com",
+            Name = "api-admin",
+            Role = "Admin",
+            Permissions = new List<string>
+            {
+
+                "api:global_access"
+
+            },
+            Password = UAMHelper.PasswordGenerator()
+        };
+        var existingAdminUser = await _uam.GetUserByEmail(adminUser.Email);
+        if (existingAdminUser == null)
+        {
+            var results = await _uam.RegisterUser(adminUser);
+            if (results != null)
+            {
+                _logger.LogInformation("Registering admin user with email: {user} completed...", adminUser.Email);
+                adminId = results.UserId;
+            }
+        }
+        
         var seedFilePath = Path.Combine(_env.ContentRootPath, _mongoDbSettings.UsersJsonFilePath);
 
         if (!File.Exists(seedFilePath))
@@ -76,13 +105,40 @@ public class DatabaseSeeder
                         Password = UAMHelper.PasswordGenerator()
                     };
                     
-                    _logger.LogInformation($"Processing user {user.Email}...");
+                    _logger.LogInformation($"Processing UAM for {user.Email}...");
 
                     var result = await _uam.RegisterUser(newUser);
 
                     if (result is not null)
                     {
-                        _logger.LogInformation($"User {result.Email} has been registered with role {result.Role} and a password of {newUser.Password} and Id of {result.UserId}");
+                        _logger.LogInformation($"UAM for {result.Email} has been registered with role {result.Role} and a password of {newUser.Password} and Id of {result.UserId}");
+                        
+                        UserModel? studentNumberExists = null;
+                        var studentNumber = "";
+                        do
+                        {
+                            studentNumber = UAMHelper.GenerateStudentNumber();
+                            studentNumberExists = await _userRepo.FindByStudentNumberAsync(studentNumber);
+                        } while (studentNumberExists is not null);
+                        
+                        var userDetails = new UserModel
+                        {
+                            StudentNumber = studentNumber,
+                            BankAccountId = Guid.Empty,
+                            Email = user.Email,
+                            Role = user.Role,
+                            CourseName = UAMHelper.GenerateRandomDegree(),
+                            ModifiedBy = "api-admin",
+                            InstitutionId = Guid.Empty,
+                            IsActive = true,
+                            FunderContractId = Guid.Empty,
+                            IsChangeConfirmed = false,
+                            Name = user.Name
+                        };
+                        
+                        _logger.LogInformation($"Creating User Model {user.Email}...");
+                        await _userRepo.CreateAsync(userDetails, adminId.ToString());
+                        _logger.LogInformation($"User Model {user.Email} has been created.");
                     }
                 }
                 else

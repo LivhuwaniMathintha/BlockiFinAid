@@ -18,7 +18,7 @@ public class BankAccountOutputDto
     public string BankName { get; set; }
     public string BankBranchCode { get; set; }
     public bool IsConfirmed { get; set; }
-    public uint StudentNumber { get; set; }
+    public string StudentNumber { get; set; }
     public Guid DataConfirmedById { get; set; }
     public string UpdatedAt { get; set; }
 }
@@ -29,7 +29,7 @@ public class BankAccountInputDto
     public string BankAccountNumber { get; set; }
     public string BankName { get; set; }
     public string BankBranchCode { get; set; }
-    public uint StudentNumber { get; set; }
+    public string StudentNumber { get; set; }
     public string DataConfirmedById { get; set; }
 }
 
@@ -39,7 +39,7 @@ public class BankAccountUpdateDto
     public string BankName { get; set; }
     public string BankBranchCode { get; set; }
     public bool IsConfirmed { get; set; }
-    public uint StudentNumber { get; set; }
+    public string StudentNumber { get; set; }
     public string DataConfirmedById { get; set; }
 }
 
@@ -63,8 +63,8 @@ public class GetByBankAccountNumberOutputDto : IFunctionOutputDTO
     public string BankBranchCode { get; set; }
     [Parameter("bool", "isConfirmed", 5)]
     public bool IsConfirmed { get; set; }
-    [Parameter("uint32", "studentNumber", 6)]
-    public uint StudentNumber { get; set; }
+    [Parameter("string", "studentNumber", 6)]
+    public string StudentNumber { get; set; }
     [Parameter("bytes16", "dataConfirmedById", 7)]
     public byte[] DataConfirmedById { get; set; }
     [Parameter("string", "updatedAt", 8)]
@@ -84,8 +84,8 @@ public class AddBankAccountFunction : FunctionMessage
     public string BankBranchCode { get; set; }
     [Parameter("bool", "_isConfirmed", 5)]
     public bool IsConfirmed { get; set; }
-    [Parameter("uint32", "_studentNumber", 6)]
-    public uint StudentNumber { get; set; }
+    [Parameter("string", "_studentNumber", 6)]
+    public string StudentNumber { get; set; }
     [Parameter("bytes16", "_dataConfirmedById", 7)]
     public byte[] DataConfirmedById { get; set; }
     [Parameter("string", "_updatedAt", 8)]
@@ -103,8 +103,8 @@ public class UpdateBankAccountByNumberFunction : FunctionMessage
     public string BankBranchCode { get; set; }
     [Parameter("bool", "_isConfirmed", 4)]
     public bool IsConfirmed { get; set; }
-    [Parameter("uint32", "_studentNumber", 5)]
-    public uint StudentNumber { get; set; }
+    [Parameter("string", "_studentNumber", 5)]
+    public string StudentNumber { get; set; }
     [Parameter("bytes16", "_dataConfirmedById", 6)]
     public byte[] DataConfirmedById { get; set; }
     [Parameter("string", "_updatedAt", 7)]
@@ -129,8 +129,8 @@ public class StudentDataChangeConfirmationFunction : FunctionMessage
 [Function("getByStudentNumber", typeof(GetByStudentNumberOutputDto))]
 public class GetByStudentNumberFunction : FunctionMessage
 {
-    [Parameter("uint32", "_studentNumber", 1)]
-    public uint StudentNumber { get; set; }
+    [Parameter("string", "_studentNumber", 1)]
+    public string StudentNumber { get; set; }
 }
 
 [FunctionOutput]
@@ -146,8 +146,8 @@ public class GetByStudentNumberOutputDto : IFunctionOutputDTO
     public string BankBranchCode { get; set; }
     [Parameter("bool", "isConfirmed", 5)]
     public bool IsConfirmed { get; set; }
-    [Parameter("uint32", "studentNumber", 6)]
-    public uint StudentNumber { get; set; }
+    [Parameter("string", "studentNumber", 6)]
+    public string StudentNumber { get; set; }
     [Parameter("bytes16", "dataConfirmedById", 7)]
     public byte[] DataConfirmedById { get; set; }
     [Parameter("string", "updatedAt", 8)]
@@ -170,8 +170,8 @@ public class GetAllBankAccountsOutputDto : IFunctionOutputDTO
     public List<string> BankBranchCodes { get; set; }
     [Parameter("bool[]", "isConfirmeds", 5)]
     public List<bool> IsConfirmeds { get; set; }
-    [Parameter("uint32[]", "studentNumbers", 6)]
-    public List<uint> StudentNumbers { get; set; }
+    [Parameter("string[]", "studentNumbers", 6)]
+    public List<string> StudentNumbers { get; set; }
     [Parameter("bytes16[]", "dataConfirmedByIds", 7)]
     public List<byte[]> DataConfirmedByIds { get; set; }
     [Parameter("string[]", "updatedAts", 8)]
@@ -281,7 +281,7 @@ public class BankAccountContract
         return txHash.ToString();
     }
 
-    public async Task<BankAccountOutputDto> GetByStudentNumberAsync(uint studentNumber)
+    public async Task<BankAccountOutputDto> GetByStudentNumberAsync(string studentNumber)
     {
         var function = new GetByStudentNumberFunction
         {

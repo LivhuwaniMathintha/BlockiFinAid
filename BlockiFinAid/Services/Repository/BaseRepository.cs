@@ -108,6 +108,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         return await _db.Find(x => true).ToListAsync();
     }
 
+    public async Task<TEntity?> FindByStudentNumberAsync(string studentNumber)
+    {
+        var result = await _db.Find(x => x.StudentNumber == studentNumber).FirstOrDefaultAsync();
+        return result;
+    }
+
     public async IAsyncEnumerable<TEntity> StreamInserts(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {

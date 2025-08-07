@@ -156,7 +156,14 @@ try
     builder.Services.AddScoped<FundingConditionsContract>();
     builder.Services.AddScoped<IPublisher, MassTransitPublisher>();
     builder.Services.AddScoped<UserDbConsumer>();
-    builder.Services.AddScoped<BankAccountDbConsumer>();
+    
+    builder.Services.AddScoped<BankAccountDbConsumer>(sp =>
+    {
+        var logger = sp.GetRequiredService<ILogger<BankAccountDbConsumer>>();
+        var bankAccountContract = sp.GetRequiredService<BankAccountContract>();
+        var repository = sp.GetRequiredService<UserAccessControlService>();
+        return new BankAccountDbConsumer(logger, repository, bankAccountContract);
+    });
 
     builder.Services.AddScoped<DatabaseSeeder>();
     
