@@ -161,8 +161,7 @@ try
     {
         var logger = sp.GetRequiredService<ILogger<BankAccountDbConsumer>>();
         var bankAccountContract = sp.GetRequiredService<BankAccountContract>();
-        var repository = sp.GetRequiredService<UserAccessControlService>();
-        return new BankAccountDbConsumer(logger, repository, bankAccountContract);
+        return new BankAccountDbConsumer(logger, bankAccountContract);
     });
 
     builder.Services.AddScoped<DatabaseSeeder>();
