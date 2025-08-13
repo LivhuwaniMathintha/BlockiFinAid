@@ -281,7 +281,7 @@ public class BankAccountContract
         return txHash.ToString();
     }
 
-    public async Task<BankAccountOutputDto> GetByStudentNumberAsync(string studentNumber)
+    public async Task<BankAccountOutputDto?> GetByStudentNumberAsync(string studentNumber)
     {
         var function = new GetByStudentNumberFunction
         {
@@ -290,17 +290,23 @@ public class BankAccountContract
         var contract = _web3.Eth.GetContractHandler(_addressSettings.BankAccountAddress);
         var result = await contract.QueryDeserializingToObjectAsync<GetByStudentNumberFunction, GetByStudentNumberOutputDto>(function);
 
-        return new BankAccountOutputDto
+        if (result is not null)
         {
-            Id = new Guid(result.Id),
-            BankAccountNumber = result.BankAccountNumber,
-            BankName = result.BankName,
-            BankBranchCode = result.BankBranchCode,
-            IsConfirmed = result.IsConfirmed,
-            StudentNumber = result.StudentNumber,
-            DataConfirmedById = new Guid(result.DataConfirmedById),
-            UpdatedAt = result.UpdatedAt
-        };
+
+            return new BankAccountOutputDto
+            {
+                Id = new Guid(result.Id),
+                BankAccountNumber = result.BankAccountNumber,
+                BankName = result.BankName,
+                BankBranchCode = result.BankBranchCode,
+                IsConfirmed = result.IsConfirmed,
+                StudentNumber = result.StudentNumber,
+                DataConfirmedById = new Guid(result.DataConfirmedById),
+                UpdatedAt = result.UpdatedAt
+            };
+        }
+
+        return null;
     }
 
     public async Task<List<BankAccountOutputDto>> GetAllAsync()

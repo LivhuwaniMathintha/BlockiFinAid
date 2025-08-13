@@ -3,6 +3,7 @@ using BlockiFinAid.Helpers;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
+using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
@@ -104,3 +105,65 @@ public class FundingDbConsumer : IConsumer<FundingModel>
     }
 }
 
+public class FundingConditionsDbConsumer : IConsumer<FundingConditionsModel>
+{
+    private readonly FundingConditionsContract _fundingConditionsContract;
+    private readonly ILogger<FundingConditionsDbConsumer> _logger;
+
+    public FundingConditionsDbConsumer(FundingConditionsContract fundingConditionsContract, ILogger<FundingConditionsDbConsumer> logger)
+    {
+        _fundingConditionsContract = fundingConditionsContract;
+        _logger = logger;
+    }
+    public async Task Consume(ConsumeContext<FundingConditionsModel> context)
+    {
+        _logger.LogInformation($"Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
+        var item = new FundingConditionInputDto()
+        {
+            AccommodationAmount = context.Message.AccommodationAmount,
+            AccommodationDirectPay = context.Message.AccommodationDirectPay,
+            AverageMark = context.Message.AverageMark,
+            FoodAmount = context.Message.FoodAmount,
+            TuitionAmount = context.Message.TuitionAmount,
+            TotalAmount = context.Message.TotalAmount,
+            EndDate = context.Message.EndDate.ToString("G"),
+            LaptopAmount = context.Message.LaptopAmount,
+            IsFullCoverage = context.Message.IsFullCoverage,
+            StartDate = context.Message.StartDate.ToString("G"),
+            UpdatedAt = context.Message.UpdatedAt.ToString("G"),
+            ModifiedBy = context.Message.ModifiedBy,
+            
+        };
+
+        var results = await _fundingConditionsContract.AddConditionAsync(item);
+        _logger.LogInformation($"Adding data from db to smart contract in real-time for funding conditions model complete with status: {results}");
+    }
+}
+
+public class FunderDbConsumer : IConsumer<FunderModel>
+{
+    private readonly FunderContract _funderContract;
+    private readonly ILogger<FunderDbConsumer> _logger;
+
+    public FunderDbConsumer(ILogger<FunderDbConsumer> logger,  FunderContract funderContract)
+    {
+        _funderContract = funderContract;
+        _logger = logger;           
+    }
+    
+    public async Task Consume(ConsumeContext<FunderModel> context)
+    {
+        _logger.LogInformation($"Consuming funding model for Funder {context.Message.Name} from the queue: ");
+        var item = new FunderInputDto
+        {
+            IsChangeConfirmed = context.Message.IsChangeConfirmed,
+            Name = context.Message.Name,
+            ModifiedBy = context.Message.ModifiedBy,
+            PaymentDate = context.Message.PaymentDate.ToString("G"),
+            FunderContractId = context.Message.FunderContractId.ToString(),
+        };
+        
+        var results = await _funderContract.AddFunderAsync(item);
+        _logger.LogInformation($"Adding data from db to smart contract in real-time for funder model complete with status: {results}");
+    }
+}

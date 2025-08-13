@@ -77,6 +77,13 @@ namespace BlockiFinAid.Services.SmartContracts.User
         [Parameter("string", "_studentNumber", 1)]
         public string StudentNumber { get; set; }
     }
+    
+    [Function("getUserByName", typeof(GetUserByStudentNumberOutputDto))]
+    public class GetUserByNameFunction : FunctionMessage
+    {
+        [Parameter("string", "_name", 1)]
+        public string Name { get; set; }
+    }
 
     [FunctionOutput]
     public class GetAllUsersOutputDTO : IFunctionOutputDTO
@@ -111,6 +118,37 @@ namespace BlockiFinAid.Services.SmartContracts.User
 
     [FunctionOutput]
     public class GetUserByIdOutputDto : IFunctionOutputDTO
+    {
+        [Parameter("bytes16", "id", 1)]
+        public byte[] Id { get; set; }
+        [Parameter("bytes16", "institutionId", 2)]
+        public byte[] InstitutionId { get; set; }
+        [Parameter("bytes16", "funderContractId", 3)]
+        public byte[] FunderContractId { get; set; }
+        [Parameter("bytes16", "bankAccountId", 4)]
+        public byte[] BankAccountId { get; set; }
+        [Parameter("string", "studentNumber", 5)]
+        public string StudentNumber { get; set; }
+        [Parameter("string", "name", 6)]
+        public string Name { get; set; }
+        [Parameter("string", "email", 7)]
+        public string Email { get; set; }
+        [Parameter("bool", "isActive", 8)]
+        public bool IsActive { get; set; }
+        [Parameter("bool", "isChangeConfirmed", 9)]
+        public bool IsChangeConfirmed { get; set; }
+        [Parameter("string", "modifiedBy", 10)]
+        public string ModifiedBy { get; set; }
+        [Parameter("string", "updatedAt", 11)]
+        public string UpdatedAt { get; set; }
+        [Parameter("string", "courseName", 12)]
+        public string CourseName { get; set; }
+        [Parameter("string", "role", 13)]
+        public string Role { get; set; }
+    }
+
+    [FunctionOutput]
+    public class GetUserByNameOutputDto : IFunctionOutputDTO
     {
         [Parameter("bytes16", "id", 1)]
         public byte[] Id { get; set; }
@@ -340,6 +378,41 @@ namespace BlockiFinAid.Services.SmartContracts.User
             };
         }
 
+        public async Task<UserOutputDto?> GetUserByNameAsync(string name)
+        {
+            var function = new GetUserByNameFunction
+            {
+                Name = name
+            };
+            var contract = _web3.Eth.GetContractHandler(_addressSettings.UsersAddress);
+            try
+            {
+                var result =
+                    await contract
+                        .QueryDeserializingToObjectAsync<GetUserByNameFunction,
+                            GetUserByNameOutputDto>(function);
+                return new UserOutputDto
+                {
+                    Id = new Guid(result.Id),
+                    InstitutionId = new Guid(result.InstitutionId),
+                    FunderContractId = new Guid(result.FunderContractId),
+                    BankAccountId = new Guid(result.BankAccountId),
+                    StudentNumber = result.StudentNumber,
+                    Name = result.Name,
+                    Email = result.Email,
+                    IsActive = result.IsActive,
+                    IsChangeConfirmed = result.IsChangeConfirmed,
+                    ModifiedBy = result.ModifiedBy,
+                    UpdatedAt = result.UpdatedAt,
+                    CourseName = result.CourseName,
+                    Role = result.Role
+                };
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public async Task<UserOutputDto?> GetUserByStudentNumberAsync(string studentNumber)
         {
             var function = new GetUserByStudentNumberFunction

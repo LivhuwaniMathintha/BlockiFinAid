@@ -35,7 +35,6 @@ public class FunderInputDto
     public bool IsChangeConfirmed { get; set; }
     public string PaymentDate { get; set; }
     public string ModifiedBy { get; set; }
-    public string UpdatedAt { get; set; }
 }
 
 public class FunderUpdateDto
@@ -47,7 +46,7 @@ public class FunderUpdateDto
     public bool IsChangeConfirmed { get; set; }
     public string PaymentDate { get; set; }
     public string ModifiedBy { get; set; }
-    public string UpdatedAt { get; set; }
+  
 }
 
 [Function("getAllFunders", "tuple[]")]
@@ -288,7 +287,7 @@ public class FunderContract
             IsChangeConfirmed = dto.IsChangeConfirmed,
             PaymentDate = dto.PaymentDate,
             ModifiedBy = dto.ModifiedBy,
-            UpdatedAt = dto.UpdatedAt,
+            UpdatedAt = DateTime.UtcNow.ToString("G"),
             FromAddress = _nodeSettings.ContractAddress
         };
         var contract = _web3.Eth.GetContractTransactionHandler<UpdateFunderByIdFunction>();

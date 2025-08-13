@@ -7,4 +7,5 @@ public class MongoDbSettings
     public string FundersJsonFilePath { get; set; } = string.Empty;
     public string FundingJsonFilePath { get; set; } = string.Empty;
     public string FundingConditionsJsonFilePath { get; set; } = string.Empty;
+    public string PaymentsJsonFilePath { get; set; } = string.Empty;
 }

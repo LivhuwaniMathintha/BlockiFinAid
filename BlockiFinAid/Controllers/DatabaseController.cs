@@ -1,6 +1,8 @@
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Helpers;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
+using MassTransit.Initializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -121,11 +123,20 @@ namespace BlockiFinAid.Controllers
         
         #region Payment
 
+        [HttpGet("payment/grafana")]
+        public async Task<IActionResult> GetPaymentGrafana()
+        {
+            var results = await _paymentRepository.GetAllAsync();
+            var response = results.Select(x => x.ToPaymentResponse()).ToList();
+            return Ok(response);
+        }
         [HttpGet("payment")]
         public async Task<IActionResult> GetPayment()
         {
-            return Ok(await _paymentRepository.GetAllAsync());
+            var results = await _paymentRepository.GetAllAsync();
+            return Ok(results);
         }
+
 
         [HttpGet("payment/{id}")]
         public async Task<IActionResult> GetPayment(Guid id)

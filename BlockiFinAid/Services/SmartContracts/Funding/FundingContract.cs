@@ -323,7 +323,7 @@ public class FundingContract
         return fundings;
     }
 
-    public async Task<FundingOutputDto> GetFundingByStudentIdAsync(Guid studentId)
+    public async Task<FundingOutputDto?> GetFundingByStudentIdAsync(Guid studentId)
     {
         var function = new GetFundingByStudentIdFunction
         {
@@ -332,22 +332,26 @@ public class FundingContract
         var contract = _web3.Eth.GetContractHandler(_addressSettings.FundingContractAddress);
         var result = await contract.QueryDeserializingToObjectAsync<GetFundingByStudentIdFunction, GetFundingByStudentIdOutputDto>(function);
 
-        return new FundingOutputDto
+        if (result is not null)
         {
-            Id = new Guid(result.Id),
-            FunderId = new Guid(result.FunderId),
-            StudentId = new Guid(result.StudentId),
-            FunderContractConditionId = new Guid(result.FunderContractConditionId),
-            DataConfirmedById = new Guid(result.DataConfirmedById),
-            SignedOn = result.SignedOn,
-            IsActive = result.IsActive,
-            FoodBalance = result.FoodBalance,
-            TuitionBalance = result.TuitionBalance,
-            LaptopBalance = result.LaptopBalance,
-            AccommodationBalance = result.AccommodationBalance,
-            ModifiedBy = result.ModifiedBy,
-            UpdatedAt = result.UpdatedAt
-        };
+            return new FundingOutputDto
+            {
+                Id = new Guid(result.Id),
+                FunderId = new Guid(result.FunderId),
+                StudentId = new Guid(result.StudentId),
+                FunderContractConditionId = new Guid(result.FunderContractConditionId),
+                DataConfirmedById = new Guid(result.DataConfirmedById),
+                SignedOn = result.SignedOn,
+                IsActive = result.IsActive,
+                FoodBalance = result.FoodBalance,
+                TuitionBalance = result.TuitionBalance,
+                LaptopBalance = result.LaptopBalance,
+                AccommodationBalance = result.AccommodationBalance,
+                ModifiedBy = result.ModifiedBy,
+                UpdatedAt = result.UpdatedAt
+            };
+        }
+        return null;
     }
 
     public async Task<List<FundingOutputDto>> GetAllInactiveFundingsAsync()

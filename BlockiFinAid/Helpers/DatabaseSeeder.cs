@@ -1,4 +1,3 @@
-using System.Text.Json;
 using BlockiFinAid.Data.Configs;
 using BlockiFinAid.Data.DTOs;
 using BlockiFinAid.Data.Models;
@@ -6,7 +5,9 @@ using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.User;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
+
 
 namespace BlockiFinAid.Helpers;
 
@@ -17,14 +18,21 @@ public class DatabaseSeeder
     private readonly MongoDbSettings _mongoDbSettings;
     private readonly UserAccessControlService _uam;
     private readonly IBaseRepository<UserModel> _userRepo;
+    private readonly IBaseRepository<PaymentModel> _paymentRepo;
 
-    public DatabaseSeeder(ILogger<DatabaseSeeder> logger, IWebHostEnvironment env, IOptions<MongoDbSettings> settings, UserAccessControlService userAccessControlService, IBaseRepository<UserModel> user)
+    public DatabaseSeeder(ILogger<DatabaseSeeder> logger, 
+        IWebHostEnvironment env, 
+        IOptions<MongoDbSettings> settings, 
+        UserAccessControlService userAccessControlService, 
+        IBaseRepository<UserModel> user,
+        IBaseRepository<PaymentModel> payments)
     {
         _logger = logger;
         _env = env;
         _mongoDbSettings = settings.Value;
         _uam = userAccessControlService;
         _userRepo = user;
+        _paymentRepo = payments;
     }
 
     public async Task SeedDataAsync()
@@ -33,8 +41,94 @@ public class DatabaseSeeder
         
         // seed users including admin
         await SeedUsersFromJsonAsync();
+        await SeedPaymentsFromJsonAsync();
     }
 
+    private async Task SeedPaymentsFromJsonAsync()
+    {
+        _logger.LogInformation("Seeding payments has started, checking for api-admin user");
+        var existingAdminUser = await _uam.GetUserByEmail("sitoenando@outlook.com");
+
+        if (existingAdminUser != null)
+        {
+            var seedFilePath = Path.Combine(_env.ContentRootPath, _mongoDbSettings.PaymentsJsonFilePath);
+
+            if (!File.Exists(seedFilePath))
+            {
+                _logger.LogInformation($"Payment seed file not found at {seedFilePath}. Skipping payment seeding");
+                return;
+            }
+
+            try
+            {
+                _logger.LogInformation($"Reading users from Json file {seedFilePath}");
+                var jsonContent = await File.ReadAllTextAsync(seedFilePath);
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Converters = new List<JsonConverter> { new GuidSafeConverter() }
+                };
+
+                var itemsToSeed = JsonConvert.DeserializeObject<List<PaymentModel>>(jsonContent, settings);
+                
+                if (itemsToSeed == null || !itemsToSeed.Any())
+                {
+                    _logger.LogInformation($"No payment found to seed. Skipping payment seeding");
+                    return;
+                }
+
+                _logger.LogInformation($"Found {itemsToSeed.Count} payment in the JSON file. Starting to seed...");
+                foreach (var item in itemsToSeed)
+                {
+                    // check if a specific user (e.g by student number) already exists
+                    // This prevents duplicate data on every startup
+
+                    var existingPayment = await _paymentRepo.GetByIdAsync(item.Id);
+
+                    if (existingPayment is null)
+                    {
+                        _logger.LogInformation($"Payment with Id {item.Id} does not exist...");
+                        var newPayment = new PaymentModel
+                        {
+                            Id = Guid.NewGuid(),
+                            Amount = item.Amount,
+                            AccountNumber = item.AccountNumber,
+                            BankName = item.BankName,
+                            BranchCode = item.BranchCode,
+                            FulfilmentDate = item.FulfilmentDate,
+                            Funder = item.Funder,
+                            InitiationDate = item.InitiationDate,
+                            InstitutionServiceId = Guid.NewGuid(),
+                            UserIdPerformingAction = item.UserIdPerformingAction,
+                            IsFraud = item.IsFraud,
+                            ModifiedBy = item.ModifiedBy,
+                            UpdatedAt = item.UpdatedAt,
+                            PaymentType = item.PaymentType,
+                            Status = item.Status,
+                            Institution = item.Institution
+                        };
+
+                        _logger.LogInformation(
+                            $"Processing Payment for student {newPayment.StudentNumber} for {newPayment.InitiationDate}...");
+                        var results = await _paymentRepo.CreateAsync(newPayment, existingAdminUser.Id.ToString());
+
+                        if (results is not null)
+                        {
+                            _logger.LogInformation("Successfully initiated payment from seeding data");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+        else
+        {
+            _logger.LogError($"API-ADMIN with email: sitoenando@outlook.com was not found in the system. ensure that you seed users first and try again");
+        }
+    }    
     private async Task SeedUsersFromJsonAsync()
     {
         _logger.LogInformation("Seeding api admin...");
@@ -75,10 +169,7 @@ public class DatabaseSeeder
         {
             _logger.LogInformation($"Reading users from Json file {seedFilePath}");
             var jsonContent = await File.ReadAllTextAsync(seedFilePath);
-            var usersToSeed = JsonSerializer.Deserialize<List<UserAccessControlDto>>(jsonContent, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            var usersToSeed = JsonConvert.DeserializeObject<List<UserAccessControlDto>>(jsonContent);
 
             if (usersToSeed == null || !usersToSeed.Any())
             {

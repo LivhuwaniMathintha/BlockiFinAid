@@ -1,0 +1,3 @@
+username: admin
+password: admin
+check the docker compose file to see which port to run this on

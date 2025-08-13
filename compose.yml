@@ -1,4 +1,6 @@
-
+networks:
+  grafana-net:
+    driver: bridge
 services:
   rabbitmq:
     image: rabbitmq:4-management
@@ -10,4 +12,18 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     restart: unless-stopped
-    
+  
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - grafana-net
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  
+
+volumes:
+  grafana-storage:

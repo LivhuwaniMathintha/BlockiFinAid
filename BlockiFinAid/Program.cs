@@ -31,6 +31,17 @@ try
             .WriteTo.Console()
             .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day);
     }); // Use Serilog for logging
+    
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(
+            policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+    });
 
     // Add services to the container.
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -196,7 +207,7 @@ try
     {
         app.MapOpenApi();
     }
-
+    app.UseCors();
     app.UseHttpsRedirection();
     app.MapControllers();
 

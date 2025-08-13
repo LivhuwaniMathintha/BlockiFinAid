@@ -1,0 +1,180 @@
+using BlockiFinAid.Data.Models;
+using BlockiFinAid.Services.SmartContracts.BankAccount;
+using BlockiFinAid.Services.SmartContracts.Funder;
+using BlockiFinAid.Services.SmartContracts.Funding;
+using BlockiFinAid.Services.SmartContracts.Payment;
+using BlockiFinAid.Services.SmartContracts.User;
+
+namespace BlockiFinAid.Services.Messaging;
+
+public class PaymentEvent 
+{
+    public string FromAccountNumber { get; set; } = string.Empty;
+    public string FromBankName { get; set; } = string.Empty;
+    public string FromBankBranchCode { get; set; } = string.Empty;
+    public string ToAccountNumber { get; set; } = string.Empty;
+    public string ToBankName { get; set; }  = string.Empty;
+    public string ToBankBranchCode { get; set; } = string.Empty;
+    public bool IsPaid { get; set; } = false;
+    public DateTime InitiatedDateTime { get; set; } = DateTime.UtcNow;
+    public DateTime FulfillmentDate { get; set; }
+    public string Status { get; set; } = "Initiated";
+    public bool IsFraud { get; set; } = false;
+    public string PaymentType { get; set; } = "Food";
+    public decimal Amount { get; set; } = 0;
+
+}
+
+public class PaymentInitiator : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<MongoDbBackgroundPublisherService> _logger;
+
+
+    public PaymentInitiator(IServiceScopeFactory scopeFactory, ILogger<MongoDbBackgroundPublisherService> logger)
+    {
+        _scopeFactory = scopeFactory;
+        _logger = logger;
+    }
+
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("Starting to watch for payments that needs to be processed within the next 48 hours");
+        using var scope = _scopeFactory.CreateScope();
+        var funderContract = scope.ServiceProvider.GetRequiredService<FunderContract>();
+        var bankingAccountContract = scope.ServiceProvider.GetRequiredService<BankAccountContract>();
+        var usersContract = scope.ServiceProvider.GetRequiredService<UserContract>();
+        var contractConditions = scope.ServiceProvider.GetRequiredService<FundingConditionsContract>();
+        var funding = scope.ServiceProvider.GetRequiredService<FundingContract>();
+        var paymentPublisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+        var twoDaysFromNow = DateTime.UtcNow.AddDays(2);
+
+        var allFunders = await funderContract.GetAllFundersAsync();
+
+        foreach (var funder in allFunders)
+        {
+            DateTime.TryParse(funder.PaymentDate, out DateTime paymentDate);
+
+            if (paymentDate.Date == twoDaysFromNow.Date)
+            {
+                // Process this payment. Publish to rabbit MQ for processing.
+                
+                // We need to get this funder's bank Details
+                var getFunderUser = await usersContract.GetUserByNameAsync(funder.Name);
+
+                if (getFunderUser != null)
+                {
+                    var bankAccounts = await bankingAccountContract
+                        .GetByStudentNumberAsync(getFunderUser.StudentNumber);
+
+                    if(bankAccounts is not null)
+                    {
+                        var allStudents = await usersContract.GetAllUsersAsync();
+
+                        foreach (var student in allStudents.Where(x => x.FunderContractId == funder.Id))
+                        {
+                            
+                            var studentBankDetails =
+                                await bankingAccountContract.GetByStudentNumberAsync(student.StudentNumber);
+
+                            if (studentBankDetails is not null)
+                            {
+                                var fundingConditions = await contractConditions.GetConditionByIdAsync(student.Id.ToString());
+
+                                if (fundingConditions is not null)
+                                {
+                                    var fundingContract = await funding.GetFundingByStudentIdAsync(student.Id);
+
+                                    if (fundingContract is not null)
+                                    {
+                                        var paymentEvent = new PaymentEvent();
+                                        paymentEvent.FromAccountNumber = bankAccounts.BankAccountNumber;
+                                        paymentEvent.FromBankName = bankAccounts.BankName;
+                                        paymentEvent.FromBankBranchCode = bankAccounts.BankBranchCode;
+                                        paymentEvent.ToAccountNumber = studentBankDetails.BankAccountNumber;
+                                        paymentEvent.ToBankName = studentBankDetails.BankName;
+                                        paymentEvent.ToBankBranchCode = studentBankDetails.BankBranchCode;
+                                        
+                                        // for food
+
+                                        if (fundingContract.FoodBalance > 0)
+                                        {
+                                            var monthlyAmount = fundingConditions.FoodAmount / 10;
+                                            var fundingUpdateDto = new FundingUpdateDto();
+                                            if (fundingContract.FoodBalance > monthlyAmount)
+                                            {
+                                                paymentEvent.Amount = monthlyAmount;
+                                                
+                                                //publish this event
+                                                await paymentPublisher.Publish(paymentEvent);
+                                                
+                                                // subtract from the payment balance
+                                                
+                                                fundingUpdateDto.Id = fundingContract.Id.ToString();
+                                                fundingUpdateDto.IsActive = true;
+                                                fundingUpdateDto.FoodBalance = fundingContract.FoodBalance - monthlyAmount;
+                                                fundingUpdateDto.ModifiedBy = "api-admin";
+                                            }
+                                            else
+                                            {
+                                                _logger.LogError($"Payment event for {student.Name} for food could not be processed because of insufficient monthly balance of ZAR {fundingContract.FoodBalance}");
+                                            }
+                                        }
+
+                                        if (fundingContract.AccommodationBalance > 0)
+                                        {
+                                            var monthlyAmount = fundingConditions.AccommodationAmount / 10;
+                                            var fundingUpdateDto = new FundingUpdateDto();
+                                            if (fundingContract.AccommodationBalance > monthlyAmount)
+                                            {
+                                                paymentEvent.Amount = monthlyAmount;
+                                                
+                                                //publish this event
+                                                await paymentPublisher.Publish(paymentEvent);
+                                                
+                                                // subtract from the payment balance
+                                                
+                                                fundingUpdateDto.Id = fundingContract.Id.ToString();
+                                                fundingUpdateDto.IsActive = true;
+                                                fundingUpdateDto.AccommodationBalance = fundingContract.FoodBalance - monthlyAmount;
+                                                fundingUpdateDto.ModifiedBy = "api-admin";
+                                            }
+                                            else
+                                            {
+                                                _logger.LogError($"Payment event for {student.Name}  for accommodation could not be processed because of insufficient monthly balance of ZAR {fundingContract.FoodBalance}");
+                                            }
+                                        }
+                                        if (fundingContract.LaptopBalance > 0)
+                                        {
+                                            var monthlyAmount = fundingConditions.LaptopAmount / 10;
+                                            var fundingUpdateDto = new FundingUpdateDto();
+                                            if (fundingContract.LaptopBalance > monthlyAmount)
+                                            {
+                                                paymentEvent.Amount = monthlyAmount;
+                                                
+                                                //publish this event
+                                                await paymentPublisher.Publish(paymentEvent);
+                                                
+                                                // subtract from the payment balance
+                                                
+                                                fundingUpdateDto.Id = fundingContract.Id.ToString();
+                                                fundingUpdateDto.IsActive = true;
+                                                fundingUpdateDto.LaptopBalance = fundingContract.LaptopBalance - monthlyAmount;
+                                                fundingUpdateDto.ModifiedBy = "api-admin";
+                                            }
+                                            else
+                                            {
+                                                _logger.LogError($"Payment event for {student.Name}  for accommodation could not be processed because of insufficient monthly balance of ZAR {fundingContract.FoodBalance}");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

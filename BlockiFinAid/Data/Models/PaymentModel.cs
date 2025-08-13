@@ -17,6 +17,9 @@ public class PaymentModel : IModel
     
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid InstitutionServiceId { get; set; }
+
+    public string Funder { get; set; } = string.Empty;
+    public string Institution { get; set; } = string.Empty;
    
     public string BranchCode { get; set; } = string.Empty;
     public string BankName { get; set; } = string.Empty;
@@ -24,14 +27,14 @@ public class PaymentModel : IModel
     public string PaymentType { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public DateTime UpdatedAt { get; set; }
-    public DateTime InitiationDate { get; set; }
+    public DateTime InitiationDate { get; set; } 
     public DateTime FulfilmentDate { get; set; }
     public string ModifiedBy { get; set; } = string.Empty;
     [BsonIgnore]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserIdPerformingAction { get; set; }
-    [BsonIgnore]
     public string StudentNumber { get; set; }
+    public  bool IsFraud { get; set; }
 }
 
 public class FraudDataModel : PaymentModel
