@@ -19,13 +19,15 @@ public class DatabaseSeeder
     private readonly UserAccessControlService _uam;
     private readonly IBaseRepository<UserModel> _userRepo;
     private readonly IBaseRepository<PaymentModel> _paymentRepo;
+    private readonly IBaseRepository<FunderModel> _funders;
 
     public DatabaseSeeder(ILogger<DatabaseSeeder> logger, 
         IWebHostEnvironment env, 
         IOptions<MongoDbSettings> settings, 
         UserAccessControlService userAccessControlService, 
         IBaseRepository<UserModel> user,
-        IBaseRepository<PaymentModel> payments)
+        IBaseRepository<PaymentModel> payments, 
+        IBaseRepository<FunderModel> funders)
     {
         _logger = logger;
         _env = env;
@@ -33,6 +35,7 @@ public class DatabaseSeeder
         _uam = userAccessControlService;
         _userRepo = user;
         _paymentRepo = payments;
+        _funders = funders;
     }
 
     public async Task SeedDataAsync()
@@ -42,8 +45,86 @@ public class DatabaseSeeder
         // seed users including admin
         await SeedUsersFromJsonAsync();
         await SeedPaymentsFromJsonAsync();
+        await SeedFundersAsync();
     }
 
+    private async Task SeedFundersAsync()
+    {
+         _logger.LogInformation("Seeding funders has started, checking for api-admin user");
+        var existingAdminUser = await _uam.GetUserByEmail("sitoenando@outlook.com");
+
+        if (existingAdminUser != null)
+        {
+            var seedFilePath = Path.Combine(_env.ContentRootPath, _mongoDbSettings.FundersJsonFilePath);
+
+            if (!File.Exists(seedFilePath))
+            {
+                _logger.LogInformation($"Funders seed file not found at {seedFilePath}. Skipping funders seeding");
+                return;
+            }
+
+            try
+            {
+                _logger.LogInformation($"Reading funders from {seedFilePath}");
+                var jsonContent = await File.ReadAllTextAsync(seedFilePath);
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Converters = new List<JsonConverter> { new GuidSafeConverter() }
+                };
+
+                var itemsToSeed = JsonConvert.DeserializeObject<List<FunderModel>>(jsonContent, settings);
+                
+                if (itemsToSeed == null || !itemsToSeed.Any())
+                {
+                    _logger.LogInformation($"No funder found to seed. Skipping funder seeding");
+                    return;
+                }
+
+                _logger.LogInformation($"Found {itemsToSeed.Count} items in the JSON file. Starting to seed...");
+                foreach (var item in itemsToSeed)
+                {
+                    // check if a specific user (e.g by student number) already exists
+                    // This prevents duplicate data on every startup
+
+                    var existingFunders = await _funders.GetAllAsync();
+                    var existingFunder = existingFunders.FirstOrDefault(x => x.Name == item.Name);
+                    if (existingFunder is null)
+                    {
+                        _logger.LogInformation($"Payment with Id {item.Name} does not exist...");
+                        var newFunder = new FunderModel
+                        {
+                            Id = item.Id,
+                            PaymentDate = item.PaymentDate,
+                            Name = item.Name,
+                            IsChangeConfirmed = true,
+                            UserIdPerformingAction = item.UserIdPerformingAction,
+                            ModifiedBy = item.ModifiedBy,
+                            UpdatedAt = item.UpdatedAt,
+                            IsActive = true
+                        };
+
+                        _logger.LogInformation(
+                            $"Processing Funder {newFunder.Name}...");
+                        var results = await _funders.CreateAsync(newFunder, existingAdminUser.Id.ToString());
+
+                        if (results is not null)
+                        {
+                            _logger.LogInformation($"Successfully added {newFunder.Name} from seeding data");
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
+        }
+        else
+        {
+            _logger.LogError($"API-ADMIN with email: sitoenando@outlook.com was not found in the system. ensure that you seed users first and try again");
+        }
+    }
     private async Task SeedPaymentsFromJsonAsync()
     {
         _logger.LogInformation("Seeding payments has started, checking for api-admin user");

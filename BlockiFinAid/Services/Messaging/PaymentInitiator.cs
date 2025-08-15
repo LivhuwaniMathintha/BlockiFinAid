@@ -48,10 +48,11 @@ public class PaymentInitiator : BackgroundService
         var contractConditions = scope.ServiceProvider.GetRequiredService<FundingConditionsContract>();
         var funding = scope.ServiceProvider.GetRequiredService<FundingContract>();
         var paymentPublisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+        var paymentContract = scope.ServiceProvider.GetRequiredService<PaymentContract>();
         var twoDaysFromNow = DateTime.UtcNow.AddDays(2);
 
         var allFunders = await funderContract.GetAllFundersAsync();
-
+        _logger.LogInformation("Found {count} Funders in the smart contract", allFunders.Count());
         foreach (var funder in allFunders)
         {
             DateTime.TryParse(funder.PaymentDate, out DateTime paymentDate);
@@ -88,14 +89,16 @@ public class PaymentInitiator : BackgroundService
 
                                     if (fundingContract is not null)
                                     {
-                                        var paymentEvent = new PaymentEvent();
-                                        paymentEvent.FromAccountNumber = bankAccounts.BankAccountNumber;
-                                        paymentEvent.FromBankName = bankAccounts.BankName;
-                                        paymentEvent.FromBankBranchCode = bankAccounts.BankBranchCode;
-                                        paymentEvent.ToAccountNumber = studentBankDetails.BankAccountNumber;
-                                        paymentEvent.ToBankName = studentBankDetails.BankName;
-                                        paymentEvent.ToBankBranchCode = studentBankDetails.BankBranchCode;
-                                        
+                                        var paymentEvent = new PaymentEvent
+                                        {
+                                            FromAccountNumber = bankAccounts.BankAccountNumber,
+                                            FromBankName = bankAccounts.BankName,
+                                            FromBankBranchCode = bankAccounts.BankBranchCode,
+                                            ToAccountNumber = studentBankDetails.BankAccountNumber,
+                                            ToBankName = studentBankDetails.BankName,
+                                            ToBankBranchCode = studentBankDetails.BankBranchCode
+                                        };
+
                                         // for food
 
                                         if (fundingContract.FoodBalance > 0)
@@ -108,13 +111,29 @@ public class PaymentInitiator : BackgroundService
                                                 
                                                 //publish this event
                                                 await paymentPublisher.Publish(paymentEvent);
-                                                
+                                                await paymentContract.AddPaymentAsync(new PaymentInputDto()
+                                                {
+                                                    AccountNumber = paymentEvent.ToAccountNumber,
+                                                    Amount = monthlyAmount,
+                                                    BankName = paymentEvent.ToBankName,
+                                                    BranchCode = paymentEvent.ToBankBranchCode,
+                                                    FulfilmentDate = "",
+                                                    InitiationDate = paymentEvent.InitiatedDateTime.ToString("G"),
+                                                    IsFraud = false,
+                                                    ModifiedBy = "api-admin",
+                                                    PaymentType = paymentEvent.PaymentType,
+                                                });
                                                 // subtract from the payment balance
                                                 
                                                 fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                 fundingUpdateDto.IsActive = true;
                                                 fundingUpdateDto.FoodBalance = fundingContract.FoodBalance - monthlyAmount;
                                                 fundingUpdateDto.ModifiedBy = "api-admin";
+                                                
+                                                // update the funding
+                                                await funding.UpdateFundingAsync(fundingUpdateDto);
+                                                
+                                                
                                             }
                                             else
                                             {
@@ -131,14 +150,28 @@ public class PaymentInitiator : BackgroundService
                                                 paymentEvent.Amount = monthlyAmount;
                                                 
                                                 //publish this event
+                                                paymentEvent.PaymentType = "Accommodation";
                                                 await paymentPublisher.Publish(paymentEvent);
-                                                
+                                                await paymentContract.AddPaymentAsync(new PaymentInputDto()
+                                                {
+                                                    AccountNumber = paymentEvent.ToAccountNumber,
+                                                    Amount = monthlyAmount,
+                                                    BankName = paymentEvent.ToBankName,
+                                                    BranchCode = paymentEvent.ToBankBranchCode,
+                                                    FulfilmentDate = "",
+                                                    InitiationDate = paymentEvent.InitiatedDateTime.ToString("G"),
+                                                    IsFraud = false,
+                                                    ModifiedBy = "api-admin",
+                                                    PaymentType = paymentEvent.PaymentType,
+                                                });
                                                 // subtract from the payment balance
                                                 
                                                 fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                 fundingUpdateDto.IsActive = true;
                                                 fundingUpdateDto.AccommodationBalance = fundingContract.FoodBalance - monthlyAmount;
                                                 fundingUpdateDto.ModifiedBy = "api-admin";
+                                                // update the funding
+                                                await funding.UpdateFundingAsync(fundingUpdateDto);
                                             }
                                             else
                                             {
@@ -154,14 +187,28 @@ public class PaymentInitiator : BackgroundService
                                                 paymentEvent.Amount = monthlyAmount;
                                                 
                                                 //publish this event
+                                                paymentEvent.PaymentType = "Laptop/Book";
                                                 await paymentPublisher.Publish(paymentEvent);
-                                                
+                                                await paymentContract.AddPaymentAsync(new PaymentInputDto()
+                                                {
+                                                    AccountNumber = paymentEvent.ToAccountNumber,
+                                                    Amount = monthlyAmount,
+                                                    BankName = paymentEvent.ToBankName,
+                                                    BranchCode = paymentEvent.ToBankBranchCode,
+                                                    FulfilmentDate = "",
+                                                    InitiationDate = paymentEvent.InitiatedDateTime.ToString("G"),
+                                                    IsFraud = false,
+                                                    ModifiedBy = "api-admin",
+                                                    PaymentType = paymentEvent.PaymentType,
+                                                });
                                                 // subtract from the payment balance
                                                 
                                                 fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                 fundingUpdateDto.IsActive = true;
                                                 fundingUpdateDto.LaptopBalance = fundingContract.LaptopBalance - monthlyAmount;
                                                 fundingUpdateDto.ModifiedBy = "api-admin";
+                                                // update the funding
+                                                await funding.UpdateFundingAsync(fundingUpdateDto);
                                             }
                                             else
                                             {

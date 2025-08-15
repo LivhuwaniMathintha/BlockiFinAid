@@ -7,6 +7,7 @@ using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
+using BlockiFinAid.Services.SmartContracts.Payment;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
@@ -165,8 +166,13 @@ try
     builder.Services.AddScoped<BankAccountContract>();
     builder.Services.AddScoped<FundingContract>();
     builder.Services.AddScoped<FundingConditionsContract>();
+    builder.Services.AddScoped<PaymentContract>();
     builder.Services.AddScoped<IPublisher, MassTransitPublisher>();
     builder.Services.AddScoped<UserDbConsumer>();
+    builder.Services.AddScoped<BankAccountDbConsumer>();
+    builder.Services.AddScoped<FundingDbConsumer>();
+    builder.Services.AddScoped<FundingConditionsDbConsumer>();
+    builder.Services.AddScoped<PaymentEventConsumer>();
     
     builder.Services.AddScoped<BankAccountDbConsumer>(sp =>
     {
@@ -184,6 +190,10 @@ try
         busConfigurator.SetKebabCaseEndpointNameFormatter();
         busConfigurator.AddConsumer<UserDbConsumer>();
         busConfigurator.AddConsumer<BankAccountDbConsumer>();
+        busConfigurator.AddConsumer<PaymentEventConsumer>();
+        busConfigurator.AddConsumer<FundingDbConsumer>();
+        busConfigurator.AddConsumer<FundingConditionsDbConsumer>();
+        busConfigurator.AddConsumer<FunderDbConsumer>();
         busConfigurator.UsingRabbitMq((context, configurator) =>
         {
             configurator.Host(new Uri(builder.Configuration["RabbitMQ:Host"]!), h =>
@@ -199,6 +209,7 @@ try
     // Add a background service for mongo db publishing to rabbit mq
 
     builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
+    builder.Services.AddHostedService<PaymentInitiator>();
     builder.Services.AddControllers();
 
     var app = builder.Build();

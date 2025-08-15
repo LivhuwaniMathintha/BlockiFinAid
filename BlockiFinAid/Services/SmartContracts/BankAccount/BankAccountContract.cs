@@ -1,3 +1,5 @@
+using BlockiFinAid.Data.Responses;
+
 namespace BlockiFinAid.Services.SmartContracts.BankAccount;
 
 using System;
@@ -192,7 +194,7 @@ public class BankAccountContract
         _web3 = new Web3(account, _nodeSettings.RpcUrl);
     }
 
-    public async Task<string> AddBankAccountAsync(BankAccountInputDto dto)
+    public async Task<SmartContractResponse<string>> AddBankAccountAsync(BankAccountInputDto dto)
     {
         var function = new AddBankAccountFunction
         {
@@ -208,6 +210,13 @@ public class BankAccountContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddBankAccountFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.BankAccountAddress, function);
+        var transferFunctionAbi = ABITypedRegistry.Get:'FunctionABI<AddBankAccountFunction>();
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = contract.
+        }
         var txHash = receipt?.TransactionHash;
         if (txHash == null)
         {
