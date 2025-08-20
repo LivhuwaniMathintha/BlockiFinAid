@@ -20,6 +20,7 @@
         <PackageReference Include="Nethereum.Generators.Net" Version="4.29.0" />
         <PackageReference Include="Nethereum.Hex" Version="5.0.0" />
         <PackageReference Include="Nethereum.RPC" Version="5.0.0" />
+        <PackageReference Include="Nethereum.Util" Version="5.0.0" />
         <PackageReference Include="Nethereum.Web3" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="SendGrid" Version="9.29.3" />

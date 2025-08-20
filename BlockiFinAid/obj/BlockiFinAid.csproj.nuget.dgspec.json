@@ -92,6 +92,10 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
+            "Nethereum.Util": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
             "Nethereum.Web3": {
               "target": "Package",
               "version": "[5.0.0, )"

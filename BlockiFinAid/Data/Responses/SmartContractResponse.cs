@@ -8,15 +8,15 @@ public class SmartContractResponse<T>
 {
     public OperationType Operation { get; set; }
     public DateTime BlockTimeStamp { get; set; } = DateTime.UtcNow;
-    public string FunctionName { get; set; } = string.Empty;
     public string ContractAddress { get; set; } = string.Empty;
     public string ByteCode { get; set; } = string.Empty;
-    public string FunctionSigHashes { get; set; } = string.Empty;
+    public List<string> FunctionSigHashes { get; set; } = new List<string>();
     public bool IsErc20 { get; set; } = false;
     public bool IsErc721 { get; set; } = false;
     public HexBigInteger? BlockNumber { get; set; }
     public string BlockHash { get; set; } = string.Empty;
     public T? Data { get; set; }
+    public bool IsSuccess { get; set; } = false;
 }
 
 public enum OperationType

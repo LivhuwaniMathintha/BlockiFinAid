@@ -181,16 +181,18 @@ public class PaymentContract
     private readonly SmartContractAddressSettings _addressSettings;
     private readonly Web3 _web3;
     private readonly EthereumNodeSettings _nodeSettings;
+    private readonly SmartContractByteCodes _byteCodes;
 
-    public PaymentContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings)
+    public PaymentContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings, IOptions<SmartContractByteCodes> byteCodes)
     {
         _nodeSettings = nodeSettings.Value;
         _addressSettings = addressSettings.Value;
         var account = new Account(_nodeSettings.PrivateKey);
         _web3 = new Web3(account, _nodeSettings.RpcUrl);
+        _byteCodes = byteCodes.Value;
     }
 
-    public async Task<ServiceResponse<string>> AddPaymentAsync(PaymentInputDto dto)
+    public async Task<SmartContractResponse<string>> AddPaymentAsync(PaymentInputDto dto)
     {
         var function = new AddPaymentFunction
         {
@@ -211,25 +213,26 @@ public class PaymentContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddPaymentFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
-        {
-            return new ServiceResponse<string>
-            {
-                Data = null,
-                Error = new List<string>(){$"An error occured: {txHash?.ToString() }"}
-            };
-        }
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Payment");
 
-        return new ServiceResponse<string>
+        if (receipt.HasErrors().Value)
         {
-            Data = txHash.ToString(),
-            Error = new List<string>(),
+            return new SmartContractResponse<string>();
+        }
+        
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
             IsSuccess = true
         };
     }
 
-    public async Task<ServiceResponse<string>> UpdatePaymentByIdAsync(PaymentUpdateDto dto)
+    public async Task<SmartContractResponse<string>> UpdatePaymentByIdAsync(PaymentUpdateDto dto)
     {
         var function = new UpdatePaymentByIdFunction
         {
@@ -242,20 +245,21 @@ public class PaymentContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<UpdatePaymentByIdFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
-        {
-            return new ServiceResponse<string>
-            {
-                Data = null,
-                Error = new List<string>(){$"An error occured: {receipt?.HasErrors()?.ToString()}"}
-            };
-        }
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Funding");
 
-        return new ServiceResponse<string>
+        if (receipt.HasErrors().Value)
         {
-            Data = txHash.ToString(),
-            Error = new List<string>(),
+            return new SmartContractResponse<string>();
+        }
+        
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
             IsSuccess = true
         };
     }

@@ -1,3 +1,5 @@
+using BlockiFinAid.Data.Responses;
+
 namespace BlockiFinAid.Services.SmartContracts.Funding;
 
 using System;
@@ -213,16 +215,18 @@ public class FundingContract
     private readonly SmartContractAddressSettings _addressSettings;
     private readonly Web3 _web3;
     private readonly EthereumNodeSettings _nodeSettings;
+    private readonly SmartContractByteCodes _byteCodes;
 
-    public FundingContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings)
+    public FundingContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings, IOptions<SmartContractByteCodes> byteCodes)
     {
         _nodeSettings = nodeSettings.Value;
         _addressSettings = addressSettings.Value;
         var account = new Account(_nodeSettings.PrivateKey);
         _web3 = new Web3(account, _nodeSettings.RpcUrl);
+        _byteCodes = byteCodes.Value;
     }
 
-    public async Task<string> AddFundingAsync(FundingInputDto dto)
+    public async Task<SmartContractResponse<string>> AddFundingAsync(FundingInputDto dto)
     {
         var function = new AddFundingFunction
         {
@@ -243,15 +247,26 @@ public class FundingContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddFundingFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FundingContractAddress, function);
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Funding");
+
+        if (receipt.HasErrors().Value)
         {
-            return receipt?.HasErrors()?.ToString();
+            return new SmartContractResponse<string>();
         }
-        return txHash.ToString();
+        
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
+            IsSuccess = true
+        };
     }
 
-    public async Task<string> UpdateFundingAsync(FundingUpdateDto dto)
+    public async Task<SmartContractResponse<string>> UpdateFundingAsync(FundingUpdateDto dto)
     {
         var function = new UpdateFundingFunction
         {
@@ -267,15 +282,26 @@ public class FundingContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<UpdateFundingFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FundingContractAddress, function);
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Funding");
+
+        if (receipt.HasErrors().Value)
         {
-            return receipt?.HasErrors()?.ToString();
+            return new SmartContractResponse<string>();
         }
-        return txHash.ToString();
+        
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
+            IsSuccess = true
+        };
     }
 
-    public async Task<string> UpdateFundingDataConfirmedByIdAsync(FundingDataConfirmedByIdUpdateDto dto)
+    public async Task<SmartContractResponse<string>> UpdateFundingDataConfirmedByIdAsync(FundingDataConfirmedByIdUpdateDto dto)
     {
         var function = new UpdateFundingDataConfirmedByIdFunction
         {
@@ -287,12 +313,23 @@ public class FundingContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<UpdateFundingDataConfirmedByIdFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FundingContractAddress, function);
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Funding");
+
+        if (receipt.HasErrors().Value)
         {
-            return receipt?.HasErrors()?.ToString();
+            return new SmartContractResponse<string>();
         }
-        return txHash.ToString();
+        
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
+            IsSuccess = true
+        };
     }
 
     public async Task<List<FundingOutputDto>> GetAllFundingsAsync()

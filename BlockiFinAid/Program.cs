@@ -51,7 +51,10 @@ try
     // map the appsettings to my classes
     var ethereumNodeSettings = builder.Configuration.GetSection("EthereumNodeSettings");
     builder.Services.Configure<EthereumNodeSettings>(ethereumNodeSettings);
-
+    
+    var byteCodeSettings = builder.Configuration.GetSection("SmartContractByteCodes");
+    builder.Services.Configure<SmartContractByteCodes>(byteCodeSettings);
+    
     var sendGridSettings = builder.Configuration.GetSection("SendGridSettings");
     builder.Services.Configure<SendGridSettings>(sendGridSettings);
     

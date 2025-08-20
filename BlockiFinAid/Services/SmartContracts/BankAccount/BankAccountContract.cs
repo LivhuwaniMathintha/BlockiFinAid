@@ -185,13 +185,15 @@ public class BankAccountContract
     private readonly SmartContractAddressSettings _addressSettings;
     private readonly Web3 _web3;
     private readonly EthereumNodeSettings _nodeSettings;
+    private readonly SmartContractByteCodes _byteCodes;
 
-    public BankAccountContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings)
+    public BankAccountContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings, IOptions<SmartContractByteCodes> byteCodes)
     {
         _nodeSettings = nodeSettings.Value;
         _addressSettings = addressSettings.Value;
         var account = new Account(_nodeSettings.PrivateKey);
         _web3 = new Web3(account, _nodeSettings.RpcUrl);
+        _byteCodes = byteCodes.Value;
     }
 
     public async Task<SmartContractResponse<string>> AddBankAccountAsync(BankAccountInputDto dto)
@@ -210,19 +212,23 @@ public class BankAccountContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddBankAccountFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.BankAccountAddress, function);
-        var transferFunctionAbi = ABITypedRegistry.Get:'FunctionABI<AddBankAccountFunction>();
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("BankAccount");
+
+        if (receipt.HasErrors().Value)
+        {
+            return new SmartContractResponse<string>();
+        }
+        
         return new SmartContractResponse<string>()
         {
             BlockHash = receipt.BlockHash,
             BlockNumber = receipt.BlockNumber,
-            ByteCode = contract.
-        }
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
-        {
-            return receipt?.HasErrors()?.ToString();
-        }
-        return txHash.ToString();
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
+            IsSuccess = true
+        };
     }
 
     public async Task<BankAccountOutputDto> GetByBankAccountNumberAsync(string bankAccountNumber)
@@ -247,7 +253,7 @@ public class BankAccountContract
         };
     }
 
-    public async Task<string> UpdateBankAccountByNumberAsync(BankAccountUpdateDto dto)
+    public async Task<SmartContractResponse<string>> UpdateBankAccountByNumberAsync(BankAccountUpdateDto dto)
     {
         var function = new UpdateBankAccountByNumberFunction
         {
@@ -262,12 +268,23 @@ public class BankAccountContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<UpdateBankAccountByNumberFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.BankAccountAddress, function);
-        var txHash = receipt?.TransactionHash;
-        if (txHash == null)
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("BankAccount");
+
+        if (receipt.HasErrors().Value)
         {
-            return receipt?.HasErrors()?.ToString();
+            return new SmartContractResponse<string>();
         }
-        return txHash.ToString();
+        
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
+            IsSuccess = true
+        };
     }
 
     public async Task<string> StudentDataChangeConfirmationAsync(BankAccountConfirmationDto dto)

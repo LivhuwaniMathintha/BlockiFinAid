@@ -283,3 +283,5 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/runtimes/win-x64/native/msvcp140.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/runtimes/win-x64/native/vcruntime140.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/runtimes/win-x64/native/vcruntime140_1.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/payment.json
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/funders.json

@@ -12091,6 +12091,7 @@
       "Nethereum.Generators.Net >= 4.29.0",
       "Nethereum.Hex >= 5.0.0",
       "Nethereum.RPC >= 5.0.0",
+      "Nethereum.Util >= 5.0.0",
       "Nethereum.Web3 >= 5.0.0",
       "Newtonsoft.Json >= 13.0.3",
       "SendGrid >= 9.29.3",
@@ -12188,6 +12189,10 @@
             "version": "[5.0.0, )"
           },
           "Nethereum.RPC": {
+            "target": "Package",
+            "version": "[5.0.0, )"
+          },
+          "Nethereum.Util": {
             "target": "Package",
             "version": "[5.0.0, )"
           },

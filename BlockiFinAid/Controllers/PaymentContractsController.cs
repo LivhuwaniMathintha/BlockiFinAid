@@ -23,7 +23,7 @@ namespace BlockiFinAid.Controllers
                 var result = await _paymentContract.AddPaymentAsync(request);
                 if (result.IsSuccess)
                     return Ok(result.Data);
-                return BadRequest(result.Error);
+                return BadRequest("Could not add payment");
             }
             catch (Exception ex)
             {
@@ -55,7 +55,7 @@ namespace BlockiFinAid.Controllers
                 var result = await _paymentContract.UpdatePaymentByIdAsync(request);
                 if (result.IsSuccess)
                     return Ok(result.Data);
-                return BadRequest(result.Error);
+                return BadRequest("Could not update payment");
             }
             catch (Exception ex)
             {
