@@ -164,6 +164,6 @@ public class FunderDbConsumer : IConsumer<FunderModel>
         };
         
         var results = await _funderContract.AddFunderAsync(item);
-        _logger.LogInformation($"Adding data from db to smart contract in real-time for funder model complete with status: {results}");
+        _logger.LogInformation($"Adding data from db to smart contract in real-time for funder model complete with status: {results.BlockHash}");
     }
 }

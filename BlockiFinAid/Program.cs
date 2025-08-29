@@ -2,6 +2,7 @@ using BlockiFinAid.Data.Configs;
 using BlockiFinAid.Data.Models;
 using BlockiFinAid.Helpers;
 using BlockiFinAid.Services.AccessControl;
+using BlockiFinAid.Services.MachineLearning;
 using BlockiFinAid.Services.Messaging;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
@@ -13,6 +14,8 @@ using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Org.BouncyCastle.Asn1.Cms;
+using Refit;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -163,7 +166,6 @@ try
     
     var smartContractAddressSettings = builder.Configuration.GetSection("SmartContractAddressSettings");
     builder.Services.Configure<SmartContractAddressSettings>(smartContractAddressSettings);
-    builder.Services.AddControllers();
     builder.Services.AddScoped<FunderContract>();
     builder.Services.AddScoped<UserContract>();
     builder.Services.AddScoped<BankAccountContract>();
@@ -184,8 +186,7 @@ try
         return new BankAccountDbConsumer(logger, bankAccountContract);
     });
 
-    builder.Services.AddScoped<DatabaseSeeder>();
-    
+   
     // configure mass transit rabbit mq here
 
     builder.Services.AddMassTransit(busConfigurator =>
@@ -210,9 +211,14 @@ try
     });
 
     // Add a background service for mongo db publishing to rabbit mq
-
+    builder.Services.AddScoped<DatabaseSeeder>();
     builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
     builder.Services.AddHostedService<PaymentInitiator>();
+    builder.Services.AddRefitClient<IMachineLearningAPI>().ConfigureHttpClient(configure =>
+    {
+        configure.BaseAddress = new Uri(builder.Configuration["ApiBaseUrls:MachineLearning"] ?? string.Empty);
+    });
+    
     builder.Services.AddControllers();
 
     var app = builder.Build();
@@ -233,6 +239,7 @@ try
         // var settings = scope.ServiceProvider.GetRequiredService<IOptions<MongoDbSettings>>();
         //
         var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
+        await Task.Delay(TimeSpan.FromSeconds(20));
         await seeder.SeedDataAsync();
     }
 

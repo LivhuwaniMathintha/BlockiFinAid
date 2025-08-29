@@ -23,6 +23,8 @@
         <PackageReference Include="Nethereum.Util" Version="5.0.0" />
         <PackageReference Include="Nethereum.Web3" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Refit" Version="8.0.0" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
         <PackageReference Include="SendGrid" Version="9.29.3" />
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />

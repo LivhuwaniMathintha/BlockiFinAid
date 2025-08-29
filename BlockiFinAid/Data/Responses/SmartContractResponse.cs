@@ -6,7 +6,6 @@ namespace BlockiFinAid.Data.Responses;
 
 public class SmartContractResponse<T>
 {
-    public OperationType Operation { get; set; }
     public DateTime BlockTimeStamp { get; set; } = DateTime.UtcNow;
     public string ContractAddress { get; set; } = string.Empty;
     public string ByteCode { get; set; } = string.Empty;

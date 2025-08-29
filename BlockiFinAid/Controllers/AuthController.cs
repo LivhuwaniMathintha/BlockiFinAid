@@ -26,9 +26,18 @@ namespace BlockiFinAid.Controllers
 
             if (results is not null)
             {
-                return Ok(results);
+                return Ok(new LoginResponse
+                {
+                    Role = results.Role,
+                //    Username = results.Username,
+                    IsLoginSuccessful = true
+                });
             }
-            return Unauthorized();
+            return Unauthorized(new LoginResponse
+            {
+                Role = "",
+                IsLoginSuccessful = false
+            });
         }
 
         [HttpPost("register")]

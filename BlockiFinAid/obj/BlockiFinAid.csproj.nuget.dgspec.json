@@ -104,6 +104,14 @@
               "target": "Package",
               "version": "[13.0.3, )"
             },
+            "Refit": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Refit.HttpClientFactory": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "SendGrid": {
               "target": "Package",
               "version": "[9.29.3, )"

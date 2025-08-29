@@ -24,6 +24,12 @@ public class UserAccessControl : IModel
     public string PasswordHash { get; set; } = string.Empty;
 }
 
+public class LoginResponse
+{
+    public bool IsSuccess { get; set; }= false;
+    public string Role { get; set; } = string.Empty;
+}
+
 public class AccessControlPermissions : IModel
 {
     [BsonId]

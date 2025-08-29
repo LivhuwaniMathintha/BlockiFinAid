@@ -1,4 +1,5 @@
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Data.Responses;
 using BlockiFinAid.Helpers;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
@@ -19,10 +20,12 @@ namespace BlockiFinAid.Controllers
         private readonly IBaseRepository<UserModel> _userRepository;
         private readonly ILogger<DatabaseController> _logger;
         private readonly UserAccessControlService _uam;
+        private readonly IBaseRepository<FunderModel> _funderRepository;
 
         public DatabaseController(IBaseRepository<BankAccountModel> bankAccountRepository, 
             IBaseRepository<PaymentModel> paymentRepository, 
             IBaseRepository<FundingModel> fundingRepository,
+            IBaseRepository<FunderModel> funderRepository,
             IBaseRepository<FundingConditionsModel> fundingConditionsRepository,
             IBaseRepository<UserModel> userRepository, ILogger<DatabaseController> logger, 
             UserAccessControlService userAccessControlService)
@@ -34,6 +37,7 @@ namespace BlockiFinAid.Controllers
             _userRepository = userRepository;
             _logger = logger;
             _uam = userAccessControlService;
+            _funderRepository = funderRepository;
         }
 
         #region BankAccount
@@ -102,8 +106,9 @@ namespace BlockiFinAid.Controllers
             {
                 return BadRequest(ModelState);
             }
+            var actionUser = await _uam.GetUserPerformingActionById(model.UserIdPerformingAction);
             
-            var actionUser = await _userRepository.GetByIdAsync(model.UserIdPerformingAction);
+            //var actionUser = await _userRepository.GetByIdAsync(model.UserIdPerformingAction);
 
             if (actionUser == null)
             {
@@ -214,7 +219,45 @@ namespace BlockiFinAid.Controllers
         }
         
         #endregion
+
+        #region Funder
+
+        [HttpGet("funder")]
+        public async Task<IActionResult> GetFunder()
+        {
+            var results = await _funderRepository.GetAllAsync();
+            return Ok(results);
+        }
         
+        [HttpPost("funder")]
+        public async Task<IActionResult> PostFunder([FromBody] FunderModel model)
+        {
+            var actionUser = await _uam.GetUserPerformingActionById(model.UserIdPerformingAction);
+
+            if (actionUser == null)
+            {
+                return Unauthorized();
+            }
+            var allFunders = await _funderRepository.GetAllAsync();
+            
+            var isFunderExists = allFunders.Any(x => x.Name == model.Name || x.Id == model.Id);
+            if (isFunderExists) 
+                return Conflict("Funder already exists");
+    
+            try
+            {
+                var response = await _funderRepository.CreateAsync(model, model.UserIdPerformingAction.ToString());
+                if(response?.GetType() == typeof(FunderModel))
+                    return StatusCode(201, response);
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+            
+        }
+        #endregion
         #region Funding
 
         [HttpGet("funding")]
@@ -242,7 +285,11 @@ namespace BlockiFinAid.Controllers
             try
             {
                 var result = await _fundingRepository.CreateAsync(model, user);
-                return StatusCode(201, result);
+                if(result is not null)
+                {
+                    return StatusCode(201, result);
+                }
+                return StatusCode(500, result);
             }
             catch (Exception ex)
             {

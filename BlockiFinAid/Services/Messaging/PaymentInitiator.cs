@@ -60,7 +60,7 @@ public class PaymentInitiator : BackgroundService
             if (paymentDate.Date == twoDaysFromNow.Date)
             {
                 // Process this payment. Publish to rabbit MQ for processing.
-                
+                _logger.LogInformation($"This funder has a payment date in the next 48 hours: {twoDaysFromNow}. Initiating processing");
                 // We need to get this funder's bank Details
                 var getFunderUser = await usersContract.GetUserByNameAsync(funder.Name);
 
@@ -111,7 +111,7 @@ public class PaymentInitiator : BackgroundService
                                                 
                                                 //publish this event
                                                 await paymentPublisher.Publish(paymentEvent);
-                                                await paymentContract.AddPaymentAsync(new PaymentInputDto()
+                                                var results = await paymentContract.AddPaymentAsync(new PaymentInputDto()
                                                 {
                                                     AccountNumber = paymentEvent.ToAccountNumber,
                                                     Amount = monthlyAmount,
@@ -124,6 +124,7 @@ public class PaymentInitiator : BackgroundService
                                                     PaymentType = paymentEvent.PaymentType,
                                                 });
                                                 // subtract from the payment balance
+                                                _logger.LogInformation($"Payment has been added to the smart contract in block: {results.BlockNumber}, function sighashes: {results.FunctionSigHashes}, timestamp: {results.BlockHash} on address: {results.ContractAddress}");
                                                 
                                                 fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                 fundingUpdateDto.IsActive = true;
@@ -152,7 +153,7 @@ public class PaymentInitiator : BackgroundService
                                                 //publish this event
                                                 paymentEvent.PaymentType = "Accommodation";
                                                 await paymentPublisher.Publish(paymentEvent);
-                                                await paymentContract.AddPaymentAsync(new PaymentInputDto()
+                                                var results = await paymentContract.AddPaymentAsync(new PaymentInputDto()
                                                 {
                                                     AccountNumber = paymentEvent.ToAccountNumber,
                                                     Amount = monthlyAmount,
@@ -165,6 +166,7 @@ public class PaymentInitiator : BackgroundService
                                                     PaymentType = paymentEvent.PaymentType,
                                                 });
                                                 // subtract from the payment balance
+                                                _logger.LogInformation($"Payment has been added to the smart contract in block: {results.BlockNumber}, function sighashes: {results.FunctionSigHashes}, timestamp: {results.BlockHash} on address: {results.ContractAddress}");
                                                 
                                                 fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                 fundingUpdateDto.IsActive = true;
@@ -189,7 +191,7 @@ public class PaymentInitiator : BackgroundService
                                                 //publish this event
                                                 paymentEvent.PaymentType = "Laptop/Book";
                                                 await paymentPublisher.Publish(paymentEvent);
-                                                await paymentContract.AddPaymentAsync(new PaymentInputDto()
+                                                var results = await paymentContract.AddPaymentAsync(new PaymentInputDto()
                                                 {
                                                     AccountNumber = paymentEvent.ToAccountNumber,
                                                     Amount = monthlyAmount,
@@ -202,7 +204,7 @@ public class PaymentInitiator : BackgroundService
                                                     PaymentType = paymentEvent.PaymentType,
                                                 });
                                                 // subtract from the payment balance
-                                                
+                                                _logger.LogInformation($"Payment has been added to the smart contract in block: {results.BlockNumber}, function sighashes: {results.FunctionSigHashes}, timestamp: {results.BlockHash} on address: {results.ContractAddress}");
                                                 fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                 fundingUpdateDto.IsActive = true;
                                                 fundingUpdateDto.LaptopBalance = fundingContract.LaptopBalance - monthlyAmount;
@@ -222,6 +224,7 @@ public class PaymentInitiator : BackgroundService
                     }
                 }
             }
+            _logger.LogInformation($"Payment Date: {funder.PaymentDate} for {funder.Name} is not in the next 48 hours. No further processing required.");
         }
     }
 }

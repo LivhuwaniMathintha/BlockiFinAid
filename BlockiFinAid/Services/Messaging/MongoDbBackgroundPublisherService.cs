@@ -25,9 +25,9 @@ public class MongoDbBackgroundPublisherService : BackgroundService
         var bankAccountTask = Task.Run(() => ProcessStreamAsync<BankAccountModel>(stoppingToken), stoppingToken);
         var fundingTask = Task.Run(() => ProcessStreamAsync<FundingModel>(stoppingToken), stoppingToken);
         var fundingConditionsTask = Task.Run(() => ProcessStreamAsync<FundingConditionsModel>(stoppingToken), stoppingToken);
-
+        var funderTask = Task.Run(() => ProcessStreamAsync<FunderModel>(stoppingToken), stoppingToken);
         // Wait for all tasks to complete, which will only happen when the service is stopped.
-        await Task.WhenAll(userTask, bankAccountTask, fundingTask, fundingConditionsTask);
+        await Task.WhenAll(userTask, bankAccountTask, fundingTask, fundingConditionsTask,  funderTask);
 
         _logger.LogInformation("Background Service has stopped.");
     }

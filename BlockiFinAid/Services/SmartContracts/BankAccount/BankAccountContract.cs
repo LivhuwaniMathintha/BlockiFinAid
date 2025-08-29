@@ -213,7 +213,6 @@ public class BankAccountContract
         var contract = _web3.Eth.GetContractTransactionHandler<AddBankAccountFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.BankAccountAddress, function);
         var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("BankAccount");
-
         if (receipt.HasErrors().Value)
         {
             return new SmartContractResponse<string>();

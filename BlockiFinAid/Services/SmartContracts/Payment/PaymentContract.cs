@@ -1,6 +1,7 @@
 
 
 using BlockiFinAid.Data.Responses;
+using BlockiFinAid.Services.MachineLearning;
 
 namespace BlockiFinAid.Services.SmartContracts.Payment;
 
@@ -182,18 +183,46 @@ public class PaymentContract
     private readonly Web3 _web3;
     private readonly EthereumNodeSettings _nodeSettings;
     private readonly SmartContractByteCodes _byteCodes;
+    private readonly IMachineLearningAPI _mlApi;
+    private readonly ILogger<PaymentContract> _logger;
 
-    public PaymentContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings, IOptions<SmartContractByteCodes> byteCodes)
+    public PaymentContract(IOptions<EthereumNodeSettings> nodeSettings, 
+        IOptions<SmartContractAddressSettings> addressSettings, 
+        IOptions<SmartContractByteCodes> byteCodes, 
+        IMachineLearningAPI mlApi,
+        ILogger<PaymentContract> logger)
     {
         _nodeSettings = nodeSettings.Value;
         _addressSettings = addressSettings.Value;
         var account = new Account(_nodeSettings.PrivateKey);
         _web3 = new Web3(account, _nodeSettings.RpcUrl);
         _byteCodes = byteCodes.Value;
+        _mlApi = mlApi;
+        _logger = logger;
     }
 
     public async Task<SmartContractResponse<string>> AddPaymentAsync(PaymentInputDto dto)
     {
+        bool isContinue = false, apiCallSucceeded = false;
+        try
+        {
+            var mlRequest = new MachineLearningRequest(dto.Amount, "NSFAS", dto.PaymentType,
+                DateTime.Parse(dto.InitiationDate), false);
+            
+            var mlResponse = await _mlApi.ProcessMachineLearningRequest(mlRequest);
+            if (mlResponse.IsSuccess)
+            {
+                isContinue = true;
+                apiCallSucceeded = true;
+                
+                //Add payment to training data
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+        }
+
         var function = new AddPaymentFunction
         {
             Id = GuidHelper.GuidToBytes16OrZero(dto.Id),
@@ -212,24 +241,29 @@ public class PaymentContract
             FromAddress = _nodeSettings.ContractAddress
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddPaymentFunction>();
-        var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
-        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Payment");
+        if (apiCallSucceeded && isContinue)
+        {
+            var receipt =
+                await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
+            var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Payment");
 
-        if (receipt.HasErrors().Value)
-        {
-            return new SmartContractResponse<string>();
+            if (receipt.HasErrors().Value)
+            {
+                return new SmartContractResponse<string>();
+            }
+
+            return new SmartContractResponse<string>()
+            {
+                BlockHash = receipt.BlockHash,
+                BlockNumber = receipt.BlockNumber,
+                ByteCode = _byteCodes.BankAccountByteCode,
+                FunctionSigHashes = functionsSigHashes,
+                ContractAddress = receipt.ContractAddress,
+                Data = receipt.TransactionHash,
+                IsSuccess = true
+            };
         }
-        
-        return new SmartContractResponse<string>()
-        {
-            BlockHash = receipt.BlockHash,
-            BlockNumber = receipt.BlockNumber,
-            ByteCode = _byteCodes.BankAccountByteCode,
-            FunctionSigHashes = functionsSigHashes,
-            ContractAddress = receipt.ContractAddress,
-            Data = receipt.TransactionHash,
-            IsSuccess = true
-        };
+        return new SmartContractResponse<string>();
     }
 
     public async Task<SmartContractResponse<string>> UpdatePaymentByIdAsync(PaymentUpdateDto dto)

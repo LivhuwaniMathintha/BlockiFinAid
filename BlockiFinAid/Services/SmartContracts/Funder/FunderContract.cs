@@ -210,7 +210,10 @@ public class FunderContract
 
         if (receipt.HasErrors().Value)
         {
-            return new SmartContractResponse<string>();
+            return new SmartContractResponse<string>()
+            {
+                Data = "Error occured: " + receipt.HasErrors().Value
+            };
         }
         
         return new SmartContractResponse<string>()

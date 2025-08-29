@@ -285,3 +285,5 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/runtimes/win-x64/native/vcruntime140_1.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/payment.json
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/funders.json
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.HttpClientFactory.dll
