@@ -16,9 +16,9 @@ public class MongoDbBackgroundPublisherService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Background Service is starting.");
+        _logger.LogInformation("MongoDB Database Background Service for Data Streaming is starting.");
 
-        stoppingToken.Register(() => _logger.LogInformation("Background Service is stopping."));
+        stoppingToken.Register(() => _logger.LogInformation("MongoDB Database Background Service for Data Streaming is stopping."));
 
         // Create a separate task for each change stream to run concurrently.
         var userTask = Task.Run(() => ProcessStreamAsync<UserModel>(stoppingToken), stoppingToken);
@@ -26,10 +26,11 @@ public class MongoDbBackgroundPublisherService : BackgroundService
         var fundingTask = Task.Run(() => ProcessStreamAsync<FundingModel>(stoppingToken), stoppingToken);
         var fundingConditionsTask = Task.Run(() => ProcessStreamAsync<FundingConditionsModel>(stoppingToken), stoppingToken);
         var funderTask = Task.Run(() => ProcessStreamAsync<FunderModel>(stoppingToken), stoppingToken);
+        var paymentTask = Task.Run(() => ProcessStreamAsync<PaymentModel>(stoppingToken), stoppingToken);
         // Wait for all tasks to complete, which will only happen when the service is stopped.
-        await Task.WhenAll(userTask, bankAccountTask, fundingTask, fundingConditionsTask,  funderTask);
+        await Task.WhenAll(userTask, bankAccountTask, fundingTask, fundingConditionsTask, funderTask,  paymentTask);
 
-        _logger.LogInformation("Background Service has stopped.");
+        _logger.LogInformation("MongoDB Database Background Service for Data Streaming has stopped.");
     }
 
     private async Task ProcessStreamAsync<T>(CancellationToken stoppingToken) where T : class, IModel

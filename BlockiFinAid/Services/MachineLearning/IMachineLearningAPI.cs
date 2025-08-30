@@ -4,11 +4,16 @@ namespace BlockiFinAid.Services.MachineLearning;
 
 public interface IMachineLearningAPI
 {
-    [Get("/api/machinelearning")]
-    Task<MachineLearningResponse> ProcessMachineLearningRequest([Query] MachineLearningRequest request);
+    [Post("/api/machinelearning/fraud_detection")]
+    Task<ApiResponse<MachineLearningResponse>> ProcessMachineLearningRequest([Body] MachineLearningRequest request);
 }
 
-public record MachineLearningResponse(decimal Prediction, bool IsSuccess);
+public class MachineLearningResponse
+{
+    public decimal Prediction { get; set; }
+    public bool IsSuccess { get; set; }
+}
+
 
 public record MachineLearningRequest(
     decimal Amount,

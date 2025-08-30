@@ -40,6 +40,7 @@ public class PaymentInitiator : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
         _logger.LogInformation("Starting to watch for payments that needs to be processed within the next 48 hours");
         using var scope = _scopeFactory.CreateScope();
         var funderContract = scope.ServiceProvider.GetRequiredService<FunderContract>();

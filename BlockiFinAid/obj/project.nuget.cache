@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "kJ6g8UVQ12k=",
+  "dgSpecHash": "JIEiUC7K9mE=",
   "success": true,
   "projectFilePath": "/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/BlockiFinAid.csproj",
   "expectedPackageFiles": [
@@ -169,6 +169,7 @@
     "/Users/nando/.nuget/packages/rabbitmq.client/7.1.2/rabbitmq.client.7.1.2.nupkg.sha512",
     "/Users/nando/.nuget/packages/refit/8.0.0/refit.8.0.0.nupkg.sha512",
     "/Users/nando/.nuget/packages/refit.httpclientfactory/8.0.0/refit.httpclientfactory.8.0.0.nupkg.sha512",
+    "/Users/nando/.nuget/packages/refit.newtonsoft.json/8.0.0/refit.newtonsoft.json.8.0.0.nupkg.sha512",
     "/Users/nando/.nuget/packages/runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "/Users/nando/.nuget/packages/runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "/Users/nando/.nuget/packages/runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",

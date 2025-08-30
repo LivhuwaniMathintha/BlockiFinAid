@@ -88,7 +88,7 @@ public class DatabaseSeeder
                     // This prevents duplicate data on every startup
 
                     var existingFunders = await _funders.GetAllAsync();
-                    var existingFunder = existingFunders.FirstOrDefault(x => x.Name == item.Name);
+                    var existingFunder = existingFunders.FirstOrDefault(x => x.Name == item.Name || x.Id == item.Id);
                     if (existingFunder is null)
                     {
                         _logger.LogInformation($"Payment with Id {item.Name} does not exist...");
@@ -112,6 +112,10 @@ public class DatabaseSeeder
                         {
                             _logger.LogInformation($"Successfully added {newFunder.Name} from seeding data");
                         }
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Funder {item.Name} already exists. Ignoring it.");
                     }
                 }
             }
@@ -186,7 +190,8 @@ public class DatabaseSeeder
                             UpdatedAt = item.UpdatedAt,
                             PaymentType = item.PaymentType,
                             Status = item.Status,
-                            Institution = item.Institution
+                            Institution = item.Institution,
+                            StudentNumber = item.StudentNumber
                         };
 
                         _logger.LogInformation(
@@ -308,7 +313,6 @@ public class DatabaseSeeder
                             Name = user.Name
                         };
                         
-                        _logger.LogInformation($"Creating User Model {user.Email}...");
                         await _userRepo.CreateAsync(userDetails, adminId.ToString());
                         _logger.LogInformation($"User Model {user.Email} has been created.");
                     }

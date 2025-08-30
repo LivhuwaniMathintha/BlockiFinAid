@@ -5,6 +5,7 @@ using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
+using BlockiFinAid.Services.SmartContracts.Payment;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
 
@@ -28,13 +29,13 @@ public class UserDbConsumer : IConsumer<UserModel>
             Name = context.Message.Name,
             Email = context.Message.Email,
             StudentNumber = context.Message.StudentNumber,
-            BankAccountId = "hjkh",
+            BankAccountId = context.Message.BankAccountId.ToString(),
             CourseName = context.Message.CourseName,
-            FunderContractId = "jhkjh",
+            FunderContractId = context.Message.FunderContractId.ToString(),
             IsActive = context.Message.IsActive,
             ModifiedBy = context.Message.ModifiedBy,
             IsChangeConfirmed = context.Message.IsChangeConfirmed,
-            InstitutionId = "sdss",
+            InstitutionId = context.Message.InstitutionId.ToString(),
             Role =  context.Message.Role,
         };
         
@@ -55,6 +56,7 @@ public class BankAccountDbConsumer : IConsumer<BankAccountModel>
         _logger = logger;
         _bankAccountContract = bankAccountContract;
     }
+    
     public async Task Consume(ConsumeContext<BankAccountModel> context)
     {
         _logger.LogInformation($"BankAccountNumber: {context.Message.BankAccountNumber} has been added to the database and retrieved in real-time. Queue for Smart contract addition");
@@ -140,6 +142,41 @@ public class FundingConditionsDbConsumer : IConsumer<FundingConditionsModel>
     }
 }
 
+public class PaymentDbConsumer : IConsumer<PaymentModel>
+{
+ 
+    private readonly ILogger<PaymentDbConsumer> _logger;
+    private readonly PaymentContract _paymentContract;
+
+    public PaymentDbConsumer(ILogger<PaymentDbConsumer> logger, PaymentContract contract)
+    {
+        _paymentContract = contract;
+        _logger = logger;
+    }
+    public async Task Consume(ConsumeContext<PaymentModel> context)
+    {
+        _logger.LogInformation($"Consuming payment from the queue ");
+        var paymentDto = new PaymentInputDto
+        {
+            Id = context.Message.Id.ToString(),
+            AccountNumber = context.Message.AccountNumber,
+            StudentNumber = context.Message.StudentNumber,
+            BranchCode = context.Message.BranchCode,
+            BankName = context.Message.BankName,
+            Amount = context.Message.Amount,
+            PaymentType = context.Message.PaymentType,
+            Status = context.Message.Status,
+            IsFraud = context.Message.IsFraud,
+            InitiationDate = context.Message.InitiationDate.ToString("G"),
+            FulfilmentDate = context.Message.FulfilmentDate.ToString("G"),
+            ModifiedBy = context.Message.ModifiedBy,
+        };
+        
+        var results = await _paymentContract.AddPaymentAsync(paymentDto);
+        _logger.LogInformation($"Payment  added to the smart contract with status: {results.BlockHash}");
+    }
+}
+
 public class FunderDbConsumer : IConsumer<FunderModel>
 {
     private readonly FunderContract _funderContract;
@@ -156,14 +193,31 @@ public class FunderDbConsumer : IConsumer<FunderModel>
         _logger.LogInformation($"Consuming funding model for Funder {context.Message.Name} from the queue: ");
         var item = new FunderInputDto
         {
+            Id = context.Message.Id.ToString(),
             IsChangeConfirmed = context.Message.IsChangeConfirmed,
             Name = context.Message.Name,
             ModifiedBy = context.Message.ModifiedBy,
             PaymentDate = context.Message.PaymentDate.ToString("G"),
             FunderContractId = context.Message.FunderContractId.ToString(),
         };
-        
-        var results = await _funderContract.AddFunderAsync(item);
-        _logger.LogInformation($"Adding data from db to smart contract in real-time for funder model complete with status: {results.BlockHash}");
+
+        _logger.LogInformation($"Looking for funder: {item.Name} with id: {item.Id} in the smart contract");
+        var isFunderOnContract = await _funderContract.GetFunderByNameAsync(item.Name);
+        if (isFunderOnContract?.Name == "")
+        {
+            try
+            {
+                var results = await _funderContract.AddFunderAsync(item);
+                _logger.LogInformation($"Adding data from db to smart contract in real-time for funder model complete with status: {results.BlockHash}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Funder using name {item.Name} is not in the smart contract, however, this funder is using id: {item.Id} and this is the error: {ex}");
+            }
+        }
+        else
+        {
+            _logger.LogError($"Funder {isFunderOnContract?.Name} from the queue already exists in the smart contract - blockchain");
+        }
     }
 }

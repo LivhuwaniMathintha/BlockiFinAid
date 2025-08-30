@@ -25,6 +25,7 @@
           "Newtonsoft.Json": "13.0.3",
           "Refit": "8.0.0",
           "Refit.HttpClientFactory": "8.0.0",
+          "Refit.Newtonsoft.Json": "8.0.0",
           "SendGrid": "9.29.3",
           "Serilog.AspNetCore": "9.0.0",
           "Serilog.Settings.Configuration": "9.0.0",
@@ -2164,6 +2165,18 @@
           }
         }
       },
+      "Refit.Newtonsoft.Json/8.0.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3",
+          "Refit": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/Refit.Newtonsoft.Json.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.0.1"
+          }
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {},
       "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {},
       "runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {},
@@ -4028,6 +4041,13 @@
       "sha512": "sha512-dwtmrqHkhuwDmG9qE8+rNnv6YFo132G1Ma+GCXupZQsdQcMN4U1uYaxoJVanRIPdieQGkQRcdxjkFhwO1LuRoA==",
       "path": "refit.httpclientfactory/8.0.0",
       "hashPath": "refit.httpclientfactory.8.0.0.nupkg.sha512"
+    },
+    "Refit.Newtonsoft.Json/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kdbgxYm44SPP1hV0Nw41N3viYYgdBICTpYp7AuqAAl4kJHV2WyRO4fnJ8hxCQm0pTHwrjg+EMSeJBaC6OVFkSw==",
+      "path": "refit.newtonsoft.json/8.0.0",
+      "hashPath": "refit.newtonsoft.json.8.0.0.nupkg.sha512"
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
       "type": "package",

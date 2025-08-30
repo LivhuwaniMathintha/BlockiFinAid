@@ -1,4 +1,7 @@
 using BlockiFinAid.Data.Responses;
+using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
+using Nethereum.RPC.NonceServices;
 
 namespace BlockiFinAid.Services.SmartContracts.Funder;
 
@@ -179,18 +182,27 @@ public class FunderContract
     private readonly Web3 _web3;
     private readonly EthereumNodeSettings _nodeSettings;
     private readonly SmartContractByteCodes _byteCodes;
+    private readonly InMemoryNonceService _nonceService;
+    private readonly Account _account;
+
 
     public FunderContract(IOptions<EthereumNodeSettings> nodeSettings, IOptions<SmartContractAddressSettings> addressSettings, IOptions<SmartContractByteCodes> byteCodes)
     {
         _nodeSettings = nodeSettings.Value;
         _addressSettings = addressSettings.Value;
-        var account = new Account(_nodeSettings.PrivateKey);
-        _web3 = new Web3(account, _nodeSettings.RpcUrl);
+        _account = new Account(_nodeSettings.PrivateKey);
+        _web3 = new Web3(_account, _nodeSettings.RpcUrl);
         _byteCodes = byteCodes.Value;
+        _nonceService = new InMemoryNonceService(_addressSettings.FunderAddress, _web3.Client);
     }
 
     public async Task<SmartContractResponse<string>> AddFunderAsync(FunderInputDto dto)
     {
+        var currentNonce = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_account.Address, BlockParameter.CreatePending());
+        await NonceManager.InitializeNonce(_web3, _account.Address);
+        
+        var nextNonce = NonceManager.GetNextNonce();
+        
         var function = new AddFunderFunction
         {
             Id = GuidHelper.GuidToBytes16OrZero(dto.Id),
@@ -201,18 +213,25 @@ public class FunderContract
             PaymentDate = dto.PaymentDate,
             ModifiedBy = dto.ModifiedBy,
             UpdatedAt = DateTime.UtcNow.ToString("G"),
-            FromAddress = _nodeSettings.ContractAddress
+            FromAddress = _nodeSettings.ContractAddress,
+            Nonce = new HexBigInteger(nextNonce)
         };
+        
         var contract = _web3.Eth.GetContractTransactionHandler<AddFunderFunction>();
+        // var signedContract = await contract.SignTransactionAsync(_addressSettings.FunderAddress, function);
+        //
+        // var receipt = await _web3.Eth.Transactions.SendRawTransaction.SendRequestAsync(signedContract);
+        // var block = await _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(receipt);
+
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FunderAddress, function);
-        var txHash = receipt?.TransactionHash;
+    
         var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Funder");
 
-        if (receipt.HasErrors().Value)
+        if (!receipt.Succeeded())
         {
             return new SmartContractResponse<string>()
             {
-                Data = "Error occured: " + receipt.HasErrors().Value
+                Data = "Error occured: " + receipt.HasErrors().ToString()
             };
         }
         
@@ -273,7 +292,7 @@ public class FunderContract
         };
     }
 
-    public async Task<FunderOutputDto> GetFunderByNameAsync(string name)
+    public async Task<FunderOutputDto?> GetFunderByNameAsync(string name)
     {
         var function = new GetFunderByNameFunction
         {
@@ -281,7 +300,6 @@ public class FunderContract
         };
         var contract = _web3.Eth.GetContractHandler(_addressSettings.FunderAddress);
         var result = await contract.QueryDeserializingToObjectAsync<GetFunderByNameFunction, GetFunderByNameOutputDto>(function);
-
         return new FunderOutputDto
         {
             Id = new Guid(result.Id),

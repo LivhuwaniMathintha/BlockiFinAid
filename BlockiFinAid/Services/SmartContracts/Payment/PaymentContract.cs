@@ -2,6 +2,7 @@
 
 using BlockiFinAid.Data.Responses;
 using BlockiFinAid.Services.MachineLearning;
+using Refit;
 
 namespace BlockiFinAid.Services.SmartContracts.Payment;
 
@@ -35,18 +36,18 @@ public class PaymentOutputDto
 
 public class PaymentInputDto
 {
-    public string Id { get; set; }
-    public string AccountNumber { get; set; }
-    public string StudentNumber { get; set; }
-    public string BranchCode { get; set; }
-    public string BankName { get; set; }
+    public string Id { get; set; } = string.Empty;
+    public string AccountNumber { get; set; } = string.Empty;
+    public string StudentNumber { get; set; } = string.Empty;
+    public string BranchCode { get; set; } = string.Empty;
+    public string BankName { get; set; } = string.Empty;
     public uint Amount { get; set; }
-    public string PaymentType { get; set; }
-    public string Status { get; set; }
+    public string PaymentType { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
     public bool IsFraud { get; set; }
-    public string InitiationDate { get; set; }
-    public string FulfilmentDate { get; set; }
-    public string ModifiedBy { get; set; }
+    public string InitiationDate { get; set; } = string.Empty;
+    public string FulfilmentDate { get; set; } = string.Empty;
+    public string ModifiedBy { get; set; } = string.Empty;
 }
 
 public class PaymentUpdateDto
@@ -64,28 +65,39 @@ public class AddPaymentFunction : FunctionMessage
 {
     [Parameter("bytes16", "_id", 1)]
     public byte[] Id { get; set; }
+    
     [Parameter("string", "_accountNumber", 2)]
     public string AccountNumber { get; set; }
+   
     [Parameter("string", "_studentNumber", 3)]
     public string StudentNumber { get; set; }
+    
     [Parameter("string", "_branchCode", 4)]
     public string BranchCode { get; set; }
     [Parameter("string", "_bankName", 5)]
     public string BankName { get; set; }
+    
     [Parameter("uint", "_amount", 6)]
     public uint Amount { get; set; }
+    
     [Parameter("string", "_paymentType", 7)]
     public string PaymentType { get; set; }
+    
     [Parameter("string", "_status", 8)]
     public string Status { get; set; }
+    
     [Parameter("string", "_updatedAt", 9)]
     public string UpdatedAt { get; set; }
+    
     [Parameter("bool", "_isFraud", 10)]
     public bool IsFraud { get; set; }
+    
     [Parameter("string", "_initiationDate", 11)]
     public string InitiationDate { get; set; }
+    
     [Parameter("string", "_fulfilmentDate", 12)]
     public string FulfilmentDate { get; set; }
+    
     [Parameter("string", "_modifiedBy", 13)]
     public string ModifiedBy { get; set; }
 }
@@ -117,25 +129,22 @@ public class GetAllPaymentsOutputDto : IFunctionOutputDTO
     public List<string> AccountNumbers { get; set; }
     [Parameter("string[]", "studentNumbers", 3)]
     public List<string> StudentNumbers { get; set; }
-    [Parameter("string[]", "branchCodes", 4)]
-    public List<string> BranchCodes { get; set; }
-    [Parameter("string[]", "bankNames", 5)]
+  
+    [Parameter("string[]", "bankNames", 4)]
     public List<string> BankNames { get; set; }
-    [Parameter("uint[]", "amounts", 6)]
+    [Parameter("uint[]", "amounts", 5)]
     public List<uint> Amounts { get; set; }
-    [Parameter("string[]", "paymentTypes", 7)]
+    [Parameter("string[]", "paymentTypes", 6)]
     public List<string> PaymentTypes { get; set; }
-    [Parameter("string[]", "statuses", 8)]
+    [Parameter("string[]", "statuses", 7)]
     public List<string> Statuses { get; set; }
-    [Parameter("string[]", "updatedAts", 9)]
+    [Parameter("string[]", "updatedAts", 8)]
     public List<string> UpdatedAts { get; set; }
-    [Parameter("bool[]", "isFrauds", 10)]
+    [Parameter("bool[]", "isFrauds", 9)]
     public List<bool> IsFrauds { get; set; }
-    [Parameter("string[]", "initiationDates", 11)]
-    public List<string> InitiationDates { get; set; }
-    [Parameter("string[]", "fulfilmentDates", 12)]
+    [Parameter("string[]", "initiationDates", 10)]
     public List<string> FulfilmentDates { get; set; }
-    [Parameter("string[]", "modifiedBys", 13)]
+    [Parameter("string[]", "modifiedBys", 11)]
     public List<string> ModifiedBys { get; set; }
 }
 
@@ -209,13 +218,19 @@ public class PaymentContract
             var mlRequest = new MachineLearningRequest(dto.Amount, "NSFAS", dto.PaymentType,
                 DateTime.Parse(dto.InitiationDate), false);
             
-            var mlResponse = await _mlApi.ProcessMachineLearningRequest(mlRequest);
-            if (mlResponse.IsSuccess)
+            ApiResponse<MachineLearningResponse> mlResponse = await _mlApi.ProcessMachineLearningRequest(mlRequest);
+            _logger.LogInformation($"ML Endpoint has response status code: {mlResponse.StatusCode}");
+            if (mlResponse.IsSuccessStatusCode)
             {
                 isContinue = true;
                 apiCallSucceeded = true;
                 
                 //Add payment to training data
+            }
+
+            {
+                isContinue = true;
+                apiCallSucceeded = true;
             }
         }
         catch (Exception ex)
@@ -235,16 +250,15 @@ public class PaymentContract
             Status = dto.Status,
             UpdatedAt = DateTime.UtcNow.ToString("G"),
             IsFraud = dto.IsFraud,
-            InitiationDate = dto.InitiationDate,
-            FulfilmentDate = dto.FulfilmentDate,
+            InitiationDate = dto.InitiationDate.ToString(),
+            FulfilmentDate = dto.FulfilmentDate.ToString(),
             ModifiedBy = dto.ModifiedBy,
             FromAddress = _nodeSettings.ContractAddress
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddPaymentFunction>();
         if (apiCallSucceeded && isContinue)
         {
-            var receipt =
-                await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
+            var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
             var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Payment");
 
             if (receipt.HasErrors().Value)
@@ -300,6 +314,8 @@ public class PaymentContract
 
     public async Task<List<PaymentOutputDto>> GetAllPaymentsAsync()
     {
+        
+        
         var function = new GetAllPaymentsFunction();
         var contract = _web3.Eth.GetContractHandler(_addressSettings.PaymentsContractAddress);
         var result = await contract.QueryDeserializingToObjectAsync<GetAllPaymentsFunction, GetAllPaymentsOutputDto>(function);
@@ -311,14 +327,12 @@ public class PaymentContract
                 Id = new Guid(result.Ids[i]),
                 AccountNumber = result.AccountNumbers[i],
                 StudentNumber = result.StudentNumbers[i],
-                BranchCode = result.BranchCodes[i],
                 BankName = result.BankNames[i],
                 Amount = result.Amounts[i],
                 PaymentType = result.PaymentTypes[i],
                 Status = result.Statuses[i],
                 UpdatedAt = result.UpdatedAts[i],
                 IsFraud = result.IsFrauds[i],
-                InitiationDate = result.InitiationDates[i],
                 FulfilmentDate = result.FulfilmentDates[i],
                 ModifiedBy = result.ModifiedBys[i]
             });

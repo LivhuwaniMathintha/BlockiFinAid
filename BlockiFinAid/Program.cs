@@ -12,9 +12,9 @@ using BlockiFinAid.Services.SmartContracts.Payment;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using Org.BouncyCastle.Asn1.Cms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Refit;
 using Serilog;
 
@@ -166,25 +166,27 @@ try
     
     var smartContractAddressSettings = builder.Configuration.GetSection("SmartContractAddressSettings");
     builder.Services.Configure<SmartContractAddressSettings>(smartContractAddressSettings);
-    builder.Services.AddScoped<FunderContract>();
+    builder.Services.AddTransient<FunderContract>();
     builder.Services.AddScoped<UserContract>();
     builder.Services.AddScoped<BankAccountContract>();
     builder.Services.AddScoped<FundingContract>();
     builder.Services.AddScoped<FundingConditionsContract>();
     builder.Services.AddScoped<PaymentContract>();
     builder.Services.AddScoped<IPublisher, MassTransitPublisher>();
-    builder.Services.AddScoped<UserDbConsumer>();
-    builder.Services.AddScoped<BankAccountDbConsumer>();
-    builder.Services.AddScoped<FundingDbConsumer>();
-    builder.Services.AddScoped<FundingConditionsDbConsumer>();
-    builder.Services.AddScoped<PaymentEventConsumer>();
     
-    builder.Services.AddScoped<BankAccountDbConsumer>(sp =>
-    {
-        var logger = sp.GetRequiredService<ILogger<BankAccountDbConsumer>>();
-        var bankAccountContract = sp.GetRequiredService<BankAccountContract>();
-        return new BankAccountDbConsumer(logger, bankAccountContract);
-    });
+    // //Consumers
+    // builder.Services.AddScoped<UserDbConsumer>();
+    // builder.Services.AddScoped<BankAccountDbConsumer>();
+    // builder.Services.AddScoped<FundingDbConsumer>();
+    // builder.Services.AddScoped<FundingConditionsDbConsumer>();
+    // builder.Services.AddScoped<PaymentEventConsumer>();
+    //
+    // builder.Services.AddScoped<BankAccountDbConsumer>(sp =>
+    // {
+    //     var logger = sp.GetRequiredService<ILogger<BankAccountDbConsumer>>();
+    //     var bankAccountContract = sp.GetRequiredService<BankAccountContract>();
+    //     return new BankAccountDbConsumer(logger, bankAccountContract);
+    // });
 
    
     // configure mass transit rabbit mq here
@@ -198,6 +200,16 @@ try
         busConfigurator.AddConsumer<FundingDbConsumer>();
         busConfigurator.AddConsumer<FundingConditionsDbConsumer>();
         busConfigurator.AddConsumer<FunderDbConsumer>();
+        busConfigurator.AddConsumer<PaymentDbConsumer>();
+        
+        busConfigurator.AddConfigureEndpointsCallback((name, cfg) =>
+        {
+            if (cfg is IRabbitMqReceiveEndpointConfigurator rmq)
+            {
+                rmq.PrefetchCount = 1;
+                rmq.UseConcurrencyLimit(1);
+            }
+        });
         busConfigurator.UsingRabbitMq((context, configurator) =>
         {
             configurator.Host(new Uri(builder.Configuration["RabbitMQ:Host"]!), h =>
@@ -212,9 +224,20 @@ try
 
     // Add a background service for mongo db publishing to rabbit mq
     builder.Services.AddScoped<DatabaseSeeder>();
+    
+    builder.Services.AddHostedService<MongoSeederBackgroundService>();
     builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
+    
     builder.Services.AddHostedService<PaymentInitiator>();
-    builder.Services.AddRefitClient<IMachineLearningAPI>().ConfigureHttpClient(configure =>
+    builder.Services.AddRefitClient<IMachineLearningAPI>(new RefitSettings
+    {
+        ContentSerializer = new NewtonsoftJsonContentSerializer(
+            new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore
+            }),
+    }).ConfigureHttpClient(configure =>
     {
         configure.BaseAddress = new Uri(builder.Configuration["ApiBaseUrls:MachineLearning"] ?? string.Empty);
     });
@@ -229,19 +252,8 @@ try
     }
     app.UseCors();
     app.UseHttpsRedirection();
+   
     app.MapControllers();
-
-    using (var scope = app.Services.CreateScope())
-    {
-        // var accessControlService = scope.ServiceProvider.GetRequiredService<UserAccessControlService>();
-        // var logger  = scope.ServiceProvider.GetRequiredService<ILogger<DatabaseSeeder>>();
-        // var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-        // var settings = scope.ServiceProvider.GetRequiredService<IOptions<MongoDbSettings>>();
-        //
-        var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
-        await Task.Delay(TimeSpan.FromSeconds(20));
-        await seeder.SeedDataAsync();
-    }
 
     app.Run();
 }
