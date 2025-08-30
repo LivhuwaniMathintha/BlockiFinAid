@@ -230,7 +230,7 @@ public class DatabaseSeeder
                 "api:global_access"
 
             },
-            Password = UAMHelper.PasswordGenerator()
+            Password = "admin-pass"
         };
         var existingAdminUser = await _uam.GetUserByEmail(adminUser.Email);
         if (existingAdminUser == null)
@@ -273,22 +273,23 @@ public class DatabaseSeeder
                 if (existingUser is null)
                 {
                     _logger.LogInformation($"User with email {user.Email} does not exist...");
+                    var password  = UAMHelper.PasswordGenerator();
                     var newUser = new UserAccessControlDto
                     {
                         Email = user.Email,
                         Role = user.Role,
                         Permissions = user.Permissions,
                         Name = user.Name,
-                        Password = UAMHelper.PasswordGenerator()
+                        Password = password
                     };
                     
-                    _logger.LogInformation($"Processing UAM for {user.Email}...");
+                    _logger.LogInformation($"Processing UAM for {user.Email}... with password {password}...");
 
                     var result = await _uam.RegisterUser(newUser);
 
                     if (result is not null)
                     {
-                        _logger.LogInformation($"UAM for {result.Email} has been registered with role {result.Role} and a password of {newUser.Password} and Id of {result.UserId}");
+                        _logger.LogInformation($"UAM for {result.Email} has been registered with role {result.Role}");
                         
                         UserModel? studentNumberExists = null;
                         var studentNumber = "";

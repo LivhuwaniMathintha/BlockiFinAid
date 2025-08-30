@@ -1,6 +1,7 @@
 using BlockiFinAid.Data.DTOs;
 using BlockiFinAid.Data.Models;
 using BlockiFinAid.Helpers;
+using BlockiFinAid.Services.Repository;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
 
@@ -11,12 +12,15 @@ public class UserAccessControlService
     private readonly IPasswordHasher<UserAccessControl> _passwordHasher;
     private readonly IMongoCollection<UserAccessControl> _db;
     private readonly ILogger<UserAccessControlService> _logger;
+    private readonly IBaseRepository<UserModel> _userRepository;
 
-    public UserAccessControlService(IPasswordHasher<UserAccessControl> passwordHasher, IMongoDatabase mongoDatabase, ILogger<UserAccessControlService> logger)
+    public UserAccessControlService(IPasswordHasher<UserAccessControl> passwordHasher, IMongoDatabase mongoDatabase, ILogger<UserAccessControlService> logger, IBaseRepository<UserModel> userRepository)
     {
         _passwordHasher = passwordHasher;
         _db = mongoDatabase.GetCollection<UserAccessControl>("UserAccess");
         _logger = logger;
+        _userRepository = userRepository;
+        
     }
 
     public UserAccessControl? HashPasswordForNewUser(UserAccessControl user, string plainTextPassword)
@@ -92,7 +96,6 @@ public class UserAccessControlService
         // 1. Retrieve the user by email from your database
         
         var user = await _db.Find(x => x.Email == email).FirstOrDefaultAsync(); // Assuming you have such a method
-        
         if (user == null)
         {
             _logger.LogError($"User {email} not found");
@@ -102,6 +105,10 @@ public class UserAccessControlService
         // 2. Verify the provided password
         if (VerifyPassword(user, plainTextPassword))
         {
+            // get student number
+            var actualUsers = await _userRepository.GetAllAsync();
+            var studentNumber = actualUsers.FirstOrDefault(x => x.Email == user.Email)?.StudentNumber;
+            user.StudentNumber = studentNumber;
             return user; // Login successful
         }
 

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BlockiFinAid.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/")]
     [ApiController]
     public class AuthController : ControllerBase
     {
@@ -20,9 +20,9 @@ namespace BlockiFinAid.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] string username, string password)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var results = await _authService.LoginUser(username, password);
+            var results = await _authService.LoginUser(request.Username, request.Password);
 
             if (results is not null)
             {
@@ -30,7 +30,9 @@ namespace BlockiFinAid.Controllers
                 {
                     Role = results.Role,
                 //    Username = results.Username,
-                    IsLoginSuccessful = true
+                    IsLoginSuccessful = true,
+                    StudentNumber = results.StudentNumber,
+                    Id = results.Id.ToString(),
                 });
             }
             return Unauthorized(new LoginResponse
@@ -66,5 +68,13 @@ namespace BlockiFinAid.Controllers
         public bool IsLoginSuccessful { get; set; }
         public string Role { get; set; } = string.Empty;
         public IEnumerable<string> Permissions { get; set; } =  new List<string>();
+        public string StudentNumber { get; set; }
+        public string Id { get; set; }
+    }
+
+    public class LoginRequest
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }

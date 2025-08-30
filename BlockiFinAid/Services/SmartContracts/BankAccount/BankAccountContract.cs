@@ -317,7 +317,6 @@ public class BankAccountContract
 
         if (result is not null)
         {
-
             return new BankAccountOutputDto
             {
                 Id = new Guid(result.Id),

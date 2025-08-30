@@ -18,8 +18,7 @@
     ],
     "Email": "jane.smith@uj.ac.za",
     "Password": "Password456!"
-  },
-  {
+  },  {
     "Name": "Peter Jones",
     "Role": "student",
     "Permissions": [

@@ -34,5 +34,18 @@ namespace BlockiFinAid.Controllers
         {
             return Ok(await _funderService.GetAllFundersAsync());
         }
+
+        [HttpGet("/byname/{id}")]
+        public async Task<IActionResult> GetByName(string name)
+        {
+            return Ok(await _funderService.GetFunderByNameAsync(name));
+        }
+        
+        [HttpGet("/byid/{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            return Ok(await _funderService.GetFunderByIdAsync(id));
+        }
+        
     }
 }

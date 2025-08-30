@@ -196,7 +196,7 @@ public class FunderContract
         _nonceService = new InMemoryNonceService(_addressSettings.FunderAddress, _web3.Client);
     }
 
-    public async Task<SmartContractResponse<string>> AddFunderAsync(FunderInputDto dto)
+    public async Task<SmartContractResponse<FunderOutputDto>> AddFunderAsync(FunderInputDto dto)
     {
         var currentNonce = await _web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(_account.Address, BlockParameter.CreatePending());
         await NonceManager.InitializeNonce(_web3, _account.Address);
@@ -229,20 +229,23 @@ public class FunderContract
 
         if (!receipt.Succeeded())
         {
-            return new SmartContractResponse<string>()
+            return new SmartContractResponse<FunderOutputDto>()
             {
-                Data = "Error occured: " + receipt.HasErrors().ToString()
+                Data = null
             };
         }
+
+        var funderId = System.Guid.Parse(dto.Id);
+        var funder = await GetFunderByIdAsync(funderId);
         
-        return new SmartContractResponse<string>()
+        return new SmartContractResponse<FunderOutputDto>()
         {
             BlockHash = receipt.BlockHash,
             BlockNumber = receipt.BlockNumber,
             ByteCode = _byteCodes.BankAccountByteCode,
             FunctionSigHashes = functionsSigHashes,
             ContractAddress = receipt.ContractAddress,
-            Data = receipt.TransactionHash,
+            Data = funder,
             IsSuccess = true
         };
     }
@@ -270,26 +273,33 @@ public class FunderContract
         return funders;
     }
 
-    public async Task<FunderOutputDto> GetFunderByIdAsync(Guid funderId)
+    public async Task<FunderOutputDto?> GetFunderByIdAsync(Guid funderId)
     {
         var function = new GetFunderByIdFunction
         {
             Id = funderId.ToByteArray()
         };
         var contract = _web3.Eth.GetContractHandler(_addressSettings.FunderAddress);
-        var result = await contract.QueryDeserializingToObjectAsync<GetFunderByIdFunction, GetFunderByIdOutputDto>(function);
-
-        return new FunderOutputDto
+        try
         {
-            Id = new Guid(result.Id),
-            Name = result.Name,
-            IsActive = result.IsActive,
-            FunderContractId = new Guid(result.FunderContractId),
-            IsChangeConfirmed = result.IsChangeConfirmed,
-            PaymentDate = result.PaymentDate,
-            ModifiedBy = result.ModifiedBy,
-            UpdatedAt = result.UpdatedAt
-        };
+            var result =
+                await contract.QueryDeserializingToObjectAsync<GetFunderByIdFunction, GetFunderByIdOutputDto>(function);
+            return new FunderOutputDto
+            {
+                Id = new Guid(result.Id),
+                Name = result.Name,
+                IsActive = result.IsActive,
+                FunderContractId = new Guid(result.FunderContractId),
+                IsChangeConfirmed = result.IsChangeConfirmed,
+                PaymentDate = result.PaymentDate,
+                ModifiedBy = result.ModifiedBy,
+                UpdatedAt = result.UpdatedAt
+            };
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 
     public async Task<FunderOutputDto?> GetFunderByNameAsync(string name)

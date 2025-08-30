@@ -161,7 +161,8 @@ try
         var db = sp.GetRequiredKeyedService<IMongoDatabase>("DB.UserAccessControl");
         var passwordHasher = sp.GetRequiredService<IPasswordHasher<UserAccessControl>>();
         var logger = sp.GetRequiredService<ILogger<UserAccessControlService>>();
-        return new UserAccessControlService(passwordHasher, db, logger);
+        var userRepository = sp.GetRequiredService<IBaseRepository<UserModel>>();
+        return new UserAccessControlService(passwordHasher, db, logger, userRepository);
     });
     
     var smartContractAddressSettings = builder.Configuration.GetSection("SmartContractAddressSettings");

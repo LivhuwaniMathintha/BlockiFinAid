@@ -22,7 +22,7 @@ public class BankAccountContractsController : ControllerBase
         return Ok(await _bankAccount.GetAllAsync());
     }
 
-    [HttpGet("studentNumber")]
+    [HttpGet("{studentNumber}")]
     public async Task<IActionResult> GetStudentNumber(string studentNumber)
     {
         return Ok(await _bankAccount.GetByStudentNumberAsync(studentNumber));

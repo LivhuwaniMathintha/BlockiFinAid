@@ -30,6 +30,13 @@ public class FundingOutputDto
     public string UpdatedAt { get; set; }
 }
 
+public class FundingWebResponse : FundingOutputDto
+{
+    public string Funder { get; set; } = string.Empty;
+    public string PaymentDate { get; set; } = string.Empty;
+    
+}
+
 public class FundingInputDto
 {
     public string FunderId { get; set; }
@@ -226,7 +233,7 @@ public class FundingContract
         _byteCodes = byteCodes.Value;
     }
 
-    public async Task<SmartContractResponse<string>> AddFundingAsync(FundingInputDto dto)
+    public async Task<SmartContractResponse<FundingOutputDto>> AddFundingAsync(FundingInputDto dto)
     {
         var function = new AddFundingFunction
         {
@@ -251,17 +258,18 @@ public class FundingContract
 
         if (receipt.HasErrors().Value)
         {
-            return new SmartContractResponse<string>();
+            return new SmartContractResponse<FundingOutputDto>();
         }
         
-        return new SmartContractResponse<string>()
+        var allFundings = await GetFundingByStudentIdAsync(Guid.Parse(dto.StudentId));
+        return new SmartContractResponse<FundingOutputDto>()
         {
             BlockHash = receipt.BlockHash,
             BlockNumber = receipt.BlockNumber,
             ByteCode = _byteCodes.BankAccountByteCode,
             FunctionSigHashes = functionsSigHashes,
             ContractAddress = receipt.ContractAddress,
-            Data = receipt.TransactionHash,
+            Data = null,
             IsSuccess = true
         };
     }
