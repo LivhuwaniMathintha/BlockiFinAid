@@ -5376,5 +5376,73 @@ ckground Service for Data Streaming is stopping.
 2025-09-06 23:35:43.972 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
 2025-09-06 23:35:43.973 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
 2025-09-06 23:35:43.973 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
-za already exists...
-2025-09-06 23:35:43.973 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+2025-09-06 23:38:43.879 +02:00 [INF] Starting to watch for payments that needs to be processed within the next 48 hours
+2025-09-06 23:38:44.016 +02:00 [INF] Found 5 Funders in the smart contract
+2025-09-06 23:38:44.016 +02:00 [INF] National Student Financial Aid Scheme has a payment date in the next 48 hours: 2025/092025-09-06 23:38:44.016 +02:00 [INF]2025-09-06 23:38:44.024 +02:00 [INF] Found user for National Student Financial Aid Scheme with Student Number of S1451491
+2025-09-06 23:38:44.024 +02:00 [INF] Found bank account for National Student Financial Aid Scheme with Student Number of S12025-092025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 2025/09/08 00:00:00 for National Student Financial Aid Scheme is not in 2025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 2025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for National Research Foundation is not in the next 2025-09-06 23:38:44.071 +02:00 [INF] Payme2025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Canon Collins Trust is not in the next 48 hours.2025-09-06 23:38:44.071 +02:00 [I2025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Allan Gray Orbis Foundation is not in the next 42025-09-06 23:38:44.071 +02:00 [INF] Paym2025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Sector Education and Training Authorities is not2025-09-06 23:38:44.071 +02:00 [INF] Payment Date: 20252025-09-06 23:40:43.916 +02:00 [INF] Usage Telemetry: {"id":"29830000-287f-318f-f096-08dded8d557b","created":"2025-09-06T232025-09-06 23:40:43.916 +02:00 [INF] Usage Telemetry: {"id":"29830000-287f-318f-f096-08dded8d557b","created":"2025-09-06T23:35:43.6836340\u002B02:00","host":{"framework_version":"9.0.6","mass_transit_version":"8.5.1.0","operating_system_version":"Unix 15.6.1","time_zone_info":"(UTC\u002B02:00) South Africa Standard Time (Maseru)","commit_hash":"6a2f4c07dfe21c14ed78299d6d4b4f4cf57bb86c"},"bus":[{"created":"2025-09-06T23:35:43.6938260\u002B02:00","configured":"2025-09-06T23:35:43.7566780\u002B02:00","started":"2025-09-06T23:35:43.8235290\u002B02:00","name":"IBus","endpoints":[{"name":"user-db","type":"RabbitMQ","prefetch_count":1,"consumer_count":1,"message_count":1},{"name":"bank-account-db","type":"RabbitMQ","prefetch_count":1,"consumer_count":1,"message_count":1},{"name":"payment-event","type":"RabbitMQ","prefetch_count":1,"consumer_count":1,"message_count":1},{"name":"funding-db","type":"RabbitMQ","prefetch_count":1,"consumer_count":1,"message_count":1},{"name":"funding-conditions-db","type":"RabbitMQ","prefetch_count":1,"consumer_count":1,"message_count":1},{"name":"funder-db","type":"RabbitMQ","prefetch_count":1,"consumer_count":1,"message_count":1},{"name":"payment-db","type":"Rab2025-09-06 23:53:20.258 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:53:20.294 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:53:20.294 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:52025-09-06 23:52:47.336 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:52:47.337 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:52:47.337 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:52:47.337 +022025-09-06 23:52:47.338 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:52:47.338 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:52:47.494 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:52:47.517 +02:00 [INF] Seeding users...
+2025-09-06 23:52:47.517 +02:00 [INF] Seeding api admin...
+2025-09-06 23:52:47.519 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:52:47.583 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:52:47.584 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:52:47.584 +02:00 [INF] Starting to watch for new inserts in UserModel.
+2025-09-06 23:52:47.584 +02:00 [INF] Starting to watch for new inserts in FunderModel.
+2025-09-06 23:52:47.584 +02:00 [INF] Starting to watch for new inserts in PaymentModel.
+2025-09-06 23:52:47.588 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:52:47.589 +02:00 [INF] Starting to watch for new inserts in FundingConditionsModel.
+2025-09-06 23:52:47.662 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:52:47.764 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:52:2025-09-06 23:52:47.777 +02:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.2025-09-06 23:52:47.777 +02:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://127.0.0.1:5017: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Address already in use
+ ---> System.Net.Sockets.SocketException (48): Address already in use
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 2025-09-06 23:52:47.784 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:52:47.784 +02:00 [ERR] BackgroundService failed
+System.Threading.Tasks.TaskCanceledException: A task was canc2025-09-06 23:52:47.784 +02:00 [ERR] BackgroundService failed
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at BlockiFinAid.Services.Messaging.PaymentInitiator.ExecuteAsync(CancellationToken stoppingToken) in /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Services/Messaging/PaymentInitiator.cs:line2025-09-06 23:52:47.785 +02:00 [FTL] The HostOptions.BackgroundServiceExceptionBehavior is configured to StopHost. A Backgr2025-09-06 23:52:47.785 +02:00 [FTL] The HostOptions.BackgroundServiceExceptionBehavior is configured to StopHost. A BackgroundService has thrown an unhandled exception, and the IHost instance is stopping. To avoid this behavior, configure this to Ignore; however the BackgroundService will not be restarted.
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at BlockiFinAid.Services.Messaging.PaymentInitiator.ExecuteAsync(CancellationToken stoppingToken) in /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Services/Messaging/PaymentInitiator.cs:line2025-09-06 23:52:47.806 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:52:47.807 +02:00 [ERR] Cannot access a disposed object.
+Object name: 'MongoClient'.
+2025-09-06 23:52:47.809 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:52:47.809 +02:02025-09-06 23:52:47.811 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:52:47.811 +02:00 [ERR] Cannot access a disposed object.
+Object name: 'MongoClient'.
+2025-09-06 23:52:47.811 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:52:47.8112025-09-06 23:52:47.812 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:52:47.812 +02:00 [ERR] Error while seeding users
+System.ObjectDisposedException: Cannot access a disposed obj2025-09-06 23:52:47.812 +02:00 [ERR] Error while seeding users
+System.ObjectDisposedException: Cannot access a disposed object.
+Object name: 'MongoClient'.
+   at MongoDB.Driver.MongoClient.ThrowIfDisposed[T](T value)
+   at MongoDB.Driver.MongoClient.ThrowIfDisposed()
+   at MongoDB.Driver.MongoClient.StartImplicitSessionAsync(CancellationToken cancellationToken)
+   at MongoDB.Driver.OperationExecutor.StartImplicitSessionAsync(CancellationToken cancellationToken)
+   at MongoDB.Driver.MongoCollectionImpl`1.UsingImplicitSessionAsync[TResult](Func`2 funcAsync, CancellationToken cancellationToken)
+   at MongoDB.Driver.IAsyncCursorSourceExtensions.FirstOrDefaultAsync[TDocument](IAsyncCursorSource`1 source, CancellationToken cancellationToken)
+   at BlockiFinAid.Services.AccessControl.UserAccessControlService.GetUserByEmail(String email) in /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Services/AccessControl/UserAccessControlService.cs:line 90
+   at BlockiFinAid.Helpers.DatabaseSeeder.SeedUser2025-09-06 23:52:47.814 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+/BlockiFinAid/Helpers/DatabaseSeeder.cs:line 379
+2025-09-06 23:52:47.814 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"

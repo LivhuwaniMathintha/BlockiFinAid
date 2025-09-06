@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BlockiFinAid.Data.Models;
 
-public abstract class FundingModel : IModel
+public class FundingModel : IModel
 {
     [BsonId]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]

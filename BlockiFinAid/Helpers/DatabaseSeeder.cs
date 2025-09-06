@@ -22,6 +22,8 @@ public class DatabaseSeeder
     private readonly IBaseRepository<PaymentModel> _paymentRepo;
     private readonly IBaseRepository<FunderModel> _funders;
     private readonly IBaseRepository<BankAccountModel> _bankAccounts;
+    private readonly IBaseRepository<FundingConditionsModel> _fundingConditions;
+    private readonly IBaseRepository<FundingModel> _funding;
 
     public DatabaseSeeder(ILogger<DatabaseSeeder> logger, 
         IWebHostEnvironment env, 
@@ -30,7 +32,9 @@ public class DatabaseSeeder
         IBaseRepository<UserModel> user,
         IBaseRepository<PaymentModel> payments, 
         IBaseRepository<FunderModel> funders,
-        IBaseRepository<BankAccountModel> bankAccounts)
+        IBaseRepository<BankAccountModel> bankAccounts,
+        IBaseRepository<FundingConditionsModel> fundingConditions,
+        IBaseRepository<FundingModel> funding)
     {
         _logger = logger;
         _env = env;
@@ -40,6 +44,8 @@ public class DatabaseSeeder
         _paymentRepo = payments;
         _funders = funders;
         _bankAccounts = bankAccounts;
+        _fundingConditions = fundingConditions;
+        _funding = funding;
     }
 
     public async Task SeedDataAsync()
@@ -427,7 +433,52 @@ public class DatabaseSeeder
                                 
                             };
                             
-                            await _userRepo.CreateAsync(userDetails, adminId);
+                           var userResponse = await _userRepo.CreateAsync(userDetails, adminId);
+                           if (userResponse is UserModel)
+                           {
+                               UserModel userModel = (UserModel)userResponse;
+                               var random = new Random();
+                               
+                               var fundingConditions = new FundingConditionsModel
+                               {
+                                   Id = Guid.NewGuid(),
+                                   AverageMark = (uint)random.Next(65, 95),
+                                   IsActive = true,
+                                   UpdatedAt = DateTime.UtcNow,
+                                   EndDate = DateTime.UtcNow.AddYears(1),
+                                   StartDate = DateTime.UtcNow,
+                                   LaptopAmount = (uint)random.Next(100, 10000),
+                                   TuitionAmount = (uint)random.Next(100, 100000),
+                                   FoodAmount = (uint)random.Next(1000, 35000),
+                                   AccommodationAmount = (uint)random.Next(100, 40000),
+                                   AccommodationDirectPay = true
+                               };
+                               
+                               var fundingConditionsResponse = await _fundingConditions.CreateAsync(fundingConditions, adminId);
+
+                               if (fundingConditionsResponse is FundingConditionsModel)
+                               {
+                                   _logger.LogInformation($"Funding conditions for {user.Email} has been created.");
+                                   var fundingConditionsOutputDto = (FundingConditionsModel)fundingConditionsResponse;
+                                   var fundingDto = new FundingModel
+                                   {
+                                       StudentNumber = userModel.Id.ToString(),
+                                       AccommodationBalance = fundingConditions.AccommodationAmount,
+                                       LaptopBalance = fundingConditions.LaptopAmount,
+                                       TuitionBalance = fundingConditions.TuitionAmount,
+                                       FoodBalance = fundingConditions.FoodAmount,
+                                       FunderId = funderId.Id,
+                                       FunderContractConditionId = fundingConditionsOutputDto.Id,
+                                       SignedOn = DateTime.UtcNow,
+                                       ModifiedBy = "api-admin",
+                                       UpdatedAt = DateTime.UtcNow,
+                                   };
+                                   
+                                   await _funding.CreateAsync(fundingDto, adminId);
+                               }
+                              
+                           }
+                          
                             _logger.LogInformation($"User Model {user.Email} has been created.");
                         }
                       
