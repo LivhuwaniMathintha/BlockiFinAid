@@ -23,7 +23,7 @@ public class UserDbConsumer : IConsumer<UserModel>
     }
     public async Task Consume(ConsumeContext<UserModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(2));
+        await Task.Delay(TimeSpan.FromSeconds(3));
         _logger.LogInformation($"Consuming the following user {context.Message.StudentNumber} from the queue: ");
         var userDto = new UserInputDto
         {
@@ -62,7 +62,7 @@ public class BankAccountDbConsumer : IConsumer<BankAccountModel>
     public async Task Consume(ConsumeContext<BankAccountModel> context)
     {
         _logger.LogInformation($"BankAccountNumber: {context.Message.BankAccountNumber} has been added to the database and retrieved in real-time. Queue for Smart contract addition");
-        await Task.Delay(TimeSpan.FromSeconds(4));
+        await Task.Delay(TimeSpan.FromSeconds(6));
         var accountDto = new BankAccountInputDto()
         {
             BankAccountNumber = context.Message.BankAccountNumber,
@@ -123,7 +123,7 @@ public class FundingConditionsDbConsumer : IConsumer<FundingConditionsModel>
     }
     public async Task Consume(ConsumeContext<FundingConditionsModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(5));
+        await Task.Delay(TimeSpan.FromSeconds(9));
         _logger.LogInformation($"Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
         var item = new FundingConditionInputDto()
         {

@@ -432,56 +432,82 @@ public class DatabaseSeeder
                                 Name = user.Name,
                                 
                             };
-                            
-                           var userResponse = await _userRepo.CreateAsync(userDetails, adminId);
-                           if (userResponse is UserModel)
-                           {
-                               UserModel userModel = (UserModel)userResponse;
-                               var random = new Random();
-                               
-                               var fundingConditions = new FundingConditionsModel
-                               {
-                                   Id = Guid.NewGuid(),
-                                   AverageMark = (uint)random.Next(65, 95),
-                                   IsActive = true,
-                                   UpdatedAt = DateTime.UtcNow,
-                                   EndDate = DateTime.UtcNow.AddYears(1),
-                                   StartDate = DateTime.UtcNow,
-                                   LaptopAmount = (uint)random.Next(100, 10000),
-                                   TuitionAmount = (uint)random.Next(100, 100000),
-                                   FoodAmount = (uint)random.Next(1000, 35000),
-                                   AccommodationAmount = (uint)random.Next(100, 40000),
-                                   AccommodationDirectPay = true
-                               };
-                               
-                               var fundingConditionsResponse = await _fundingConditions.CreateAsync(fundingConditions, adminId);
 
-                               if (fundingConditionsResponse is FundingConditionsModel)
-                               {
-                                   _logger.LogInformation($"Funding conditions for {user.Email} has been created.");
-                                   var fundingConditionsOutputDto = (FundingConditionsModel)fundingConditionsResponse;
-                                   var fundingDto = new FundingModel
-                                   {
-                                       StudentNumber = userModel.Id.ToString(),
-                                       AccommodationBalance = fundingConditions.AccommodationAmount,
-                                       LaptopBalance = fundingConditions.LaptopAmount,
-                                       TuitionBalance = fundingConditions.TuitionAmount,
-                                       FoodBalance = fundingConditions.FoodAmount,
-                                       FunderId = funderId.Id,
-                                       FunderContractConditionId = fundingConditionsOutputDto.Id,
-                                       SignedOn = DateTime.UtcNow,
-                                       ModifiedBy = "api-admin",
-                                       UpdatedAt = DateTime.UtcNow,
-                                   };
-                                   
-                                   await _funding.CreateAsync(fundingDto, adminId);
-                               }
-                              
-                           }
-                          
-                            _logger.LogInformation($"User Model {user.Email} has been created.");
-                        }
+                            var bankAccount = UAMHelper.GenerateRandomBankAccount();
+                            bankAccount.StudentNumber = userDetails.StudentNumber;
+                            bankAccount.IsConfirmed = true;
+                            bankAccount.Id = Guid.NewGuid();
+
+                            try
+                            {
+                                var bankModel = await _bankAccounts.CreateAsync(bankAccount, adminId);
                       
+                                _logger.LogInformation($"UserFunder {user.Name} bank account seeded successfully with studentNumber {userDetails.StudentNumber}");
+                       
+                                try
+                                {
+                                    if (bankModel is BankAccountModel)
+                                    {
+                                        BankAccountModel bankAccountModel = (BankAccountModel)bankModel;
+                                        userDetails.BankAccountId = bankAccountModel.Id;
+                                        var userResponse = await _userRepo.CreateAsync(userDetails, adminId);
+                                        _logger.LogInformation($"User {user.Name} seeded with studentNumber {userDetails.StudentNumber}");
+                                        if (userResponse is UserModel){
+                                           UserModel userModel = (UserModel)userResponse;
+                                           var random = new Random();
+                                           
+                                           var fundingConditions = new FundingConditionsModel
+                                           {
+                                               Id = Guid.NewGuid(),
+                                               AverageMark = (uint)random.Next(65, 95),
+                                               IsActive = true,
+                                               UpdatedAt = DateTime.UtcNow,
+                                               EndDate = DateTime.UtcNow.AddYears(1),
+                                               StartDate = DateTime.UtcNow,
+                                               LaptopAmount = (uint)random.Next(100, 10000),
+                                               TuitionAmount = (uint)random.Next(100, 100000),
+                                               FoodAmount = (uint)random.Next(1000, 35000),
+                                               AccommodationAmount = (uint)random.Next(100, 40000),
+                                               AccommodationDirectPay = true
+                                           };
+                                           
+                                           var fundingConditionsResponse = await _fundingConditions.CreateAsync(fundingConditions, adminId);
+
+                                           if (fundingConditionsResponse is FundingConditionsModel)
+                                           {
+                                               _logger.LogInformation($"Funding conditions for {user.Email} has been created.");
+                                               var fundingConditionsOutputDto = (FundingConditionsModel)fundingConditionsResponse;
+                                               var fundingDto = new FundingModel
+                                               {
+                                                   StudentNumber = userModel.Id.ToString(),
+                                                   AccommodationBalance = fundingConditions.AccommodationAmount,
+                                                   LaptopBalance = fundingConditions.LaptopAmount,
+                                                   TuitionBalance = fundingConditions.TuitionAmount,
+                                                   FoodBalance = fundingConditions.FoodAmount,
+                                                   FunderId = funderId.Id,
+                                                   FunderContractConditionId = fundingConditionsOutputDto.Id,
+                                                   SignedOn = DateTime.UtcNow,
+                                                   ModifiedBy = "api-admin",
+                                                   UpdatedAt = DateTime.UtcNow,
+                                               };
+                                               
+                                               await _funding.CreateAsync(fundingDto, adminId);
+                                           }
+                                        }
+                                        _logger.LogInformation($"User Model {user.Email} has been created.");
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    _logger.LogError(e.Message, $"Failed to create funder - user for {user.Name}");
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogError(e.Message, "Failed to create bank account");
+                            }
+                           
+                        }
                     }
                     else
                     {
