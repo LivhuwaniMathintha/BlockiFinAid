@@ -6,6 +6,7 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/appsettings.Development.json
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/appsettings.json
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/funders.json
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/funderUsers.json
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/payment.json
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/users.json
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/SmartContracts/addresses.json
@@ -95,6 +96,7 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/RabbitMQ.Client.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.HttpClientFactory.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.Newtonsoft.Json.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/SendGrid.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Serilog.AspNetCore.dll
@@ -287,5 +289,3 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/obj/Debug/net9.0/BlockiFinAid.pdb
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/obj/Debug/net9.0/BlockiFinAid.genruntimeconfig.cache
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/obj/Debug/net9.0/ref/BlockiFinAid.dll
-/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.Newtonsoft.Json.dll
-/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/funderUsers.json

@@ -4934,3 +4934,447 @@ Nethereum.JsonRpc.Client.RpcResponseException: Nonce too low. Expected nonce to 
 2025-09-06 23:16:50.780 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
 ckground Service for Data Streaming is stopping.
 2025-09-06 23:16:50.780 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:23:32.392 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:23:32.428 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:22025-09-06 23:23:32.428 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:23:32.430 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:23:32.431 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:23:32.431 +022025-09-06 23:23:32.431 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:23:32.432 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:23:32.687 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:23:32.714 +02:00 [INF] Seeding users...
+2025-09-06 23:23:32.715 +02:00 [INF] Seeding api admin...
+2025-09-06 23:23:32.717 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:32.821 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:23:32.823 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:23:32.823 +02:00 2025-09-06 23:23:32.823 +02:00 [INF] Starting to watch f2025-09-06 23:23:32.823 +02:00 2025-09-06 23:23:32.823 +02:00 [INF] Starting to watch for new inserts in UserModel.
+2025-09-06 23:23:32.823 +02:00 [INF] Starting to watch fo2025-09-06 23:23:32.829 +02:00 [INF] Starting to watch for new inserts in FundingConditionsModel.
+2025-09-06 23:23:32.829 +2025-09-06 23:23:32.829 +02:00 [INF] Starting to watch for new 2025-09-06 23:23:32.926 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:23:33.075 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:23:2025-09-06 23:23:33.140 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:23:33.144 +02:00 [INF] Payment with Id National Student Financial Aid Scheme does not exist...
+2025-09-06 23:23:33.145 +02:00 [INF] Processing Funder National Student Financial Aid Scheme...
+2025-09-06 23:23:33.158 +02:00 [INF] Created FunderModel with id 2b6bbce9-2753-4563-a241-2f42d4f8dd7e in the collection fun2025-2025-09-06 23:23:33.162 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.166 +02:00 [INF] New FunderModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.172 +02:00 [INF] Created audit trail with id c5b97550-eddc-4c96-a4ce-8dcf193c3d5e
+2025-09-06 23:23:33.174 +02:00 [INF] Successfully added National Student Financial Aid Scheme from seeding data
+2025-09-06 23:23:33.175 +02:00 [INF] Payment with Id National Research Foundation does not exist...
+2025-09-06 23:23:33.175 +02:00 [INF] Processing Funder National Research Foundation...
+2025-09-06 23:23:33.177 +02:00 [INF] Created FunderModel with id 9b7eec72-d01c-4c11-b341-cc2b8711bbcf in the collection fun2025-2025-09-06 23:23:33.180 +02:00 [INF] Created audit trail with id 3ef0725b-3801-4a03-bb94-91fb266788a7
+2025-09-06 23:23:33.181 +02:00 [INF] Successfully added National Research Foundation from seeding data
+2025-09-06 23:23:33.182 +02:00 [INF] Payment with Id Canon Collins Trust does not exist...
+2025-09-06 23:23:33.182 +02:00 [INF] Processing Funder Canon Collins Trust...
+2025-09-06 23:23:33.184 +02:00 [INF] Created FunderModel with id a87f9b4b-fc86-4c6f-9cbf-ca4ecb98cb69 in the collection fun2025-2025-09-06 23:23:33.186 +02:00 [INF] Created audit trail with id 68cde28d-2466-4cf8-b85d-edbf9fb55a50
+2025-09-06 23:23:33.187 +02:00 [INF] Successfully added Canon Collins Trust from seeding data
+2025-09-06 23:23:33.187 +02:00 [INF] Payment with Id Allan Gray Orbis Foundation does not exist...
+2025-09-06 23:23:33.187 +02:00 [INF] Processing Funder Allan Gray Orbis Foundation...
+2025-09-06 23:23:33.190 +02:00 [INF] Created FunderModel with id 7e78b211-c517-4209-85dc-213e48f3cd38 in the collection fun2025-2025-09-06 23:23:33.192 +02:00 [INF] Created audit trail with id 1706f4f5-9b71-4d29-b6ce-93ae6f83bac8
+2025-09-06 23:23:33.193 +02:00 [INF] Successfully added Allan Gray Orbis Foundation from seeding data
+2025-09-06 23:23:33.194 +02:00 [INF] Payment with Id Sector Education and Training Authorities does not exist...
+2025-09-06 23:23:33.194 +02:00 [INF] Processing Funder Sector Education and Training Authorities...
+2025-09-06 23:23:33.197 +02:00 [INF] Created FunderModel with id ae578793-63f7-474a-b814-916e3f58f11f in the collection fun2025-2025-09-06 23:23:33.207 +02:00 [INF] Created audit trail with id a8355971-911e-44f0-92e6-4930ee7ba0f2
+2025-09-06 23:23:33.209 +02:00 [INF] Successfully added Sector Education and Training Authorities from seeding data
+2025-09-06 23:23:33.213 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:23:33.213 +02:02025-09-06 23:23:33.219 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:23:33.251 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.251 +02:00 [INF] Created BankAccount2025-09-06 23:23:33.251 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:22025-09-06 23:23:33.254 +02:00 [INF] Created audit trail with id aff116fd-db50-4abb-887b-cdf724649131
+2025-09-06 23:23:33.255 +02:00 [INF] New BankAccountModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.256 +02:00 [INF] UserFunder National Student Financial Aid Scheme bank account seeded successfully with2025-09-06 23:23:33.256 2025-09-06 23:23:33.272 +02:00 [INF] Created UserModel with id 1b9f297a-8fe8-456e-b0ee-5a14a7e224d4 in the collection users22025-09-06 23:23:33.273 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.274 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.287 +02:00 [INF] Created audit trail with id 91d4cecc-313e-4079-a397-ff0bb4130379
+2025-09-06 23:23:33.289 +02:00 [INF] UserFunder National Student Financial Aid Scheme seeded with studentNumber S1451491
+2025-09-06 23:23:33.294 +02:00 [INF] Created BankAccountModel with id caf2b367-7e53-4600-b539-184c200d711b in the collectio2025-09-06 23:22025-09-06 23:23:33.297 +02:00 [INF] Created audit trail with id a6c44ce2-abe2-4cad-aaee-927eb865dd5f
+2025-09-06 23:23:33.298 +02:00 [INF] UserFunder National Research Foundation bank account seeded successfully with studentN2025-09-06 23:22025-09-06 23:23:33.301 +02:00 [INF] Published message of type: FunderModel
+2025-09-06 23:23:33.301 +02:00 [INF] Published 2025-09-06 23:23:33.301 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.301 +02:00 [IN2025-09-06 23:23:33.302 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.302 +02:00 [IN2025-09-06 23:23:33.301 +02:00 [INF] Created UserModel with id 30f05fa1-d56f-4355-8fb7-7500dc979172 in the collection users
+2025-09-06 23:23:33.302 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.302 +02:00 [INF] Publishing to Rabbit MQ has2025-09-06 23:23:33.304 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.304 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.305 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.305 +02:00 [INF] New FunderModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.306 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.306 +02:00 [INF] New BankAccountModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.308 +02:00 [INF] Published message of type: FunderModel
+2025-09-06 23:23:33.308 +02:00 [INF] Publishing to Rabbit MQ has completed for FunderModel
+2025-09-06 23:23:33.308 +02:00 [2025-09-06 23:23:33.308 +02:00 [INF] Publishing t2025-09-06 23:23:33.308 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.308 +02:00 [INF] Publishing to Rabbi2025-09-06 23:23:33.308 +02:00 [INF] Fou2025-09-06 23:23:33.308 +02:00 [INF] New FunderModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.308 +02:00 [2025-09-06 23:23:33.308 +02:00 [INF] New F2025-09-06 23:23:33.308 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.308 +02:00 [INF] Created audit trail with id a152d5ff-6b69-4dcc-ade6-6f524e52268b
+2025-09-06 23:23:33.310 +02:00 [INF] Published message of type: FunderModel
+2025-09-06 23:23:33.310 +02:00 [INF] Publishing to Rabbit MQ has completed for FunderModel
+2025-09-06 23:23:33.310 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.311 +02:00 [INF] New FunderModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.311 +02:00 [INF] UserFunder National Research Foundation seeded with studentNumber S8869369
+2025-09-06 23:23:33.313 +02:00 [INF] Published message of type: FunderModel
+2025-09-06 23:23:33.313 +02:00 [INF] Publishing to Rabbit MQ has completed for FunderModel
+2025-09-06 23:23:33.313 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.313 +02:00 [INF] New FunderModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.317 +02:00 [INF] Published message of type: FunderModel
+2025-09-06 23:23:33.317 +02:00 [INF] Publishing to Rabbit MQ has completed for FunderModel
+2025-09-06 23:23:33.318 +02:00 [INF] Created BankAccountModel with id 1afb4b82-7810-4503-b60e-5bb60fa5679c in the collectio2025-09-06 23:22025-09-06 23:23:33.318 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.319 +02:00 [INF] New BankAccountModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.322 +02:00 [INF] Published message of type: BankAccountModel
+2025-09-06 23:23:33.322 +02:00 [INF] Publishing to Rabbit MQ has completed for BankAccountModel
+2025-09-06 23:23:33.322 +02:00 [INF] Created audit trail with id 432818f5-fa09-4c2a-82e3-e14a6485146f
+2025-09-06 23:23:33.325 +02:00 [INF] UserFunder Allan Gray Orbis Foundation bank account seeded successfully with studentNu2025-09-06 23:2025-09-06 23:23:33.328 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.328 +02:00 [INF] Created UserModel w2025-09-06 23:23:33.328 +02:00 [INF] Created UserModel with id f59ec2025-09-06 23:23:33.328 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.330 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.331 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.331 +02:00 [INF] Created audit trail with id d821a60c-76fa-4ae2-87a2-aff052b8ac61
+2025-09-06 23:23:33.334 +02:00 [INF] UserFunder Allan Gray Orbis Foundation seeded with studentNumber S4058958
+2025-09-06 23:23:33.341 +02:00 [INF] Created BankAccountModel with id d4cbc3fd-4f6b-4e4f-9373-2edd36496521 in the collectio2025-09-06 23:23:33.341 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:22025-09-06 23:23:33.341 +02:00 [INF] New BankAccountModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.344 +02:00 [INF] Published message of type: BankAccountModel
+2025-09-06 23:23:33.344 +02:00 [INF] Created audit trail with id 5385edfe-7d13-4dfd-bdea-ec62f3871e6d
+2025-09-06 23:23:33.32025-09-06 23:23:33.344 +02:00 [INF] Created audit trail with id 5385edfe-72025-09-06 23:23:33.346 +02:00 [INF] UserFunder Sector Education and Training Authorities bank account seeded successfully 2025-09-06 23:23:33.346 +02:2025-09-06 23:23:33.349 +02:00 [INF] Created UserModel with id eae16338-453f-4939-90ee-2cf51f32b862 in the collection users22025-09-06 23:23:33.349 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.350 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.351 +02:00 [INF] Created audit trail with id 5feef2cd-5054-4d87-a240-25e6eab66bf8
+2025-09-06 23:23:33.351 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.351 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.352 +02:00 [INF] UserFunder Sector Education and Training Authorities seeded with studentNumber S804298202025-09-06 23:23:33.353 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:23:33.3532025-09-06 23:23:33.354 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:23:33.356 +02:00 [INF] User with email jane.smith@uj.ac.za does not exist...
+2025-09-06 23:23:33.358 +02:00 [INF] Processing UAM for jane.smith@uj.ac.za... with password mbGTvhF(...
+2025-09-06 23:23:33.358 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.402 +02:00 [INF] User Jane Smith has been registered
+2025-09-06 23:23:33.402 +02:00 [INF] UAM for jane.smith@uj.ac.za has been registered with role admin
+2025-09-06 23:23:33.408 +02:00 [INF] Created UserModel with id 444f5468-205c-4156-86a2-24e5c2c33960 in the collection users2025-09-06 23:23:33.408 +02:00 [INF] Created UserModel with id 444f52025-09-06 23:23:33.408 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.410 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.410 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.411 +02:00 [INF] Created audit trail with id 1ee07202-2cd3-43f0-ad1b-927c7b789c3c
+2025-09-06 23:23:33.412 +02:00 [INF] User Model jane.smith@uj.ac.za has been created.
+2025-09-06 23:23:33.414 +02:00 [INF] User with email john.doe@uj.ac.za does not exist...
+2025-09-06 23:23:33.414 +02:00 [INF] Processing UAM for john.doe@uj.ac.za... with password K2@9xA0D...
+2025-09-06 23:23:33.414 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.432 +02:00 [INF] BankAccountNumber: 26835298 has been added to the database and retrieved in real-time.2025-09-06 23:23:33.432 +02:00 [INF2025-09-06 23:23:33.452 +02:00 [INF] User John Doe has been registered
+2025-09-06 23:23:33.452 +02:00 [INF] UAM for john.doe@uj.ac.za has been registered with role admin
+2025-09-06 23:23:33.454 +02:00 [INF] Created UserModel with id 8a434cc1-0182-4a24-bb5e-0dcd4528ad92 in the collection users22025-09-06 23:23:33.454 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.455 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.456 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.456 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.456 +02:00 [INF] Created audit trail with id 472ca210-d2fb-4705-858b-b30510ee9fd3
+2025-09-06 23:23:33.457 +02:00 [INF] User Model john.doe@uj.ac.za has been created.
+2025-09-06 23:23:33.459 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:23:33.461 +02:00 [INF] User with email peter.jones@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.461 +02:00 [INF] Processing UAM for peter.jones@student.uj.ac.za... with password dGb9ES6*...
+2025-09-06 23:23:33.461 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.559 +02:00 [INF] User Peter Jones has been registered
+2025-09-06 23:23:33.559 +02:00 [INF] UAM for peter.jones@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.563 +02:00 [INF] Created UserModel with id df53bd9d-d681-480b-8640-b914d1ba7483 in the collection users22025-09-06 23:23:33.564 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.564 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.566 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.566 +02:00 [INF] Created audi2025-09-06 23:23:33.566 +02:00 [INF] Published messag2025-09-06 23:23:33.567 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.569 +02:00 [INF] User Model peter.jones@student.uj.ac.za has been created.
+2025-09-06 23:23:33.572 +02:00 [INF] User with email mary.williams@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.572 +02:00 [INF] Processing UAM for mary.williams@student.uj.ac.za... with password H&cuJDeI...
+2025-09-06 23:23:33.572 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.629 +02:00 [INF] User Mary Williams has been registered
+2025-09-06 23:23:33.629 +02:00 [INF] UAM for mary.williams@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.640 +02:00 [INF] Created UserModel with id 706393b6-2c77-4b90-86f4-80e2d20daa14 in the collection users22025-09-06 23:23:33.641 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.641 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.646 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.646 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.646 +02:00 [INF] Created audit trail with id 82d7fd76-806a-40a9-a012-9dc1d4f0f45d
+2025-09-06 23:23:33.649 +02:00 [INF] User Model mary.williams@student.uj.ac.za has been created.
+2025-09-06 23:23:33.652 +02:00 [INF] User with email david.chen@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.653 +02:00 [INF] Processing UAM for david.chen@student.uj.ac.za... with password mdd1CTr0...
+2025-09-06 23:23:33.653 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.699 +02:00 [INF] User David Chen has been registered
+2025-09-06 23:23:33.699 +02:00 [INF] UAM for david.chen@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.707 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.707 +02:00 [INF] Created UserModel with id 72f12b9a-eb5c-480f-9473-df42c0ef6810 in the collection users22025-09-06 23:23:33.707 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.711 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.711 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.712 +02:00 [INF] Created audit trail with id 1540e344-a403-49ff-b017-c1f183fb1076
+2025-09-06 23:23:33.714 +02:00 [INF] User Model david.chen@student.uj.ac.za has been created.
+2025-09-06 23:23:33.718 +02:00 [INF] User with email emily.white@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.718 +02:00 [INF] Processing UAM for emily.white@student.uj.ac.za... with password V^@oa(4l...
+2025-09-06 23:23:33.718 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.762 +02:00 [INF] User Emily White has been registered
+2025-09-06 23:23:33.762 +02:00 [INF] UAM for emily.white@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.767 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.767 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.767 +02:00 [IN2025-09-06 23:23:33.767 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+22025-09-06 23:23:33.770 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.770 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.773 +02:00 [INF] Created audit trail with id 1b1e1255-7ca6-4e9c-b201-73efadd32a75
+2025-09-06 23:23:33.775 +02:00 [INF] User Model emily.white@student.uj.ac.za has been created.
+2025-09-06 23:23:33.780 +02:00 [INF] User with email chris.lee@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.780 +02:00 [INF] Processing UAM for chris.lee@student.uj.ac.za... with password xA4x3gwo...
+2025-09-06 23:23:33.780 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.825 +02:00 [INF] User Chris Lee has been registered
+2025-09-06 23:23:33.825 +02:00 [INF] UAM for chris.lee@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.831 +02:00 [INF] Created UserModel with id 6a6bca38-b0be-4e5d-a6b4-7dd595d79a13 in the collection users2025-09-06 23:23:33.831 +02:00 [INF] Created UserModel with id 6a6bc2025-09-06 23:23:33.832 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.834 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.835 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.835 +02:00 [IN2025-09-06 23:23:33.835 +02:00 [INF] Publishing to Rabbit MQ has com2025-09-06 23:23:33.837 +02:00 [INF] User Model chris.lee@student.uj.ac.za has been created.
+2025-09-06 23:23:33.840 +02:00 [INF] User with email sarah.brown@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.840 +02:00 [INF] Processing UAM for sarah.brown@student.uj.ac.za... with password n%*iwEbh...
+2025-09-06 23:23:33.841 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.881 +02:00 [INF] User Sarah Brown has been registered
+2025-09-06 23:23:33.881 +02:00 [INF] UAM for sarah.brown@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.888 +02:00 [INF] Created UserModel with id d5e4bd4c-7937-47f2-bd19-6ca668887a3c in the collection users22025-09-06 23:23:33.889 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.889 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.892 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:33.892 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.892 +02:00 [INF] Created audit trail with id 3e5ad4e8-96ee-442c-8107-04aa6d71ac80
+2025-09-06 23:23:33.895 +02:00 [INF] User Model sarah.brown@student.uj.ac.za has been created.
+2025-09-06 23:23:33.901 +02:00 [INF] User with email michael.davis@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.901 +02:00 [INF] Processing UAM for michael.davis@student.uj.ac.za... with password JnVr0e1Q...
+2025-09-06 23:23:33.901 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:33.973 +02:00 [INF] User Michael Davis has been registered
+2025-09-06 23:23:33.974 +02:00 [INF] UAM for michael.davis@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:33.982 +02:00 [INF] Created UserModel with id d3cc6e34-ba19-4a89-9134-52f6c5bc912f in the collection users22025-09-06 23:23:33.982 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:33.983 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:33.986 +02:00 [INF] Created audit trail with id 9b97383a-4c32-4d30-b776-86ee92e195df
+2025-09-06 23:23:33.92025-09-06 23:23:33.986 +02:00 [INF] Created audit tr2025-09-06 23:23:33.986 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:33.989 +02:00 [INF] User Model michael.davis@student.uj.ac.za has been created.
+2025-09-06 23:23:33.995 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za does not exist...
+2025-09-06 23:23:33.995 +02:00 [INF] Processing UAM for olivia.wilson@student.uj.ac.za... with password k$5Rmf$z...
+2025-09-06 23:23:33.996 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:23:34.085 +02:00 [INF] User Olivia Wilson has been registered
+2025-09-06 23:23:34.085 +02:00 [INF] UAM for olivia.wilson@student.uj.ac.za has been registered with role student
+2025-09-06 23:23:34.091 +02:00 [INF] Created UserModel with id 183b2937-94cd-4907-8ccd-9a00f59e1e34 in the collection users22025-09-06 23:23:34.091 +02:00 [INF] Found a change in the stream.
+2025-09-06 23:23:34.092 +02:00 [INF] New UserModel entry found. Publishing to Rabbit MQ.
+2025-09-06 23:23:34.095 +02:00 [INF] Published message of type: UserModel
+2025-09-06 23:23:34.095 +02:00 [INF] Publishing to Rabbit MQ has completed for UserModel
+2025-09-06 23:23:34.096 +02:00 [INF] Created audit trail with id 6581e44b-dc1f-44bb-8c3a-4e24785e44cb
+2025-09-06 23:23:34.098 +02:00 [INF] User Model olivia.wilson@student.uj.ac.za has been created.
+2025-09-06 23:23:35.433 +02:00 [INF] Consuming the following user S1451491 from the queue: 
+2025-09-06 23:23:35.589 +02:00 [INF] User S1451491 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:35.589 +02:00 [INF] Use2025-09-06 23:23:36.435 +02:00 [INF] Consuming funding model for Funder National Student Financial Aid Scheme from the queu20252025-09-06 23:23:36.436 +02:00 [INF] Looking for funder: National Student Financial Aid Scheme with id: 2b6bbce9-2753-4563-2025-09-06 23:23:36.436 +02:00 [INF] Loo2025-09-06 23:23:36.587 +02:00 [INF] Adding data from db to smart contract in real-time for funder model complete with stat2025-09-06 23:23:36.587 +02:00 [INF] Adding data from db to smart contr2025-09-06 23:23:37.454 +02:00 [INF] Adding data from db to smart contract in real-time for bankAccount model is complete w2025-09-06 23:23:37.454 +02:00 [INF] Adding data from db to smart contract in r2025-09-06 23:23:37.460 +02:00 [INF] BankAccountNumber: 64876209 has been added to the database and retrieved in real-time.2025-09-06 23:23:37.460 +02:00 [INF2025-09-06 23:23:37.607 +02:00 [INF] Consuming the following user S8869369 from the queue: 
+2025-09-06 23:23:37.618 +02:00 [INF] User S8869369 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:37.618 +02:00 [INF] Use2025-09-06 23:23:39.595 +02:00 [INF] Consuming funding model for Funder National Research Foundation from the queue: 
+2025-09-06 23:23:39.595 +02:00 [INF] Looking for funder: National Research Foundation with id: 9b7eec72-d01c-4c11-b341-cc2b2025-09-06 23:23:39.595 +02:00 2025-09-06 23:23:39.615 +02:00 [INF] Adding data from db to smart contract in real-time for funder model complete with stat2025-09-06 23:23:39.615 +02:00 [INF] Adding data from db to smart contr2025-09-06 23:23:39.622 +02:00 [INF] Consuming the following user S4058958 from the queue: 
+2025-09-06 23:23:39.635 +02:00 [INF] User S4058958 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:39.635 +02:00 [INF] Use2025-09-06 23:23:41.483 +02:00 [INF] Adding data from db to smart contract in real-time for bankAccount model is complete w2025-09-06 23:23:41.483 +02:00 [INF] Adding data from db to smart contract in r2025-09-06 23:23:41.489 +02:00 [INF] BankAccountNumber: 32661969 has been added to the database and retrieved in real-time.2025-09-06 23:23:41.489 +02:00 [INF2025-09-06 23:23:41.640 +02:00 [INF] Consuming the following user S8042985 from the queue: 
+2025-09-06 23:23:41.657 +02:00 [INF] User S8042985 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:41.657 +02:00 [INF] Use2025-09-06 23:23:42.620 +02:00 [INF] Consuming funding model for Funder Canon Collins Trust from the queue: 
+2025-09-06 23:23:42.621 +02:00 [INF] Looking for funder: Canon Collins Trust with id: a87f9b4b-fc86-4c6f-9cbf-ca4ecb98cb69 2025-09-06 23:23:42.622025-09-06 23:23:42.638 +02:00 [INF] Adding data from db to smart contract in real-time for funder model complete with stat2025-09-06 23:23:42.638 +02:00 [INF] Adding data from db to smart contr2025-09-06 23:23:43.661 +02:00 [INF] Consuming the following user S0808495 from the queue: 
+2025-09-06 23:23:43.713 +02:00 [INF] User S0808495 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:43.713 +02:00 [INF] Use2025-09-06 23:23:45.508 +02:00 [INF] Adding data from db to smart contract in real-time for bankAccount model is complete w2025-09-06 23:23:45.508 +02:00 [INF] Adding data from db to smart contract in r2025-09-06 23:23:45.510 +02:00 [INF] BankAccountNumber: 5457229 has been added to the database and retrieved in real-time. 2025-09-06 23:23:45.510 +02:00 [IN2025-09-06 23:23:45.645 +02:00 [INF] Consuming funding model for Funder Allan Gray Orbis Foundation from the queue: 
+2025-09-06 23:23:45.645 +02:00 [INF] Looking for funder: Allan Gray Orbis Foundation with id: 7e78b211-c517-4209-85dc-213e42025-09-06 23:23:45.645 +02:002025-09-06 23:23:45.662 +02:00 [INF] Adding data from db to smart contract in real-time for funder model complete with stat2025-09-06 23:23:45.662 +02:00 [INF] Adding data from db to smart contr2025-09-06 23:23:45.717 +02:00 [INF] Consuming the following user S4444037 from the queue: 
+2025-09-06 23:23:45.739 +02:00 [INF] User S4444037 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:45.739 +02:00 [INF] Use2025-09-06 23:23:47.743 +02:00 [INF] Consuming the following user S6337651 from the queue: 
+2025-09-06 23:23:47.767 +02:00 [INF] User S6337651 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:47.767 +02:00 [INF] Use2025-09-06 23:23:47.827 +02:00 [INF] Starting to watch for payments that needs to be processed within the next 48 hours
+2025-09-06 23:23:47.859 +02:00 [INF] Found 4 Funders in the smart contract
+2025-09-06 23:23:47.859 +02:00 [INF] National Student Financial Aid Scheme has a payment date in the next 48 hours: 2025/092025-09-06 23:23:47.859 +02:00 [INF]2025-09-06 23:23:47.870 +02:00 [INF] Found user for National Student Financial Aid Scheme with Student Number of S1451491
+2025-09-06 23:23:47.870 +02:00 [INF] Found bank account for National Student Financial Aid Scheme with Student Number of S12025-092025-09-06 23:23:47.908 +02:00 [INF] Payment Date: 2025/09/08 00:00:00 for National Student Financial Aid Scheme is not in 2025-09-06 23:23:47.908 +02:00 [INF] Payment Date: 2025-09-06 23:23:47.908 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for National Research Foundation is not in the next 2025-09-06 23:23:47.908 +02:00 [INF] Payme2025-09-06 23:23:47.908 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Canon Collins Trust is not in the next 48 hours.2025-09-06 23:23:47.908 +02:00 [I2025-09-06 23:23:47.908 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Allan Gray Orbis Foundation is not in the next 42025-09-06 23:23:47.908 +02:00 [INF] Paym2025-09-06 23:23:48.666 +02:00 [INF] Consuming funding model for Funder Sector Education and Training Authorities from the 2025-09-2025-09-06 23:23:48.666 +02:00 [INF] Looking for funder: Sector Education and Training Authorities with id: ae578793-63f7-42025-09-06 23:23:48.666 +02:00 [INF] Looking2025-09-06 23:23:48.696 +02:00 [INF] Adding data from db to smart contract in real-time for funder model complete with stat2025-09-06 23:23:48.696 +02:00 [INF] Adding data from db to smart contr2025-09-06 23:23:49.540 +02:00 [INF] Adding data from db to smart contract in real-time for bankAccount model is complete w2025-09-06 23:23:49.540 +02:00 [INF] Adding data from db to smart contract in r2025-09-06 23:23:49.772 +02:00 [INF] Consuming the following user S7671457 from the queue: 
+2025-09-06 23:23:49.799 +02:00 [INF] User S7671457 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:49.799 +02:00 [INF] Use2025-09-06 23:23:51.806 +02:00 [INF] Consuming the following user S1125127 from the queue: 
+2025-09-06 23:23:51.831 +02:00 [INF] User S1125127 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:51.831 +02:00 [INF] Use2025-09-06 23:23:53.837 +02:00 [INF] Consuming the following user S0444832 from the queue: 
+2025-09-06 23:23:53.856 +02:00 [INF] User S0444832 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:53.856 +02:00 [INF] Use2025-09-06 23:23:55.862 +02:00 [INF] Consuming the following user S6559149 from the queue: 
+2025-09-06 23:23:55.888 +02:00 [INF] User S6559149 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:55.888 +02:00 [INF] Use2025-09-06 23:23:57.895 +02:00 [INF] Consuming the following user S6977200 from the queue: 
+2025-09-06 23:23:57.908 +02:00 [INF] User S6977200 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:57.908 +02:00 [INF] Use2025-09-06 23:23:59.912 +02:00 [INF] Consuming the following user S9155155 from the queue: 
+2025-09-06 23:23:59.937 +02:00 [INF] User S9155155 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:23:59.937 +02:00 [INF] Use2025-09-06 23:24:01.944 +02:00 [INF] Consuming the following user S8060860 from the queue: 
+2025-09-06 23:24:01.966 +02:00 [INF] User S8060860 added to the smart contract for users with status: BlockiFinAid.Data.Res2025-09-06 23:24:01.966 +02:00 [INF] Use2025-09-06 23:27:18.545 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:27:18.606 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:27:18.606 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:27:21.973 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:27:22.003 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:22025-09-06 23:27:22.004 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:27:22.004 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:27:22.005 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:27:22.005 +022025-09-06 23:27:22.005 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:27:22.006 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:27:22.224 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:27:22.242 +02:00 [INF] Seeding users...
+2025-09-06 23:27:22.243 +02:00 [INF] Seeding api admin...
+2025-09-06 23:27:22.245 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:27:22.333 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:27:22.335 +02:00 [INF] Starting to watch for new inserts in FunderModel.
+2025-09-06 23:27:22.335 +02:00 [INF] Starting to watch for new inserts in PaymentModel.
+2025-09-06 23:27:22.335 +02:00 [INF2025-09-06 23:27:22.335 +02:00 [INF] Starting to w2025-09-06 23:27:22.335 +02:00 [INF2025-09-06 23:27:22.335 +02:00 [INF] Starting to watch fo2025-09-06 23:27:22.342 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:27:22.342 +02:00 [INF] Starting to watch for new inserts in FundingConditionsModel.
+2025-09-06 23:27:22.427 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:27:22.474 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:27:2025-09-06 23:27:22.623 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:27:22.628 +02:00 [INF] Funder National Student Financial Aid Scheme already exists. Ignoring it.
+2025-09-06 23:27:22.630 +02:00 [INF] Funder National Research Foundation already exists. Ignoring it.
+2025-09-06 23:27:22.631 +02:00 [INF] Funder Canon Collins Trust already exists. Ignoring it.
+2025-09-06 23:27:22.632 +02:00 [INF] Funder Allan Gray Orbis Foundation already exists. Ignoring it.
+2025-09-06 23:27:22.632 +02:00 [INF] Funder Sector Education and Training Authorities already exists. Ignoring it.
+2025-09-06 23:27:22.635 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:27:22.635 +02:02025-09-06 23:27:22.636 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:27:22.641 +02:00 [ERR] UserFunder National Student Financial Aid Scheme already exists. Skipping user seeding22025-09-06 23:27:22.642 +02:00 [ERR] UserFunder National Research Foundation already exists. Skipping user seeding
+2025-09-06 23:27:22.643 +02:00 [ERR] UserFunder Allan Gray Orbis Foundation already exists. Skipping user seeding
+2025-09-06 23:27:22.644 +02:00 [ERR] UserFunder Sector Education and Training Authorities already exists. Skipping user see2025-2025-09-06 23:27:22.644 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:27:22.6442025-09-06 23:27:22.644 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:27:22.646 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:27:22.647 +02:00 [INF] User with email john.doe@uj.ac.za already exists...
+2025-09-06 23:27:22.649 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:27:22.651 +02:00 [INF] User with email peter.jones@student.uj.ac.za already exists...
+2025-09-06 23:27:22.652 +02:00 [INF] User with email mary.williams@student.uj.ac.za already exists...
+2025-09-06 23:27:22.654 +02:00 [INF] User with email david.chen@student.uj.ac.za already exists...
+2025-09-06 23:27:22.655 +02:00 [INF] User with email emily.white@student.uj.ac.za already exists...
+2025-09-06 23:27:22.656 +02:00 [INF] User with email chris.lee@student.uj.ac.za already exists...
+2025-09-06 23:27:22.658 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
+2025-09-06 23:27:22.660 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
+2025-09-06 23:27:22.662 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+2025-09-06 23:30:22.337 +02:00 [INF] Starting to watch for payments that needs to be processed within the next 48 hours
+2025-09-06 23:30:22.550 +02:00 [INF] Found 5 Funders in the smart contract
+2025-09-06 23:30:22.551 +02:00 [INF] National Student Financial Aid Scheme has a payment date in the next 48 hours: 2025/092025-09-06 23:30:22.551 +02:00 [INF]2025-09-06 23:30:22.565 +02:00 [INF] Found user for National Student Financial Aid Scheme with Student Number of S1451491
+2025-09-06 23:30:22.565 +02:00 [INF] Found bank account for National Student Financial Aid Scheme with Student Number of S12025-092025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 2025/09/08 00:00:00 for National Student Financial Aid Scheme is not in 2025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 2025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for National Research Foundation is not in the next 2025-09-06 23:30:22.621 +02:00 [INF] Payme2025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Canon Collins Trust is not in the next 48 hours.2025-09-06 23:30:22.621 +02:00 [I2025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Allan Gray Orbis Foundation is not in the next 42025-09-06 23:30:22.621 +02:00 [INF] Paym2025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 2025/08/15 07:00:00 for Sector Education and Training Authorities is not2025-09-06 23:30:22.621 +02:00 [INF] Payment Date: 20252025-09-06 23:31:15.393 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:31:15.456 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:31:15.456 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:31:18.517 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:31:18.550 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:32025-09-06 23:31:18.551 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:31:18.551 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:31:18.552 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:31:18.552 +022025-09-06 23:31:18.552 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:31:18.552 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:31:18.794 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:31:18.820 +02:00 [INF] Seeding users...
+2025-09-06 23:31:18.822 +02:00 [INF] Seeding api admin...
+2025-09-06 23:31:18.827 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:31:18.904 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:31:18.906 +02:00 [INF] Starting to watch for new inserts in PaymentModel.
+2025-09-06 23:31:18.906 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:31:18.906 +02:00 [INF] Starting to watch for new inserts in UserModel.
+2025-09-06 23:31:18.906 +02:00 [INF] Starting to watch for new inserts in FunderModel.
+2025-09-06 23:31:18.912 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:31:18.912 +02:00 [INF2025-09-06 23:31:18.912 +02:00 [INF] Starting to watch for new 2025-09-06 23:31:18.983 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:31:19.021 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:31:2025-09-06 23:31:19.126 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:31:19.132 +02:00 [INF] Funder National Student Financial Aid Scheme already exists. Ignoring it.
+2025-09-06 23:31:19.133 +02:00 [INF] Funder National Research Foundation already exists. Ignoring it.
+2025-09-06 23:31:19.134 +02:00 [INF] Funder Canon Collins Trust already exists. Ignoring it.
+2025-09-06 23:31:19.135 +02:00 [INF] Funder Allan Gray Orbis Foundation already exists. Ignoring it.
+2025-09-06 23:31:19.135 +02:00 [INF] Funder Sector Education and Training Authorities already exists. Ignoring it.
+2025-09-06 23:31:19.137 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:31:19.137 +02:02025-09-06 23:31:19.139 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:31:19.143 +02:00 [ERR] UserFunder National Student Financial Aid Scheme already exists. Skipping user seeding22025-09-06 23:31:19.144 +02:00 [ERR] UserFunder National Research Foundation already exists. Skipping user seeding
+2025-09-06 23:31:19.145 +02:00 [ERR] UserFunder Allan Gray Orbis Foundation already exists. Skipping user seeding
+2025-09-06 23:31:19.145 +02:00 [ERR] UserFunder Sector Education and Training Authorities already exists. Skipping user see2025-2025-09-06 23:31:19.146 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:31:19.1462025-09-06 23:31:19.146 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:31:19.148 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:31:19.151 +02:00 [INF] User with email john.doe@uj.ac.za already exists...
+2025-09-06 23:31:19.152 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:31:19.153 +02:00 [INF] User with email peter.jones@student.uj.ac.za already exists...
+2025-09-06 23:31:19.154 +02:00 [INF] User with email mary.williams@student.uj.ac.za already exists...
+2025-09-06 23:31:19.156 +02:00 [INF] User with email david.chen@student.uj.ac.za already exists...
+2025-09-06 23:31:19.159 +02:00 [INF] User with email emily.white@student.uj.ac.za already exists...
+2025-09-06 23:31:19.161 +02:00 [INF] User with email chris.lee@student.uj.ac.za already exists...
+2025-09-06 23:31:19.163 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
+2025-09-06 23:31:19.164 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
+2025-09-06 23:31:19.165 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+2025-09-06 23:31:25.722 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:31:25.777 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:31:25.777 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:33:48.843 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:33:48.859 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:32025-09-06 23:33:48.859 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:33:48.860 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:33:48.860 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:33:48.860 +022025-09-06 23:33:48.860 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:33:48.861 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:33:48.953 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:33:48.954 +02:00 [INF] Seeding users...
+2025-09-06 23:33:48.954 +02:00 [INF] Seeding api admin...
+2025-09-06 23:33:48.955 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:33:49.006 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:33:49.007 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:33:49.007 +02:00 2025-09-06 23:33:49.007 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:33:49.007 +02:00 [INF] Starting to watch for new inserts in FunderModel.
+2025-09-06 23:33:49.007 +02:00 [INF] Starting to w2025-09-06 23:33:49.010 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:33:49.010 +02:00 [INF] Starting to watch for new inserts in FundingConditionsModel.
+2025-09-06 23:33:49.036 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:33:49.051 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:33:2025-09-06 23:33:49.075 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:33:49.079 +02:00 [INF] Funder National Student Financial Aid Scheme already exists. Ignoring it.
+2025-09-06 23:33:49.080 +02:00 [INF] Funder National Research Foundation already exists. Ignoring it.
+2025-09-06 23:33:49.080 +02:00 [INF] Funder Canon Collins Trust already exists. Ignoring it.
+2025-09-06 23:33:49.081 +02:00 [INF] Funder Allan Gray Orbis Foundation already exists. Ignoring it.
+2025-09-06 23:33:49.081 +02:00 [INF] Funder Sector Education and Training Authorities already exists. Ignoring it.
+2025-09-06 23:33:49.083 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:33:49.083 +02:02025-09-06 23:33:49.084 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:33:49.086 +02:00 [ERR] UserFunder National Student Financial Aid Scheme already exists. Skipping user seeding22025-09-06 23:33:49.087 +02:00 [ERR] UserFunder National Research Foundation already exists. Skipping user seeding
+2025-09-06 23:33:49.087 +02:00 [ERR] UserFunder Allan Gray Orbis Foundation already exists. Skipping user seeding
+2025-09-06 23:33:49.088 +02:00 [ERR] UserFunder Sector Education and Training Authorities already exists. Skipping user see2025-2025-09-06 23:33:49.088 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:33:49.0882025-09-06 23:33:49.088 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:33:49.089 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:33:49.090 +02:00 [INF] User with email john.doe@uj.ac.za already exists...
+2025-09-06 23:33:49.091 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:33:49.093 +02:00 [INF] User with email peter.jones@student.uj.ac.za already exists...
+2025-09-06 23:33:49.094 +02:00 [INF] User with email mary.williams@student.uj.ac.za already exists...
+2025-09-06 23:33:49.096 +02:00 [INF] User with email david.chen@student.uj.ac.za already exists...
+2025-09-06 23:33:49.098 +02:00 [INF] User with email emily.white@student.uj.ac.za already exists...
+2025-09-06 23:33:49.099 +02:00 [INF] User with email chris.lee@student.uj.ac.za already exists...
+2025-09-06 23:33:49.100 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
+2025-09-06 23:33:49.101 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
+2025-09-06 23:33:49.102 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+2025-09-06 23:34:54.518 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:34:54.565 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:34:54.565 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:34:59.057 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:34:59.073 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:32025-09-06 23:34:59.073 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:34:59.074 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:34:59.074 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:34:59.074 +022025-09-06 23:34:59.074 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:34:59.075 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:34:59.169 +02:00 [INF] Seeding users...
+2025-09-06 23:34:59.169 +02:00 [INF] Seeding api admin...
+2025-09-06 23:34:59.171 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:34:59.174 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:34:59.223 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:34:59.224 +02:00 [INF] Starting to watch for new inserts in FunderModel.
+2025-09-06 23:34:59.224 +02:00 [INF]2025-09-06 23:34:59.224 +02:00 [INF] Starting to watch for new inserts in UserModel.
+2025-09-06 23:34:59.224 +02:00 [INF] Starting to watch f2025-09-06 23:34:59.224 +02:00 [INF] Starting to watch for new inserts in PaymentModel.
+2025-09-06 23:34:59.227 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:34:59.227 +02:00 [INF2025-09-06 23:34:59.227 +02:00 [INF] Starting to watch for new 2025-09-06 23:34:59.257 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:34:59.272 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:34:2025-09-06 23:34:59.298 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:34:59.302 +02:00 [INF] Funder National Student Financial Aid Scheme already exists. Ignoring it.
+2025-09-06 23:34:59.303 +02:00 [INF] Funder National Research Foundation already exists. Ignoring it.
+2025-09-06 23:34:59.304 +02:00 [INF] Funder Canon Collins Trust already exists. Ignoring it.
+2025-09-06 23:34:59.305 +02:00 [INF] Funder Allan Gray Orbis Foundation already exists. Ignoring it.
+2025-09-06 23:34:59.305 +02:00 [INF] Funder Sector Education and Training Authorities already exists. Ignoring it.
+2025-09-06 23:34:59.307 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:34:59.307 +02:02025-09-06 23:34:59.308 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:34:59.311 +02:00 [ERR] UserFunder National Student Financial Aid Scheme already exists. Skipping user seeding22025-09-06 23:34:59.312 +02:00 [ERR] UserFunder National Research Foundation already exists. Skipping user seeding
+2025-09-06 23:34:59.313 +02:00 [ERR] UserFunder Allan Gray Orbis Foundation already exists. Skipping user seeding
+2025-09-06 23:34:59.314 +02:00 [ERR] UserFunder Sector Education and Training Authorities already exists. Skipping user see2025-2025-09-06 23:34:59.314 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:34:59.3142025-09-06 23:34:59.315 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:34:59.317 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:34:59.319 +02:00 [INF] User with email john.doe@uj.ac.za already exists...
+2025-09-06 23:34:59.321 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:34:59.322 +02:00 [INF] User with email peter.jones@student.uj.ac.za already exists...
+2025-09-06 23:34:59.324 +02:00 [INF] User with email mary.williams@student.uj.ac.za already exists...
+2025-09-06 23:34:59.325 +02:00 [INF] User with email david.chen@student.uj.ac.za already exists...
+2025-09-06 23:34:59.327 +02:00 [INF] User with email emily.white@student.uj.ac.za already exists...
+2025-09-06 23:34:59.328 +02:00 [INF] User with email chris.lee@student.uj.ac.za already exists...
+2025-09-06 23:34:59.329 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
+2025-09-06 23:34:59.331 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
+2025-09-06 23:34:59.333 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+2025-09-06 23:35:05.652 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:35:05.687 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:35:05.687 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:35:15.647 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:35:15.662 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:32025-09-06 23:35:15.663 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:35:15.663 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:35:15.663 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:35:15.663 +022025-09-06 23:35:15.664 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:35:15.664 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:35:15.759 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:35:15.764 +02:00 [INF] Seeding users...
+2025-09-06 23:35:15.765 +02:00 [INF] Seeding api admin...
+2025-09-06 23:35:15.766 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:35:15.818 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:35:15.819 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:35:15.819 +02:00 2025-09-06 23:35:15.819 +02:00 [INF] Starting to watch fo2025-09-06 23:35:15.819 +02:00 [INF] Starting to watch for new inserts in UserModel.
+2025-09-06 23:35:15.819 +02:00 [INF] S2025-09-06 23:35:15.819 +02:00 [INF] Starting to 2025-09-06 23:35:15.822 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:35:15.823 +02:00 [INF] Starting to watch for new inserts in FundingConditionsModel.
+2025-09-06 23:35:15.851 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:35:15.867 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:35:2025-09-06 23:35:15.893 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:35:15.897 +02:00 [INF] Funder National Student Financial Aid Scheme already exists. Ignoring it.
+2025-09-06 23:35:15.898 +02:00 [INF] Funder National Research Foundation already exists. Ignoring it.
+2025-09-06 23:35:15.898 +02:00 [INF] Funder Canon Collins Trust already exists. Ignoring it.
+2025-09-06 23:35:15.899 +02:00 [INF] Funder Allan Gray Orbis Foundation already exists. Ignoring it.
+2025-09-06 23:35:15.899 +02:00 [INF] Funder Sector Education and Training Authorities already exists. Ignoring it.
+2025-09-06 23:35:15.901 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:35:15.901 +02:02025-09-06 23:35:15.903 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:35:15.905 +02:00 [ERR] UserFunder National Student Financial Aid Scheme already exists. Skipping user seeding22025-09-06 23:35:15.906 +02:00 [ERR] UserFunder National Research Foundation already exists. Skipping user seeding
+2025-09-06 23:35:15.907 +02:00 [ERR] UserFunder Allan Gray Orbis Foundation already exists. Skipping user seeding
+2025-09-06 23:35:15.908 +02:00 [ERR] UserFunder Sector Education and Training Authorities already exists. Skipping user see2025-2025-09-06 23:35:15.908 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:35:15.9082025-09-06 23:35:15.908 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:35:15.910 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:35:15.912 +02:00 [INF] User with email john.doe@uj.ac.za already exists...
+2025-09-06 23:35:15.913 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:35:15.915 +02:00 [INF] User with email peter.jones@student.uj.ac.za already exists...
+2025-09-06 23:35:15.916 +02:00 [INF] User with email mary.williams@student.uj.ac.za already exists...
+2025-09-06 23:35:15.917 +02:00 [INF] User with email david.chen@student.uj.ac.za already exists...
+2025-09-06 23:35:15.918 +02:00 [INF] User with email emily.white@student.uj.ac.za already exists...
+2025-09-06 23:35:15.919 +02:00 [INF] User with email chris.lee@student.uj.ac.za already exists...
+2025-09-06 23:35:15.920 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
+2025-09-06 23:35:15.922 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
+2025-09-06 23:35:15.923 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+2025-09-06 23:35:34.303 +02:00 [INF] MongoDB Database Background Service for Data Streaming is stopping.
+2025-09-06 23:35:34.344 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+ckground Service for Data Streaming is stopping.
+2025-09-06 23:35:34.344 +02:00 [INF] Bus stopped: "rabbitmq://localhost/"
+2025-09-06 23:35:43.713 +02:00 [INF] Configured endpoint user-db, Consumer: BlockiFinAid.Services.Messaging.UserDbConsumer
+2025-09-06 23:35:43.727 +02:00 [INF] Configured endpoint bank-account-db, Consumer: BlockiFinAid.Services.Messaging.BankAcc2025-09-06 23:32025-09-06 23:35:43.728 +02:00 [INF] Configured endpoint payment-event, Consumer: BlockiFinAid.Services.Messaging.PaymentEv2025-09-06 22025-09-06 23:35:43.728 +02:00 [INF] Configured endpoint funding-db, Consumer: BlockiFinAid.Services.Messaging.FundingDbCon2025-02025-09-06 23:35:43.728 +02:00 [INF] Configured endpoint funding-conditions-db, Consumer: BlockiFinAid.Services.Messaging.F2025-09-06 23:35:43.728 +022025-09-06 23:35:43.729 +02:00 [INF] Configured endpoint funder-db, Consumer: BlockiFinAid.Services.Messaging.FunderDbConsu20252025-09-06 23:35:43.729 +02:00 [INF] Configured endpoint payment-db, Consumer: BlockiFinAid.Services.Messaging.PaymentDbCon2025-02025-09-06 23:35:43.823 +02:00 [INF] Bus started: "rabbitmq://localhost/"
+2025-09-06 23:35:43.825 +02:00 [INF] Seeding users...
+2025-09-06 23:35:43.825 +02:00 [INF] Seeding api admin...
+2025-09-06 23:35:43.826 +02:00 [INF] Hashing password for new user: BlockiFinAid.Data.Models.UserAccessControl
+2025-09-06 23:35:43.875 +02:00 [INF] MongoDB Database Background Service for Data Streaming is starting.
+2025-09-06 23:35:43.876 +02:00 [INF] Starting to watch for new inserts in BankAccountModel.
+2025-09-06 23:35:43.876 +02:00 [INF] Starting to watch for new inserts in UserModel.
+2025-09-06 23:35:43.876 +02:00 [INF] Starting to watch for new inserts in PaymentModel.
+2025-09-06 23:35:43.876 +02:00 [INF] Starting to watch for new inserts in FunderModel.
+2025-09-06 23:35:43.879 +02:00 [INF] Starting to watch for new inserts in FundingConditionsModel.
+2025-09-06 23:35:43.879 +02:00 [INF] Starting to watch for new inserts in FundingModel.
+2025-09-06 23:35:43.905 +02:00 [INF] User api-admin has been registered
+2025-09-06 23:35:43.920 +02:00 [INF] Reading funders from /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Data/DataSe2025-09-06 23:35:2025-09-06 23:35:43.946 +02:00 [INF] Found 5 items in the JSON file. Starting to seed...
+2025-09-06 23:35:43.949 +02:00 [INF] Funder National Student Financial Aid Scheme already exists. Ignoring it.
+2025-09-06 23:35:43.950 +02:00 [INF] Funder National Research Foundation already exists. Ignoring it.
+2025-09-06 23:35:43.950 +02:00 [INF] Funder Canon Collins Trust already exists. Ignoring it.
+2025-09-06 23:35:43.951 +02:00 [INF] Funder Allan Gray Orbis Foundation already exists. Ignoring it.
+2025-09-06 23:35:43.951 +02:00 [INF] Funder Sector Education and Training Authorities already exists. Ignoring it.
+2025-09-06 23:35:43.953 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:35:43.953 +02:02025-09-06 23:35:43.954 +02:00 [INF] Found 4 users in the JSON file. Starting to seed...
+2025-09-06 23:35:43.956 +02:00 [ERR] UserFunder National Student Financial Aid Scheme already exists. Skipping user seeding22025-09-06 23:35:43.957 +02:00 [ERR] UserFunder National Research Foundation already exists. Skipping user seeding
+2025-09-06 23:35:43.957 +02:00 [ERR] UserFunder Allan Gray Orbis Foundation already exists. Skipping user seeding
+2025-09-06 23:35:43.958 +02:00 [ERR] UserFunder Sector Education and Training Authorities already exists. Skipping user see2025-2025-09-06 23:35:43.958 +02:00 [INF] Reading users from Json file /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/Dat2025-09-06 23:35:43.9582025-09-06 23:35:43.958 +02:00 [INF] Found 11 users in the JSON file. Starting to seed...
+2025-09-06 23:35:43.960 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:35:43.962 +02:00 [INF] User with email john.doe@uj.ac.za already exists...
+2025-09-06 23:35:43.963 +02:00 [INF] User with email jane.smith@uj.ac.za already exists...
+2025-09-06 23:35:43.965 +02:00 [INF] User with email peter.jones@student.uj.ac.za already exists...
+2025-09-06 23:35:43.966 +02:00 [INF] User with email mary.williams@student.uj.ac.za already exists...
+2025-09-06 23:35:43.967 +02:00 [INF] User with email david.chen@student.uj.ac.za already exists...
+2025-09-06 23:35:43.969 +02:00 [INF] User with email emily.white@student.uj.ac.za already exists...
+2025-09-06 23:35:43.970 +02:00 [INF] User with email chris.lee@student.uj.ac.za already exists...
+2025-09-06 23:35:43.972 +02:00 [INF] User with email sarah.brown@student.uj.ac.za already exists...
+2025-09-06 23:35:43.973 +02:00 [INF] User with email michael.davis@student.uj.ac.za already exists...
+2025-09-06 23:35:43.973 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...
+za already exists...
+2025-09-06 23:35:43.973 +02:00 [INF] User with email olivia.wilson@student.uj.ac.za already exists...

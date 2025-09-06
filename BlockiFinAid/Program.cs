@@ -18,21 +18,17 @@ using Newtonsoft.Json.Serialization;
 using Refit;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug() // Set the default minimum level
-    .WriteTo.Console()
-    .CreateBootstrapLogger(); // Write logs to the console
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
     // Add Serilog as the logging provider
+    builder.Logging.ClearProviders();
     builder.Host.UseSerilog((context, services, configuration) =>
     {
         configuration
             .ReadFrom.Configuration(context.Configuration)
             .Enrich.FromLogContext()
-            .WriteTo.Console()
             .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day);
     }); // Use Serilog for logging
     
