@@ -34,6 +34,7 @@ public class FundingWebResponse : FundingOutputDto
 {
     public string Funder { get; set; } = string.Empty;
     public string PaymentDate { get; set; } = string.Empty;
+    public FundingConditionOutputDto? FundingCondition { get; set; }
     
 }
 

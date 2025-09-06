@@ -4,6 +4,7 @@ using BlockiFinAid.Data.Models;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.User;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
@@ -20,6 +21,7 @@ public class DatabaseSeeder
     private readonly IBaseRepository<UserModel> _userRepo;
     private readonly IBaseRepository<PaymentModel> _paymentRepo;
     private readonly IBaseRepository<FunderModel> _funders;
+    private readonly IBaseRepository<BankAccountModel> _bankAccounts;
 
     public DatabaseSeeder(ILogger<DatabaseSeeder> logger, 
         IWebHostEnvironment env, 
@@ -27,7 +29,8 @@ public class DatabaseSeeder
         UserAccessControlService userAccessControlService, 
         IBaseRepository<UserModel> user,
         IBaseRepository<PaymentModel> payments, 
-        IBaseRepository<FunderModel> funders)
+        IBaseRepository<FunderModel> funders,
+        IBaseRepository<BankAccountModel> bankAccounts)
     {
         _logger = logger;
         _env = env;
@@ -36,6 +39,7 @@ public class DatabaseSeeder
         _userRepo = user;
         _paymentRepo = payments;
         _funders = funders;
+        _bankAccounts = bankAccounts;
     }
 
     public async Task SeedDataAsync()
@@ -48,6 +52,103 @@ public class DatabaseSeeder
         await SeedFundersAsync();
     }
 
+    private async Task SeedFunderUsersAsync(string userPerformingAction)
+    {
+        var seedFilePath = Path.Combine(_env.ContentRootPath, _mongoDbSettings.FunderUsersJsonFilePath);
+
+        if (!File.Exists(seedFilePath))
+        {
+            _logger.LogInformation($"Users seed file not found at {seedFilePath}. Skipping user seeding");
+            return;
+        }
+
+        try
+        {
+            _logger.LogInformation($"Reading users from Json file {seedFilePath}");
+            var jsonContent = await File.ReadAllTextAsync(seedFilePath);
+            var usersToSeed = JsonConvert.DeserializeObject<List<UserAccessControlDto>>(jsonContent);
+
+            if (usersToSeed == null || !usersToSeed.Any())
+            {
+                _logger.LogInformation($"No users found to seed. Skipping user seeding");
+                return;
+            }
+
+            _logger.LogInformation($"Found {usersToSeed.Count} users in the JSON file. Starting to seed...");
+            foreach (var user in usersToSeed)
+            {
+                // check if a specific user (e.g by student number) already exists
+                // This prevents duplicate data on every startup
+                var allUsers = await _userRepo.GetAllAsync();
+                var doesUserExists = allUsers.FirstOrDefault(x => x.Name == user.Name);
+                if (doesUserExists != null)
+                {
+                    _logger.LogInformation($"UserFunder {user.Name} already exists. Skipping user seeding");
+                }
+                
+                UserModel? studentNumberExists = null;
+                var studentNumber = "";
+                do
+                {
+                    studentNumber = UAMHelper.GenerateStudentNumber();
+                    studentNumberExists = await _userRepo.FindByStudentNumberAsync(studentNumber);
+                } while (studentNumberExists is not null || studentNumber =="");
+                
+                var userDetails = new UserModel
+                {
+                    StudentNumber = studentNumber,
+                    BankAccountId = Guid.Empty,
+                    Email = user.Email,
+                    Role = user.Role,
+                    CourseName = UAMHelper.GenerateRandomDegree(),
+                    ModifiedBy = "api-admin",
+                    InstitutionId = Guid.Empty,
+                    IsActive = true,
+                    FunderContractId = Guid.Empty,
+                    IsChangeConfirmed = false,
+                    Name = user.Name
+                };
+
+                var bankAccount = UAMHelper.GenerateRandomBankAccount();
+                bankAccount.StudentNumber = userDetails.StudentNumber;
+                bankAccount.IsConfirmed = true;
+                bankAccount.Id = Guid.NewGuid();
+
+                try
+                {
+                    var bankModel = await _bankAccounts.CreateAsync(bankAccount, userPerformingAction);
+                  
+                    _logger.LogInformation($"UserFunder {user.Name} bank account seeded successfully with studentNumber {userDetails.StudentNumber}");
+                   
+                    try
+                    {
+                        if (bankModel is BankAccountModel)
+                        {
+                            BankAccountModel bankAccountModel = (BankAccountModel)bankModel;
+                            userDetails.BankAccountId = bankAccountModel.Id;
+                            await _userRepo.CreateAsync(userDetails, userPerformingAction);
+                            _logger.LogInformation($"UserFunder {user.Name} seeded with studentNumber {userDetails.StudentNumber}");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e.Message, $"Failed to create funder - user for {user.Name}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message, "Failed to create bank account");
+                }
+
+              
+
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message, "Error while seeding users");
+        }
+    }
     private async Task SeedFundersAsync()
     {
          _logger.LogInformation("Seeding funders has started, checking for api-admin user");
@@ -242,6 +343,8 @@ public class DatabaseSeeder
                 adminId = results.UserId;
             }
         }
+
+        await SeedFunderUsersAsync(adminId.ToString());
         
         var seedFilePath = Path.Combine(_env.ContentRootPath, _mongoDbSettings.UsersJsonFilePath);
 

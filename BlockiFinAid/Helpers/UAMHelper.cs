@@ -1,7 +1,20 @@
+using BlockiFinAid.Data.Models;
+
 namespace BlockiFinAid.Helpers;
 
 public static class UAMHelper
 {
+    public record BankAccountRecord(string BankName, string BranchCode, int accountNumberLength);
+
+    private static List<BankAccountRecord> bankAccountRecords = new List<BankAccountRecord>()
+    {
+        new BankAccountRecord("Standard Bank", "051001", 9),
+        new BankAccountRecord("Capitec Bank", "470010", 9),
+        new BankAccountRecord("First National Bank", "250655", 9),
+        new BankAccountRecord("ABSA", "632005", 9),
+        new BankAccountRecord("Nedbank", "198765", 9),
+
+    };
     public static string PasswordGenerator()
     {
         const int passwordLength = 8;
@@ -17,7 +30,30 @@ public static class UAMHelper
         return password;
 
     }
+    
+    public static BankAccountModel GenerateRandomBankAccount()
+    {
 
+        Random random = new Random();
+        int randomIndex = random.Next(0, bankAccountRecords.Count);
+        
+        var accountProvider = bankAccountRecords[randomIndex];
+
+        var randomAccountNumber = random.Next(100000000);
+        if (accountProvider.BankName.Length != 0)
+        {
+            var account = new BankAccountModel
+            {
+                BankName = accountProvider.BankName,
+                BankBranchCode = accountProvider.BranchCode,
+                BankAccountNumber = randomAccountNumber.ToString(),
+            };
+
+            return account;
+        }
+
+        return null;
+    }
     public static string GenerateStudentNumber()
     {
         // Create a new random number generator

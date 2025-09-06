@@ -229,7 +229,7 @@ try
     builder.Services.AddHostedService<MongoSeederBackgroundService>();
     builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
     
-    builder.Services.AddHostedService<PaymentInitiator>();
+   
     builder.Services.AddRefitClient<IMachineLearningAPI>(new RefitSettings
     {
         ContentSerializer = new NewtonsoftJsonContentSerializer(
@@ -244,7 +244,7 @@ try
     });
     
     builder.Services.AddControllers();
-
+    builder.Services.AddHostedService<PaymentInitiator>();
     var app = builder.Build();
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

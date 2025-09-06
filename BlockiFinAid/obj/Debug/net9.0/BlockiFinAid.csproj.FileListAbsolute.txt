@@ -288,3 +288,4 @@
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/obj/Debug/net9.0/BlockiFinAid.genruntimeconfig.cache
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/obj/Debug/net9.0/ref/BlockiFinAid.dll
 /Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Refit.Newtonsoft.Json.dll
+/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/bin/Debug/net9.0/Data/DataSeeds/funderUsers.json

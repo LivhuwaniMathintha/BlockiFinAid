@@ -50,12 +50,12 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
         catch (MongoWriteException ex)
         {
             _logger.LogError($"Error creating document {ex.Message}");
-            return ex;
+            return ex.Message;
         }
         catch (Exception ex)
         {
             _logger.LogError($"An unexpected error occured creating document {ex.Message}");
-            return ex;
+            return ex.Message;
         }
     }
 

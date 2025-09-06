@@ -313,21 +313,32 @@ public class BankAccountContract
             StudentNumber = studentNumber
         };
         var contract = _web3.Eth.GetContractHandler(_addressSettings.BankAccountAddress);
-        var result = await contract.QueryDeserializingToObjectAsync<GetByStudentNumberFunction, GetByStudentNumberOutputDto>(function);
-
-        if (result is not null)
+        try
         {
-            return new BankAccountOutputDto
+            var result =
+                await contract.QueryDeserializingToObjectAsync<GetByStudentNumberFunction, GetByStudentNumberOutputDto>(
+                    function);
+
+
+
+            if (result is not null)
             {
-                Id = new Guid(result.Id),
-                BankAccountNumber = result.BankAccountNumber,
-                BankName = result.BankName,
-                BankBranchCode = result.BankBranchCode,
-                IsConfirmed = result.IsConfirmed,
-                StudentNumber = result.StudentNumber,
-                DataConfirmedById = new Guid(result.DataConfirmedById),
-                UpdatedAt = result.UpdatedAt
-            };
+                return new BankAccountOutputDto
+                {
+                    Id = new Guid(result.Id),
+                    BankAccountNumber = result.BankAccountNumber,
+                    BankName = result.BankName,
+                    BankBranchCode = result.BankBranchCode,
+                    IsConfirmed = result.IsConfirmed,
+                    StudentNumber = result.StudentNumber,
+                    DataConfirmedById = new Guid(result.DataConfirmedById),
+                    UpdatedAt = result.UpdatedAt
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            return null;
         }
 
         return null;

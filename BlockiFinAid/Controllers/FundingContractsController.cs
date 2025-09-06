@@ -13,11 +13,15 @@ namespace BlockiFinAid.Controllers
     {
         private readonly FundingContract _fundingContract;
         private readonly FunderContract _funderContract;
+        private readonly FundingConditionsContract _fundingConditions;
+        private readonly ILogger<FundingContractsController> _logger;
 
-        public FundingContractsController(FundingContract fundingContract, FunderContract funderContract)
+        public FundingContractsController(ILogger<FundingContractsController> logger, FundingContract fundingContract, FunderContract funderContract, FundingConditionsContract fundingConditions)
         {
             _fundingContract = fundingContract;
             _funderContract = funderContract;
+            _fundingConditions = fundingConditions;
+            _logger = logger;
         }
         
         [HttpGet("{studentId}")]
@@ -33,12 +37,12 @@ namespace BlockiFinAid.Controllers
                 if (funding.IsActive)
                 {
                     var funderDetails = await _funderContract.GetFunderByIdAsync(funding.FunderId);
-                
+                    var conditions = await _fundingConditions.GetConditionByIdAsync(funding.FunderContractConditionId.ToString());
                     if(funding?.FoodBalance == 0) return NotFound();
                     var paymentDate = funderDetails is not null ? DateTime.Parse(funderDetails.PaymentDate) : (DateTime?)null;
                     var date = paymentDate?.Day;
                     var today = DateTime.Today.Day;
-                    var nextPaymentDate = today < date ? $"{date}-{paymentDate?.Month}-{paymentDate?.Year}" : $"{date}-{paymentDate?.Month + 1}-{paymentDate?.Year}" ;
+                    var nextPaymentDate = today < date ? $"{date}/{paymentDate?.Month}/{paymentDate?.Year}" : $"{date}/{paymentDate?.Month + 1}/{paymentDate?.Year}" ;
                     var response = new FundingWebResponse()
                     {
                         Funder = funderDetails is not null ? funderDetails.Name : "N/A",
@@ -52,8 +56,13 @@ namespace BlockiFinAid.Controllers
                         PaymentDate = nextPaymentDate,
                         UpdatedAt = funding.UpdatedAt,
                         FunderContractConditionId = funding.FunderContractConditionId,
+                        ModifiedBy = funding.ModifiedBy,
+                        FundingCondition = conditions ?? null
                     };
+                    if(response.Funder == "N/A")
+                        response.IsActive = false;
                     responses.Add(response);
+                  
                 }
             }
             return Ok(responses);
@@ -105,6 +114,56 @@ namespace BlockiFinAid.Controllers
             }
             try
             {
+                var existingFundings = await _fundingContract.GetAllFundingsAsync();
+                var studentFundings = existingFundings.Where(x => x.StudentId == Guid.Parse(request.StudentId) && x.IsActive).ToList();
+
+                if (existingFundings.Any())
+                {
+                    foreach (var funding in studentFundings)
+                    {
+                        var dto = new FundingUpdateDto
+                        {
+                            AccommodationBalance = funding.AccommodationBalance,
+                            FoodBalance = funding.FoodBalance,
+                            TuitionBalance = funding.TuitionBalance,
+                            LaptopBalance = funding.LaptopBalance,
+                            Id = funding.Id.ToString(),
+                            IsActive = false,
+                            ModifiedBy = "api-admin",
+                        };
+                        
+                        var result = await _fundingContract.UpdateFundingAsync(dto);
+                        if (result.IsSuccess)
+                        {
+                            _logger.LogInformation($"Successfully updated active status to false for funding in {request.StudentId}");
+                            
+                            //disable funding conditions
+                            var fundingConditions = await _fundingConditions.GetConditionByIdAsync(funding.FunderContractConditionId.ToString());
+
+                            if (fundingConditions?.ModifiedBy != "")
+                            {
+                                // disable funding condition
+
+                                var conditionUpdate = new FundingConditionUpdateDto
+                                {
+                                    AverageMark = fundingConditions.AverageMark,
+                                    IsActive = false,
+                                    ModifiedBy = "api-admin",
+                                };
+                                
+                                var conditionsUpdate = await _fundingConditions.UpdateConditionAsync(conditionUpdate);
+                                if (conditionsUpdate.IsSuccess)
+                                {
+                                    _logger.LogInformation($"Successfully updated active status to false for funding condition for {request.StudentId}");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogError($"Failed to update funding in {request.StudentId}");
+                        }
+                    }
+                }
                 var results = await _fundingContract.AddFundingAsync(request);
                 return Ok(results);
             }

@@ -51,17 +51,17 @@ public class PaymentInitiator : BackgroundService
         var paymentPublisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
         var paymentContract = scope.ServiceProvider.GetRequiredService<PaymentContract>();
         var twoDaysFromNow = DateTime.UtcNow.AddDays(2);
-
+        var currentMonth = DateTime.UtcNow.Month;
         var allFunders = await funderContract.GetAllFundersAsync();
         _logger.LogInformation("Found {count} Funders in the smart contract", allFunders.Count());
         foreach (var funder in allFunders)
         {
             DateTime.TryParse(funder.PaymentDate, out DateTime paymentDate);
-
+            paymentDate = new DateTime(paymentDate.Year, currentMonth, paymentDate.Day);
             if (paymentDate.Date == twoDaysFromNow.Date)
             {
                 // Process this payment. Publish to rabbit MQ for processing.
-                _logger.LogInformation($"This funder has a payment date in the next 48 hours: {twoDaysFromNow}. Initiating processing");
+                _logger.LogInformation($"{funder.Name} has a payment date in the next 48 hours: {twoDaysFromNow}. Initiating processing");
                 // We need to get this funder's bank Details
                 var getFunderUser = await usersContract.GetUserByNameAsync(funder.Name);
 
@@ -69,9 +69,10 @@ public class PaymentInitiator : BackgroundService
                 {
                     var bankAccounts = await bankingAccountContract
                         .GetByStudentNumberAsync(getFunderUser.StudentNumber);
-
+                    _logger.LogInformation($"Found user for {funder.Name} with Student Number of {getFunderUser.StudentNumber}");
                     if(bankAccounts is not null)
                     {
+                        _logger.LogInformation($"Found bank account for {funder.Name} with Student Number of {getFunderUser.StudentNumber}");
                         var allStudents = await usersContract.GetAllUsersAsync();
 
                         foreach (var student in allStudents.Where(x => x.FunderContractId == funder.Id))
@@ -223,6 +224,10 @@ public class PaymentInitiator : BackgroundService
                             }
                         }
                     }
+                }
+                else
+                {
+                    _logger.LogError($"Could not find any user for {funder.Name} and as such cannot retrieve any banking details. make sure user and bank details for the funder are added to the system.");
                 }
             }
             _logger.LogInformation($"Payment Date: {funder.PaymentDate} for {funder.Name} is not in the next 48 hours. No further processing required.");

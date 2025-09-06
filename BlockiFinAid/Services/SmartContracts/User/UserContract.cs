@@ -43,6 +43,7 @@ namespace BlockiFinAid.Services.SmartContracts.User
         public string ModifiedBy { get; set; }
         public string CourseName { get; set; }
         public string Role { get; set; }
+        public string Id { get; set; }
     }
 
     public class UserUpdateDto
@@ -289,7 +290,7 @@ namespace BlockiFinAid.Services.SmartContracts.User
         {
             var function = new AddUserFunction
             {
-                Id = Guid.NewGuid().ToByteArray(),
+                Id = GuidHelper.GuidToBytes16OrZero(dto.Id),
                 InstitutionId = GuidHelper.GuidToBytes16OrZero(dto.InstitutionId),
                 FunderContractId = GuidHelper.GuidToBytes16OrZero(dto.FunderContractId),
                 BankAccountId = GuidHelper.GuidToBytes16OrZero(dto.BankAccountId),

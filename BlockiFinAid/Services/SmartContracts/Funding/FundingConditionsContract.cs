@@ -249,24 +249,30 @@ public class FundingConditionsContract
             FromAddress = _nodeSettings.ContractAddress
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddConditionFunction>();
-        var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FundingConditionsContractAddress, function);
-        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("FundingConditions");
+        try
+        {
 
-        if (receipt.HasErrors().Value)
+            var receipt =
+                await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FundingConditionsContractAddress,
+                    function);
+            var functionsSigHashes =
+                FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Condition");
+
+            return new SmartContractResponse<string>()
+            {
+                BlockHash = receipt.BlockHash,
+                BlockNumber = receipt.BlockNumber,
+                ByteCode = _byteCodes.BankAccountByteCode,
+                FunctionSigHashes = functionsSigHashes,
+                ContractAddress = receipt.ContractAddress,
+                Data = receipt.TransactionHash,
+                IsSuccess = true
+            };
+        }
+        catch (Exception ex)
         {
             return new SmartContractResponse<string>();
         }
-        
-        return new SmartContractResponse<string>()
-        {
-            BlockHash = receipt.BlockHash,
-            BlockNumber = receipt.BlockNumber,
-            ByteCode = _byteCodes.BankAccountByteCode,
-            FunctionSigHashes = functionsSigHashes,
-            ContractAddress = receipt.ContractAddress,
-            Data = receipt.TransactionHash,
-            IsSuccess = true
-        };
     }
 
     public async Task<SmartContractResponse<string>> UpdateConditionAsync(FundingConditionUpdateDto dto)
@@ -282,7 +288,7 @@ public class FundingConditionsContract
         };
         var contract = _web3.Eth.GetContractTransactionHandler<UpdateConditionFunction>();
         var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.FundingConditionsContractAddress, function);
-        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("FundingConditions");
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Condition");
 
         if (receipt.HasErrors().Value)
         {
@@ -358,27 +364,37 @@ public class FundingConditionsContract
             Id = Guid.Parse(id).ToByteArray()
         };
         var contract = _web3.Eth.GetContractHandler(_addressSettings.FundingConditionsContractAddress);
-        var result = await contract.QueryDeserializingToObjectAsync<GetConditionByIdFunction, GetConditionByIdOutputDto>(function);
-        if (result != null)
+        try
         {
-            return new FundingConditionOutputDto
+            var result =
+                await contract.QueryDeserializingToObjectAsync<GetConditionByIdFunction, GetConditionByIdOutputDto>(
+                    function);
+
+            if (result.UpdatedAt != "")
             {
-                Id = new Guid(result.Id),
-                IsFullCoverage = result.IsFullCoverage,
-                StartDate = result.StartDate,
-                EndDate = result.EndDate,
-                TotalAmount = result.TotalAmount,
-                FoodAmount = result.FoodAmount,
-                TuitionAmount = result.TuitionAmount,
-                LaptopAmount = result.LaptopAmount,
-                AccommodationAmount = result.AccommodationAmount,
-                AccommodationDirectPay = result.AccommodationDirectPay,
-                DataConfirmedById = new Guid(result.DataConfirmedById),
-                ModifiedBy = result.ModifiedBy,
-                UpdatedAt = result.UpdatedAt,
-                IsActive = result.IsActive,
-                AverageMark = result.AverageMark
-            };
+                return new FundingConditionOutputDto
+                {
+                    Id = new Guid(result.Id),
+                    IsFullCoverage = result.IsFullCoverage,
+                    StartDate = result.StartDate,
+                    EndDate = result.EndDate,
+                    TotalAmount = result.TotalAmount,
+                    FoodAmount = result.FoodAmount,
+                    TuitionAmount = result.TuitionAmount,
+                    LaptopAmount = result.LaptopAmount,
+                    AccommodationAmount = result.AccommodationAmount,
+                    AccommodationDirectPay = result.AccommodationDirectPay,
+                    DataConfirmedById = new Guid(result.DataConfirmedById),
+                    ModifiedBy = result.ModifiedBy,
+                    UpdatedAt = result.UpdatedAt,
+                    IsActive = result.IsActive,
+                    AverageMark = result.AverageMark
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            return null;
         }
 
         return null;

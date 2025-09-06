@@ -1,4 +1,16 @@
 [
+  
+  {
+    "Name": "Jane Smith",
+    "Role": "admin",
+    "Permissions": [
+      "smartcontract:add",
+      "smartcontract:update",
+      "smartcontract:get"
+    ],
+    "Email": "jane.smith@uj.ac.za",
+    "Password": "Password456!"
+  },
   {
     "Name": "John Doe",
     "Role": "admin",

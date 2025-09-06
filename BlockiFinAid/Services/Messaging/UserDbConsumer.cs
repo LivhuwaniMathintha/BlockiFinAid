@@ -37,6 +37,7 @@ public class UserDbConsumer : IConsumer<UserModel>
             IsChangeConfirmed = context.Message.IsChangeConfirmed,
             InstitutionId = context.Message.InstitutionId.ToString(),
             Role =  context.Message.Role,
+            Id = context.Message.Id.ToString(),
         };
         
         var results = await _userContract.AddUserAsync(userDto);
@@ -67,7 +68,8 @@ public class BankAccountDbConsumer : IConsumer<BankAccountModel>
             BankBranchCode = context.Message.BankBranchCode,
             BankName = context.Message.BankName,
             DataConfirmedById = context.Message.DataConfirmedById.ToString(),
-            StudentNumber =  context.Message.StudentNumber
+            StudentNumber =  context.Message.StudentNumber,
+            Id = context.Message.Id.ToString(),
         };
         
         var results = await _bankAccountContract.AddBankAccountAsync(accountDto);

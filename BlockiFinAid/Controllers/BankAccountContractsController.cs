@@ -25,7 +25,10 @@ public class BankAccountContractsController : ControllerBase
     [HttpGet("{studentNumber}")]
     public async Task<IActionResult> GetStudentNumber(string studentNumber)
     {
-        return Ok(await _bankAccount.GetByStudentNumberAsync(studentNumber));
+        var results = await _bankAccount.GetByStudentNumberAsync(studentNumber);
+        if(results is null)
+            return NotFound();
+        return Ok(results);
     }
     
     [HttpPost]
