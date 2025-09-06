@@ -30,7 +30,8 @@ public static class UAMHelper
         return password;
 
     }
-    
+
+    public static string GetAminEmail() => "admin@blockifinaid.com";
     public static BankAccountModel GenerateRandomBankAccount()
     {
 

@@ -77,7 +77,6 @@ public class PaymentInitiator : BackgroundService
 
                         foreach (var student in allStudents.Where(x => x.FunderContractId == funder.Id))
                         {
-                            
                             var studentBankDetails =
                                 await bankingAccountContract.GetByStudentNumberAsync(student.StudentNumber);
 
@@ -222,6 +221,11 @@ public class PaymentInitiator : BackgroundService
                                     }
                                 }
                             }
+                        }
+
+                        if (!allStudents.Any())
+                        {
+                            _logger.LogError($"Could not find students belonging to {funder.Name} therefore, cannot proceed with payment generation");
                         }
                     }
                 }

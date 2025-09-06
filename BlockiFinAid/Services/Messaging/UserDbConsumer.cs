@@ -23,6 +23,7 @@ public class UserDbConsumer : IConsumer<UserModel>
     }
     public async Task Consume(ConsumeContext<UserModel> context)
     {
+        await Task.Delay(TimeSpan.FromSeconds(2));
         _logger.LogInformation($"Consuming the following user {context.Message.StudentNumber} from the queue: ");
         var userDto = new UserInputDto
         {
@@ -61,7 +62,7 @@ public class BankAccountDbConsumer : IConsumer<BankAccountModel>
     public async Task Consume(ConsumeContext<BankAccountModel> context)
     {
         _logger.LogInformation($"BankAccountNumber: {context.Message.BankAccountNumber} has been added to the database and retrieved in real-time. Queue for Smart contract addition");
-
+        await Task.Delay(TimeSpan.FromSeconds(4));
         var accountDto = new BankAccountInputDto()
         {
             BankAccountNumber = context.Message.BankAccountNumber,
@@ -90,6 +91,7 @@ public class FundingDbConsumer : IConsumer<FundingModel>
     }
     public async Task Consume(ConsumeContext<FundingModel> context)
     {
+        await Task.Delay(TimeSpan.FromSeconds(1));
         _logger.LogInformation($"Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
         var fundingDto = new FundingInputDto
         {
@@ -121,6 +123,7 @@ public class FundingConditionsDbConsumer : IConsumer<FundingConditionsModel>
     }
     public async Task Consume(ConsumeContext<FundingConditionsModel> context)
     {
+        await Task.Delay(TimeSpan.FromSeconds(5));
         _logger.LogInformation($"Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
         var item = new FundingConditionInputDto()
         {
@@ -157,6 +160,7 @@ public class PaymentDbConsumer : IConsumer<PaymentModel>
     }
     public async Task Consume(ConsumeContext<PaymentModel> context)
     {
+        await Task.Delay(TimeSpan.FromSeconds(7));
         _logger.LogInformation($"Consuming payment from the queue ");
         var paymentDto = new PaymentInputDto
         {
@@ -192,6 +196,7 @@ public class FunderDbConsumer : IConsumer<FunderModel>
     
     public async Task Consume(ConsumeContext<FunderModel> context)
     {
+        await Task.Delay(TimeSpan.FromSeconds(3));
         _logger.LogInformation($"Consuming funding model for Funder {context.Message.Name} from the queue: ");
         var item = new FunderInputDto
         {

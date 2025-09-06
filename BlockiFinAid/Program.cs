@@ -168,12 +168,12 @@ try
     var smartContractAddressSettings = builder.Configuration.GetSection("SmartContractAddressSettings");
     builder.Services.Configure<SmartContractAddressSettings>(smartContractAddressSettings);
     builder.Services.AddTransient<FunderContract>();
-    builder.Services.AddScoped<UserContract>();
-    builder.Services.AddScoped<BankAccountContract>();
-    builder.Services.AddScoped<FundingContract>();
-    builder.Services.AddScoped<FundingConditionsContract>();
-    builder.Services.AddScoped<PaymentContract>();
-    builder.Services.AddScoped<IPublisher, MassTransitPublisher>();
+    builder.Services.AddTransient<UserContract>();
+    builder.Services.AddTransient<BankAccountContract>();
+    builder.Services.AddTransient<FundingContract>();
+    builder.Services.AddTransient<FundingConditionsContract>();
+    builder.Services.AddTransient<PaymentContract>();
+    builder.Services.AddTransient<IPublisher, MassTransitPublisher>();
     
     // //Consumers
     // builder.Services.AddScoped<UserDbConsumer>();
