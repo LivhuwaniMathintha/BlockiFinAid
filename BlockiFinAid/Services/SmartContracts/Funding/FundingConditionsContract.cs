@@ -258,6 +258,7 @@ public class FundingConditionsContract
             var functionsSigHashes =
                 FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Condition");
 
+            
             return new SmartContractResponse<string>()
             {
                 BlockHash = receipt.BlockHash,
@@ -265,7 +266,7 @@ public class FundingConditionsContract
                 ByteCode = _byteCodes.BankAccountByteCode,
                 FunctionSigHashes = functionsSigHashes,
                 ContractAddress = receipt.ContractAddress,
-                Data = receipt.TransactionHash,
+                Data = Guid.Parse(dto.Id).ToString(),
                 IsSuccess = true
             };
         }

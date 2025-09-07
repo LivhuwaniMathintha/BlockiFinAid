@@ -269,7 +269,7 @@ public class DatabaseSeeder
     private async Task SeedPaymentsFromJsonAsync()
     {
         _logger.LogInformation("Seeding payments has started, checking for api-admin user");
-        var existingAdminUser = await _uam.GetUserByEmail("sitoenando@outlook.com");
+        var existingAdminUser = await _uam.GetUserByEmail(UAMHelper.GetAminEmail());
 
         if (existingAdminUser != null)
         {
@@ -349,7 +349,7 @@ public class DatabaseSeeder
         }
         else
         {
-            _logger.LogError($"API-ADMIN with email: sitoenando@outlook.com was not found in the system. ensure that you seed users first and try again");
+            _logger.LogError($"API-ADMIN with email: {UAMHelper.GetAminEmail()} was not found in the system. ensure that you seed users first and try again");
         }
     }    
     private async Task SeedUsersFromJsonAsync(string adminId)

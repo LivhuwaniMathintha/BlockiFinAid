@@ -1,3 +1,1 @@
-username: admin
-password: admin
-check the docker compose file to see which port to run this on
+link in grafana: http://host.docker.internal:5017/api/database/payment

@@ -1,6 +1,8 @@
 using System.Net;
 using BlockiFinAid.Data.DTOs;
+using BlockiFinAid.Data.Models;
 using BlockiFinAid.Services.AccessControl;
+using BlockiFinAid.Services.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,19 +14,23 @@ namespace BlockiFinAid.Controllers
     {
         private readonly UserAccessControlService _authService;
         private readonly ILogger<UserAccessControlService> _logger;
+        private readonly IBaseRepository<UserModel> _userRepo;
 
-        public AuthController(UserAccessControlService authService, ILogger<UserAccessControlService> logger)
+        public AuthController(UserAccessControlService authService, ILogger<UserAccessControlService> logger, IBaseRepository<UserModel> userRepository)
         {
             _authService = authService;
             _logger = logger;
+            _userRepo = userRepository;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var results = await _authService.LoginUser(request.Username, request.Password);
-
-            if (results is not null)
+            var userModel = await _userRepo.GetAllAsync();
+            var user = userModel.FirstOrDefault(x => x.Email == request.Username);
+            
+            if (results is not null && user is not null)
             {
                 return Ok(new LoginResponse
                 {
@@ -32,7 +38,7 @@ namespace BlockiFinAid.Controllers
                 //    Username = results.Username,
                     IsLoginSuccessful = true,
                     StudentNumber = results.StudentNumber,
-                    Id = results.Id.ToString(),
+                    Id = user.Id.ToString(),
                 });
             }
             return Unauthorized(new LoginResponse

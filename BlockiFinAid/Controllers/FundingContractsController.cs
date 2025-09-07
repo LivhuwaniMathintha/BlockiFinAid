@@ -42,13 +42,15 @@ namespace BlockiFinAid.Controllers
             {
                 if (funding.IsActive)
                 {
-                    var funderDetails = await _funderContract.GetFunderByIdAsync(funding.FunderId);
+                    var allFunders = await _funderContract.GetAllFundersAsync();
+                    var funderDetails = allFunders.FirstOrDefault(x => x.Id == funding.FunderId);
+                    _logger.LogInformation($"[Funding Contract Controller] - Fetching Funder: {funderDetails.Name}");
                     var conditions = await _fundingConditions.GetConditionByIdAsync(funding.FunderContractConditionId.ToString());
-                    if(funding?.FoodBalance == 0) return NotFound();
                     var paymentDate = funderDetails is not null ? DateTime.Parse(funderDetails.PaymentDate) : (DateTime?)null;
                     var date = paymentDate?.Day;
                     var today = DateTime.Today.Day;
-                    var nextPaymentDate = today < date ? $"{date}/{paymentDate?.Month}/{paymentDate?.Year}" : $"{date}/{paymentDate?.Month + 1}/{paymentDate?.Year}" ;
+                    var currentMonth = DateTime.Today.Month;
+                    var nextPaymentDate = today < date ? $"{date}/{currentMonth}/{paymentDate?.Year}" : $"{date}/{currentMonth + 1}/{paymentDate?.Year}" ;
                     var response = new FundingWebResponse()
                     {
                         Funder = funderDetails is not null ? funderDetails.Name : "N/A",

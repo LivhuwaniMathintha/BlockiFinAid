@@ -72,7 +72,38 @@ public static class UAMHelper
 
         return studentNumber;
     }
+    public static string GeneratePaymentTransactionNumber()
+    {
+        // Create a new random number generator
+        Random random = new Random();
 
+        // to ensure it has at most 7 digits.
+        int randomNumber = random.Next(1000000000);
+
+        // Format the number with leading zeros to ensure it's always 7 digits long
+        string numberPart = randomNumber.ToString("D9");
+
+        // Prepend 'S' to the generated number
+        string studentNumber = $"TRX{numberPart}";
+
+        return studentNumber;
+    }
+    public static string GeneratePaymentGroupNumber()
+    {
+        // Create a new random number generator
+        Random random = new Random();
+
+        // to ensure it has at most 7 digits.
+        int randomNumber = random.Next(100000);
+
+        // Format the number with leading zeros to ensure it's always 7 digits long
+        string numberPart = randomNumber.ToString("D5");
+
+        // Prepend 'S' to the generated number
+        string studentNumber = $"GRP{numberPart}";
+
+        return studentNumber;
+    }
     public static string GenerateRandomDegree()
     {
         // A list of common South African degree abbreviations

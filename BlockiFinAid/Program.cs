@@ -108,6 +108,13 @@ try
         var logger = sp.GetRequiredService<ILogger<BaseRepository<BankAccountModel>>>();
         return new BaseRepository<BankAccountModel>(db, "bankAccounts", logger);
     });
+    
+    builder.Services.AddSingleton<IBaseRepository<PaymentCheckerModel>>(sp =>
+    {
+        var db = sp.GetRequiredKeyedService<IMongoDatabase>("DB.Funds");
+        var logger = sp.GetRequiredService<ILogger<BaseRepository<PaymentCheckerModel>>>();
+        return new BaseRepository<PaymentCheckerModel>(db, "paymentChecker", logger);
+    });
 
     builder.Services.AddSingleton<IBaseRepository<FundingModel>>(sp =>
     {

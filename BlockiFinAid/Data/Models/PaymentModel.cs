@@ -9,7 +9,8 @@ public class PaymentModel : IModel
     [BsonId]
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid Id { get; set; }
-   
+    public string TransactionId { get; set; } = string.Empty;
+    public string TransactionGroupId { get; set; } = string.Empty;
     public string AccountNumber { get; set; } = string.Empty;
     
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
@@ -43,4 +44,21 @@ public class FraudDataModel : PaymentModel
     public bool IsPaymentDuplicate { get; set; }
     public string ProcessingCountry { get; set; } =  string.Empty;
     // so many other fields can be added in here depending on context
+}
+
+public class PaymentCheckerModel : IModel
+{
+    [BsonId]
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid Id { get; set; }
+ 
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid UserIdPerformingAction { get; set; }
+    [BsonIgnore]
+    public string StudentNumber { get; set; }
+
+    public DateTime LastPaidDate { get; set; }
+ 
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
+    public Guid FunderId { get; set; }
 }
