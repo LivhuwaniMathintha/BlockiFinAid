@@ -271,7 +271,9 @@ public class FundingConditionsContract
         }
         catch (Exception ex)
         {
-            return new SmartContractResponse<string>();
+            var response = new SmartContractResponse<string>();
+            response.Data = ex.Message;
+            return response;
         }
     }
 

@@ -1,4 +1,5 @@
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
@@ -50,6 +51,7 @@ public class PaymentInitiator : BackgroundService
         var funding = scope.ServiceProvider.GetRequiredService<FundingContract>();
         var paymentPublisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
         var paymentContract = scope.ServiceProvider.GetRequiredService<PaymentContract>();
+        var paymentModel = scope.ServiceProvider.GetRequiredService<IBaseRepository<PaymentModel>>();
         var twoDaysFromNow = DateTime.UtcNow.AddDays(2);
         var currentMonth = DateTime.UtcNow.Month;
         var allFunders = await funderContract.GetAllFundersAsync();
@@ -96,18 +98,39 @@ public class PaymentInitiator : BackgroundService
 
                                    if (fundingConditions is not null)
                                    {
+                                        _logger.LogInformation($"[Payment Initiator] - Found Funding Conditions Contract for {student.Name} with Student Number of {student.StudentNumber}");
+                                       
                                        var fundingContract = await funding.GetFundingByStudentIdAsync(student.Id);
 
                                        if (fundingContract is not null)
                                        {
-                                           var paymentEvent = new PaymentEvent
+                                           // var paymentEvent = new PaymentEvent
+                                           // {
+                                           //     FromAccountNumber = bankAccounts.BankAccountNumber,
+                                           //     FromBankName = bankAccounts.BankName,
+                                           //     FromBankBranchCode = bankAccounts.BankBranchCode,
+                                           //     ToAccountNumber = studentBankDetails.BankAccountNumber,
+                                           //     ToBankName = studentBankDetails.BankName,
+                                           //     ToBankBranchCode = studentBankDetails.BankBranchCode
+                                           // };
+
+                                           var paymentEvent = new PaymentModel
                                            {
-                                               FromAccountNumber = bankAccounts.BankAccountNumber,
-                                               FromBankName = bankAccounts.BankName,
-                                               FromBankBranchCode = bankAccounts.BankBranchCode,
-                                               ToAccountNumber = studentBankDetails.BankAccountNumber,
-                                               ToBankName = studentBankDetails.BankName,
-                                               ToBankBranchCode = studentBankDetails.BankBranchCode
+                                               Id = Guid.NewGuid(),
+                                               AccountNumber = studentBankDetails.BankAccountNumber,
+                                               BankName = studentBankDetails.BankName,
+                                               BranchCode = studentBankDetails.BankBranchCode,
+                                               FulfilmentDate = DateTime.UtcNow.AddDays(2),
+                                               InitiationDate = DateTime.UtcNow,
+                                               InstitutionServiceId = getFunderUser.Id,
+                                               IsFraud = false,
+                                               ModifiedBy = "api-admin",
+                                               UpdatedAt = DateTime.UtcNow,
+                                               Status = "Initiated",
+                                               Institution = "University of Johannesburg",
+                                               StudentId = student.Id,
+                                               StudentNumber = student.StudentNumber,
+                                               Funder = funder.Name
                                            };
 
                                            // for food
@@ -119,26 +142,13 @@ public class PaymentInitiator : BackgroundService
                                                if (fundingContract.FoodBalance > monthlyAmount)
                                                {
                                                    paymentEvent.Amount = monthlyAmount;
-
-                                                   //publish this event
-                                                   await paymentPublisher.Publish(paymentEvent);
-                                                   var results = await paymentContract.AddPaymentAsync(
-                                                       new PaymentInputDto()
-                                                       {
-                                                           AccountNumber = paymentEvent.ToAccountNumber,
-                                                           Amount = monthlyAmount,
-                                                           BankName = paymentEvent.ToBankName,
-                                                           BranchCode = paymentEvent.ToBankBranchCode,
-                                                           FulfilmentDate = "",
-                                                           InitiationDate =
-                                                               paymentEvent.InitiatedDateTime.ToString("G"),
-                                                           IsFraud = false,
-                                                           ModifiedBy = "api-admin",
-                                                           PaymentType = paymentEvent.PaymentType,
-                                                       });
+                                               
+                                                   paymentEvent.PaymentType = "Food";
+                                                   await paymentModel.CreateAsync(paymentEvent, "sys-api");
+                                                   
                                                    // subtract from the payment balance
                                                    _logger.LogInformation(
-                                                       $"[Paymwent Initiator] - Payment has been added to the smart contract in block: {results.BlockNumber}, function sighashes: {results.FunctionSigHashes}, timestamp: {results.BlockHash} on address: {results.ContractAddress}");
+                                                       $"[Paymwent Initiator] - Payment for {paymentEvent.PaymentType} has been added to the mongo db and will be pulled to smart contract next.");
 
                                                    fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                    fundingUpdateDto.IsActive = true;
@@ -148,8 +158,7 @@ public class PaymentInitiator : BackgroundService
 
                                                    // update the funding
                                                    await funding.UpdateFundingAsync(fundingUpdateDto);
-
-
+                                                   
                                                }
                                                else
                                                {
@@ -165,27 +174,14 @@ public class PaymentInitiator : BackgroundService
                                                if (fundingContract.AccommodationBalance > monthlyAmount)
                                                {
                                                    paymentEvent.Amount = monthlyAmount;
-
+                                                   paymentEvent.Id = Guid.NewGuid();
                                                    //publish this event
                                                    paymentEvent.PaymentType = "Accommodation";
-                                                   await paymentPublisher.Publish(paymentEvent);
-                                                   var results = await paymentContract.AddPaymentAsync(
-                                                       new PaymentInputDto()
-                                                       {
-                                                           AccountNumber = paymentEvent.ToAccountNumber,
-                                                           Amount = monthlyAmount,
-                                                           BankName = paymentEvent.ToBankName,
-                                                           BranchCode = paymentEvent.ToBankBranchCode,
-                                                           FulfilmentDate = "",
-                                                           InitiationDate =
-                                                               paymentEvent.InitiatedDateTime.ToString("G"),
-                                                           IsFraud = false,
-                                                           ModifiedBy = "api-admin",
-                                                           PaymentType = paymentEvent.PaymentType,
-                                                       });
+                                                 
+                                                   await paymentModel.CreateAsync(paymentEvent, "sys-api");
                                                    // subtract from the payment balance
                                                    _logger.LogInformation(
-                                                       $"[Paymwent Initiator] - Payment has been added to the smart contract in block: {results.BlockNumber}, function sighashes: {results.FunctionSigHashes}, timestamp: {results.BlockHash} on address: {results.ContractAddress}");
+                                                       $"[Paymwent Initiator] - Payment for {paymentEvent.PaymentType} has been added to the mongo db and will be pulled to smart contract next.");
 
                                                    fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                    fundingUpdateDto.IsActive = true;
@@ -209,27 +205,13 @@ public class PaymentInitiator : BackgroundService
                                                if (fundingContract.LaptopBalance > monthlyAmount)
                                                {
                                                    paymentEvent.Amount = monthlyAmount;
-
-                                                   //publish this event
+                                                   paymentEvent.Id = Guid.NewGuid();
                                                    paymentEvent.PaymentType = "Laptop/Book";
-                                                   await paymentPublisher.Publish(paymentEvent);
-                                                   var results = await paymentContract.AddPaymentAsync(
-                                                       new PaymentInputDto()
-                                                       {
-                                                           AccountNumber = paymentEvent.ToAccountNumber,
-                                                           Amount = monthlyAmount,
-                                                           BankName = paymentEvent.ToBankName,
-                                                           BranchCode = paymentEvent.ToBankBranchCode,
-                                                           FulfilmentDate = "",
-                                                           InitiationDate =
-                                                               paymentEvent.InitiatedDateTime.ToString("G"),
-                                                           IsFraud = false,
-                                                           ModifiedBy = "api-admin",
-                                                           PaymentType = paymentEvent.PaymentType,
-                                                       });
+                                                   //publish this event
+                                                   await paymentModel.CreateAsync(paymentEvent, "sys-api");
                                                    // subtract from the payment balance
                                                    _logger.LogInformation(
-                                                       $"[Paymwent Initiator] - Payment has been added to the smart contract in block: {results.BlockNumber}, function sighashes: {results.FunctionSigHashes}, timestamp: {results.BlockHash} on address: {results.ContractAddress}");
+                                                       $"[Paymwent Initiator] - Payment for {paymentEvent.PaymentType} has been added to the mongo db and will be pulled to smart contract next.");
                                                    fundingUpdateDto.Id = fundingContract.Id.ToString();
                                                    fundingUpdateDto.IsActive = true;
                                                    fundingUpdateDto.LaptopBalance =
@@ -248,8 +230,12 @@ public class PaymentInitiator : BackgroundService
                                    }
                                    else
                                    {
-                                       _logger.LogError($"[Payment Initiator] - Funding Contract for student {student.StudentNumber} not found");
+                                       _logger.LogError($"[Payment Initiator] - Funding Conditions Contract for student {student.StudentNumber} not found");
                                    }
+                                }
+                                else
+                                {
+                                    _logger.LogError($"[Payment Initiator] - Funding Contract for student {student.StudentNumber} not found");
                                 }
                             }
                             else

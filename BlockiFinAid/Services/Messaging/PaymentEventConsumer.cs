@@ -35,6 +35,8 @@ public class PaymentEventConsumer : IConsumer<PaymentEvent>
             FulfillmentDate = context.Message.FulfillmentDate,
             InitiatedDateTime = context.Message.InitiatedDateTime,
         };
+        
+        
         try {
             paymentEvent.Status = "processing";
             _logger.LogInformation(

@@ -23,6 +23,12 @@ namespace BlockiFinAid.Controllers
             _fundingConditions = fundingConditions;
             _logger = logger;
         }
+
+        [HttpGet("student/{studentId}")]
+        public async Task<IActionResult> GetStudentFundingByStudentId([FromRoute] Guid studentId)
+        {
+            return Ok(await _fundingContract.GetFundingByStudentIdAsync(studentId));
+        }
         
         [HttpGet("{studentId}")]
         public async Task<IActionResult> GetStudentId(string studentId)

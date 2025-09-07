@@ -24,7 +24,7 @@ public class DatabaseSeeder
     private readonly IBaseRepository<BankAccountModel> _bankAccounts;
     private readonly IBaseRepository<FundingConditionsModel> _fundingConditions;
     private readonly IBaseRepository<FundingModel> _funding;
-
+    private readonly Random _random = new Random();
     public DatabaseSeeder(ILogger<DatabaseSeeder> logger, 
         IWebHostEnvironment env, 
         IOptions<MongoDbSettings> settings, 
@@ -66,7 +66,7 @@ public class DatabaseSeeder
         if (existingUser != null)
         {
             await SeedFundersAsync(existingUser.Id.ToString());
-            //await SeedPaymentsFromJsonAsync();
+            await SeedPaymentsFromJsonAsync();
             await SeedUsersFromJsonAsync(existingUser.Id.ToString());
         }
         else
@@ -231,7 +231,7 @@ public class DatabaseSeeder
                 var existingFunder = existingFunders.FirstOrDefault(x => x.Name == item.Name || x.Id == item.Id);
                 if (existingFunder is null)
                 {
-                    _logger.LogInformation($"Payment with Id {item.Name} does not exist...");
+                    _logger.LogInformation($"Funder with Id {item.Name} does not exist...");
                     var newFunder = new FunderModel
                     {
                         Id = item.Id,
@@ -360,23 +360,23 @@ public class DatabaseSeeder
 
         if (!File.Exists(seedFilePath))
         {
-            _logger.LogInformation($"Users seed file not found at {seedFilePath}. Skipping user seeding");
+            _logger.LogInformation($"[User Seeder] - Users seed file not found at {seedFilePath}. Skipping user seeding");
             return;
         }
 
         try
         {
-            _logger.LogInformation($"Reading users from Json file {seedFilePath}");
+            _logger.LogInformation($"[User Seeder] - Reading users from Json file {seedFilePath}");
             var jsonContent = await File.ReadAllTextAsync(seedFilePath);
             var usersToSeed = JsonConvert.DeserializeObject<List<UserAccessControlDto>>(jsonContent);
 
             if (usersToSeed == null || !usersToSeed.Any())
             {
-                _logger.LogInformation($"No users found to seed. Skipping user seeding");
+                _logger.LogInformation($"[User Seeder] - No users found to seed. Skipping user seeding");
                 return;
             }
 
-            _logger.LogInformation($"Found {usersToSeed.Count} users in the JSON file. Starting to seed...");
+            _logger.LogInformation($"[User Seeder] - Found {usersToSeed.Count} users in the JSON file. Starting to seed...");
             foreach (var user in usersToSeed)
             {
                 // check if a specific user (e.g by student number) already exists
@@ -386,11 +386,13 @@ public class DatabaseSeeder
                 var allFunders = await _funders.GetAllAsync();
                 if (allFunders.Any())
                 {
-                    var funderIndex = new Random().Next(0, allFunders.Count());
-                    var funderId = allFunders.ElementAt(funderIndex);
+                    var count = allFunders.Count();
+               
+                    var funderIndex = _random.Next(count);
+                    var funderId = allFunders.ElementAt(funderIndex).Id;
                     if (existingUser is null)
                     {
-                        _logger.LogInformation($"User with email {user.Email} does not exist...");
+                        _logger.LogInformation($"[User Seeder] - User with email {user.Email} does not exist...");
                         var password  = UAMHelper.PasswordGenerator();
                         var newUser = new UserAccessControlDto
                         {
@@ -401,13 +403,13 @@ public class DatabaseSeeder
                             Password = password
                         };
                         
-                        _logger.LogInformation($"Processing UAM for {user.Email}... with password {password}...");
+                        _logger.LogInformation($"[User Seeder] - Processing UAM for {user.Email}... with password {password}...");
 
                         var result = await _uam.RegisterUser(newUser);
 
                         if (result is not null)
                         {
-                            _logger.LogInformation($"UAM for {result.Email} has been registered with role {result.Role}");
+                            _logger.LogInformation($"[User Seeder] - UAM for {result.Email} has been registered with role {result.Role}");
                             
                             UserModel? studentNumberExists = null;
                             var studentNumber = "";
@@ -427,7 +429,7 @@ public class DatabaseSeeder
                                 ModifiedBy = "api-admin",
                                 InstitutionId = Guid.Empty,
                                 IsActive = true,
-                                FunderContractId = allFunders.ElementAt(funderIndex).Id,
+                                FunderContractId = funderId,
                                 IsChangeConfirmed = false,
                                 Name = user.Name,
                                 
@@ -442,7 +444,7 @@ public class DatabaseSeeder
                             {
                                 var bankModel = await _bankAccounts.CreateAsync(bankAccount, adminId);
                       
-                                _logger.LogInformation($"UserFunder {user.Name} bank account seeded successfully with studentNumber {userDetails.StudentNumber}");
+                                _logger.LogInformation($"[User Seeder] - UserFunder {user.Name} bank account seeded successfully with studentNumber {userDetails.StudentNumber}");
                        
                                 try
                                 {
@@ -451,7 +453,7 @@ public class DatabaseSeeder
                                         BankAccountModel bankAccountModel = (BankAccountModel)bankModel;
                                         userDetails.BankAccountId = bankAccountModel.Id;
                                         var userResponse = await _userRepo.CreateAsync(userDetails, adminId);
-                                        _logger.LogInformation($"User {user.Name} seeded with studentNumber {userDetails.StudentNumber}");
+                                        _logger.LogInformation($"[User Seeder] - User {user.Name} seeded with studentNumber {userDetails.StudentNumber}");
                                         if (userResponse is UserModel){
                                            UserModel userModel = (UserModel)userResponse;
                                            var random = new Random();
@@ -459,32 +461,36 @@ public class DatabaseSeeder
                                            var fundingConditions = new FundingConditionsModel
                                            {
                                                Id = Guid.NewGuid(),
-                                               AverageMark = (uint)random.Next(65, 95),
-                                               IsActive = true,
-                                               UpdatedAt = DateTime.UtcNow,
-                                               EndDate = DateTime.UtcNow.AddYears(1),
+                                               IsFullCoverage = true,
                                                StartDate = DateTime.UtcNow,
-                                               LaptopAmount = (uint)random.Next(100, 10000),
-                                               TuitionAmount = (uint)random.Next(100, 100000),
+                                               EndDate = DateTime.UtcNow.AddYears(1),
+                                               TotalAmount = (uint)random.Next(10000, 30000),
                                                FoodAmount = (uint)random.Next(1000, 35000),
+                                               TuitionAmount = (uint)random.Next(100, 100000),
+                                               LaptopAmount = (uint)random.Next(100, 10000),
                                                AccommodationAmount = (uint)random.Next(100, 40000),
-                                               AccommodationDirectPay = true
+                                               AccommodationDirectPay = true,
+                                               ModifiedBy = "api-admin",
+                                               UpdatedAt = DateTime.UtcNow,
+                                               IsActive = true,
+                                               AverageMark = (uint)random.Next(65, 95),
                                            };
                                            
                                            var fundingConditionsResponse = await _fundingConditions.CreateAsync(fundingConditions, adminId);
 
                                            if (fundingConditionsResponse is FundingConditionsModel)
                                            {
-                                               _logger.LogInformation($"Funding conditions for {user.Email} has been created.");
+                                               _logger.LogInformation($"[User Seeder] - Funding conditions for {user.Email} has been created.");
                                                var fundingConditionsOutputDto = (FundingConditionsModel)fundingConditionsResponse;
                                                var fundingDto = new FundingModel
                                                {
-                                                   StudentNumber = userModel.Id.ToString(),
+                                                   StudentNumber = userModel.StudentNumber,
+                                                   StudentId = userModel.Id,
                                                    AccommodationBalance = fundingConditions.AccommodationAmount,
                                                    LaptopBalance = fundingConditions.LaptopAmount,
                                                    TuitionBalance = fundingConditions.TuitionAmount,
                                                    FoodBalance = fundingConditions.FoodAmount,
-                                                   FunderId = funderId.Id,
+                                                   FunderId = funderId,
                                                    FunderContractConditionId = fundingConditionsOutputDto.Id,
                                                    SignedOn = DateTime.UtcNow,
                                                    ModifiedBy = "api-admin",
@@ -494,35 +500,35 @@ public class DatabaseSeeder
                                                await _funding.CreateAsync(fundingDto, adminId);
                                            }
                                         }
-                                        _logger.LogInformation($"User Model {user.Email} has been created.");
+                                        _logger.LogInformation($"[User Seeder] - User Model {user.Email} has been created.");
                                     }
                                 }
                                 catch (Exception e)
                                 {
-                                    _logger.LogError(e.Message, $"Failed to create funder - user for {user.Name}");
+                                    _logger.LogError(e.Message, $"[User Seeder] - Failed to create funder - user for {user.Name}");
                                 }
                             }
                             catch (Exception e)
                             {
-                                _logger.LogError(e.Message, "Failed to create bank account");
+                                _logger.LogError(e.Message, "[User Seeder] - Failed to create bank account");
                             }
                            
                         }
                     }
                     else
                     {
-                        _logger.LogInformation($"User with email {user.Email} already exists...");
+                        _logger.LogInformation($"[User Seeder] - User with email {user.Email} already exists...");
                     }
                 }
                 else
                 {
-                    _logger.LogInformation($"There are no funders found, cannot seed user");
+                    _logger.LogInformation($"[User Seeder] - There are no funders found, cannot seed user");
                 }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while seeding users");
+            _logger.LogError(ex, "[User Seeder] - Error while seeding users");
         }
     }
 }
