@@ -1,7 +1,4 @@
 using BlockiFinAid.Data.Models;
-using BlockiFinAid.Helpers;
-using BlockiFinAid.Services.AccessControl;
-using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
 using BlockiFinAid.Services.SmartContracts.Funding;
@@ -23,9 +20,9 @@ public class UserDbConsumer : IConsumer<UserModel>
     }
     public async Task Consume(ConsumeContext<UserModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(3));
-        _logger.LogInformation($"Consuming the following user {context.Message.StudentNumber} from the queue: ");
-        var userDto = new UserInputDto
+        await Task.Delay(TimeSpan.FromSeconds(6));
+        _logger.LogInformation($"[User Consumer] - Consuming the following user {context.Message.StudentNumber} from the queue: ");
+        var item = new UserInputDto
         {
             Name = context.Message.Name,
             Email = context.Message.Email,
@@ -40,9 +37,43 @@ public class UserDbConsumer : IConsumer<UserModel>
             Role =  context.Message.Role,
             Id = context.Message.Id.ToString(),
         };
-        
-        var results = await _userContract.AddUserAsync(userDto);
-        _logger.LogInformation($"User {context.Message.StudentNumber} added to the smart contract for users with status: {results}");
+
+        try
+        {
+            var results = await _userContract.AddUserAsync(item);
+            _logger.LogInformation(
+                $"[User Consumer] - User {context.Message.StudentNumber} added to the smart contract for users with status: {results}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"[User Consumer] - User for {item.StudentNumber} is not in the smart contract, however, this account is using id: {item.Id} and this is the error: {ex.Message}");
+            if (ex.Message.Contains("Nonce"))
+            {
+                //Retry Logic
+                int maxRetries = 5;
+                for (int i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        _logger.LogWarning(
+                            $"[User Consumer] - Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                        var results = await _userContract.AddUserAsync(item);
+                        _logger.LogInformation(
+                            $"[User Consumer] - Adding data from db to smart contract in real-time for user model complete with status: {results}");
+                        break;
+                    }
+                    catch (Exception retryEx)
+                    {
+                        _logger.LogError($"[User Consumer] - Retry attempt failed with error: {retryEx.Message}");
+                        if (i == maxRetries - 1)
+                        {
+                            // If it's the last attempt and it fails, log the final error
+                            _logger.LogError($"[User Consumer] - User for {item.StudentNumber} is not in the smart contract, however, this user is using id: {item.Id} and this is the final error after retries: {ex}");
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -61,9 +92,9 @@ public class BankAccountDbConsumer : IConsumer<BankAccountModel>
     
     public async Task Consume(ConsumeContext<BankAccountModel> context)
     {
-        _logger.LogInformation($"BankAccountNumber: {context.Message.BankAccountNumber} has been added to the database and retrieved in real-time. Queue for Smart contract addition");
-        await Task.Delay(TimeSpan.FromSeconds(6));
-        var accountDto = new BankAccountInputDto()
+        _logger.LogInformation($"[Bank Account Consumer] - BankAccountNumber: {context.Message.BankAccountNumber} has been added to the database and retrieved in real-time. Queue for Smart contract addition");
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        var item = new BankAccountInputDto()
         {
             BankAccountNumber = context.Message.BankAccountNumber,
             BankBranchCode = context.Message.BankBranchCode,
@@ -72,10 +103,45 @@ public class BankAccountDbConsumer : IConsumer<BankAccountModel>
             StudentNumber =  context.Message.StudentNumber,
             Id = context.Message.Id.ToString(),
         };
-        
-        var results = await _bankAccountContract.AddBankAccountAsync(accountDto);
-        
-        _logger.LogInformation($"Adding data from db to smart contract in real-time for bankAccount model is complete with status: {results}");
+
+        try
+        {
+
+            var results = await _bankAccountContract.AddBankAccountAsync(item);
+
+            _logger.LogInformation(
+                $"[Bank Account Consumer] - Adding data from db to smart contract in real-time for bankAccount model is complete with status: {results}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"[Bank Account Consumer] - Account for {item.StudentNumber} is not in the smart contract, however, this account is using id: {item.Id} and this is the error: {ex.Message}");
+            if (ex.Message.Contains("Nonce"))
+            {
+                //Retry Logic
+                int maxRetries = 5;
+                for (int i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        _logger.LogWarning(
+                            $"[Bank Account Consumer] - Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                        var results = await _bankAccountContract.AddBankAccountAsync(item);
+                        _logger.LogInformation(
+                            $"[Bank Account Consumer] - Adding data from db to smart contract in real-time for account model complete with status: {results.BlockHash}");
+                        break;
+                    }
+                    catch (Exception retryEx)
+                    {
+                        _logger.LogError($"[Bank Account Consumer] - Retry attempt failed with error: {retryEx.Message}");
+                        if (i == maxRetries - 1)
+                        {
+                            // If it's the last attempt and it fails, log the final error
+                            _logger.LogError($"[Bank Account Consumer] - Account for {item.StudentNumber} is not in the smart contract, however, this account is using id: {item.Id} and this is the final error after retries: {ex}");
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -91,9 +157,9 @@ public class FundingDbConsumer : IConsumer<FundingModel>
     }
     public async Task Consume(ConsumeContext<FundingModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(1));
-        _logger.LogInformation($"Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
-        var fundingDto = new FundingInputDto
+        await Task.Delay(TimeSpan.FromSeconds(4));
+        _logger.LogInformation($"[Funding Consumer] - Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
+        var item = new FundingInputDto
         {
             StudentId = context.Message.StudentId.ToString(),
             FunderContractConditionId = context.Message.FunderContractConditionId.ToString(),
@@ -105,9 +171,43 @@ public class FundingDbConsumer : IConsumer<FundingModel>
             AccommodationBalance = context.Message.AccommodationBalance,
             ModifiedBy = context.Message.ModifiedBy
         };
-        
-        var results = await _fundingContract.AddFundingAsync(fundingDto);
-        _logger.LogInformation($"Adding data from db to smart contract in real-time for funding model complete with status: {results}");
+        try
+        {
+
+            var results = await _fundingContract.AddFundingAsync(item);
+            _logger.LogInformation(
+                $"[Funding Consumer]- Adding data from db to smart contract in real-time for funding model complete with status: {results}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"[Funding Consumer] - Funding for {item.StudentId} is not in the smart contract. Error: {ex.Message}");
+            if (ex.Message.Contains("Nonce"))
+            {
+                //Retry Logic
+                int maxRetries = 5;
+                for (int i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        _logger.LogWarning(
+                            $"[Funding Consumer] - Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                        var results = await _fundingContract.AddFundingAsync(item);
+                        _logger.LogInformation(
+                            $"[Funding Consumer] - Adding data from db to smart contract in real-time for funding model complete with status: {results.BlockHash}");
+                        break;
+                    }
+                    catch (Exception retryEx)
+                    {
+                        _logger.LogError($"[Funding Consumer] - Retry attempt failed with error: {retryEx.Message}");
+                        if (i == maxRetries - 1)
+                        {
+                            // If it's the last attempt and it fails, log the final error
+                            _logger.LogError($"[Funding Consumer] - Funding for {item.StudentId} is not in the smart contract. This is the final error after retries: {ex.Message}");
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -123,7 +223,7 @@ public class FundingConditionsDbConsumer : IConsumer<FundingConditionsModel>
     }
     public async Task Consume(ConsumeContext<FundingConditionsModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(9));
+        await Task.Delay(TimeSpan.FromSeconds(3));
         _logger.LogInformation($"Consuming funding model for student {context.Message.StudentNumber} from the queue: ");
         var item = new FundingConditionInputDto()
         {
@@ -142,8 +242,43 @@ public class FundingConditionsDbConsumer : IConsumer<FundingConditionsModel>
             
         };
 
-        var results = await _fundingConditionsContract.AddConditionAsync(item);
-        _logger.LogInformation($"Adding data from db to smart contract in real-time for funding conditions model complete with status: {results}");
+        try
+        {
+
+            var results = await _fundingConditionsContract.AddConditionAsync(item);
+            _logger.LogInformation(
+                $"Adding data from db to smart contract in real-time for funding conditions model complete with status: {results}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Funding Condition is not in the smart contract, however, this condition is using id: {item.Id} and this is the error: {ex.Message}");
+            if (ex.Message.Contains("Nonce"))
+            {
+                //Retry Logic
+                int maxRetries = 5;
+                for (int i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        _logger.LogWarning(
+                            $"Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                        var results = await _fundingConditionsContract.AddConditionAsync(item);
+                        _logger.LogInformation(
+                            $"Adding data from db to smart contract in real-time for funding condition model complete with status: {results.BlockHash}");
+                        break;
+                    }
+                    catch (Exception retryEx)
+                    {
+                        _logger.LogError($"Retry attempt failed with error: {retryEx.Message}");
+                        if (i == maxRetries - 1)
+                        {
+                            // If it's the last attempt and it fails, log the final error
+                            _logger.LogError($"Condition is not in the smart contract, however, this funding condition is using id: {item.Id} and this is the final error after retries: {ex}");
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -160,9 +295,9 @@ public class PaymentDbConsumer : IConsumer<PaymentModel>
     }
     public async Task Consume(ConsumeContext<PaymentModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(7));
+        await Task.Delay(TimeSpan.FromSeconds(2));
         _logger.LogInformation($"Consuming payment from the queue ");
-        var paymentDto = new PaymentInputDto
+        var item = new PaymentInputDto
         {
             Id = context.Message.Id.ToString(),
             AccountNumber = context.Message.AccountNumber,
@@ -177,9 +312,43 @@ public class PaymentDbConsumer : IConsumer<PaymentModel>
             FulfilmentDate = context.Message.FulfilmentDate.ToString("G"),
             ModifiedBy = context.Message.ModifiedBy,
         };
-        
-        var results = await _paymentContract.AddPaymentAsync(paymentDto);
-        _logger.LogInformation($"Payment  added to the smart contract with status: {results.BlockHash}");
+
+        try
+        {
+            var results = await _paymentContract.AddPaymentAsync(item);
+            _logger.LogInformation($"Payment  added to the smart contract with status: {results.BlockHash}");
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Payment for {item.StudentNumber} is not in the smart contract, however, this payment is using id: {item.Id} and this is the error: {ex.Message}");
+            if (ex.Message.Contains("Nonce"))
+            {
+                //Retry Logic
+                int maxRetries = 5;
+                for (int i = 0; i < 5; i++)
+                {
+                    try
+                    {
+                        _logger.LogWarning(
+                            $"Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                        var results = await _paymentContract.AddPaymentAsync(item);
+                        _logger.LogInformation(
+                            $"Adding data from db to smart contract in real-time for payment model complete with status: {results.BlockHash}");
+                        break;
+                    }
+                    catch (Exception retryEx)
+                    {
+                        _logger.LogError($"Retry attempt failed with error: {retryEx.Message}");
+                        if (i == maxRetries - 1)
+                        {
+                            // If it's the last attempt and it fails, log the final error
+                            _logger.LogError($"Payment for {item.StudentNumber} is not in the smart contract, however, this payment is using id: {item.Id} and this is the final error after retries: {ex}");
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -196,7 +365,7 @@ public class FunderDbConsumer : IConsumer<FunderModel>
     
     public async Task Consume(ConsumeContext<FunderModel> context)
     {
-        await Task.Delay(TimeSpan.FromSeconds(3));
+        await Task.Delay(TimeSpan.FromSeconds(1));
         _logger.LogInformation($"Consuming funding model for Funder {context.Message.Name} from the queue: ");
         var item = new FunderInputDto
         {
@@ -220,6 +389,32 @@ public class FunderDbConsumer : IConsumer<FunderModel>
             catch (Exception ex)
             {
                 _logger.LogError($"Funder using name {item.Name} is not in the smart contract, however, this funder is using id: {item.Id} and this is the error: {ex}");
+                if (ex.Message.Contains("Nonce"))
+                {
+                    //Retry Logic
+                    int maxRetries = 5;
+                    for (int i = 0; i < 5; i++)
+                    {
+                        try
+                        {
+                            _logger.LogWarning(
+                                $"Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                            var results = await _funderContract.AddFunderAsync(item);
+                            _logger.LogInformation(
+                                $"Adding data from db to smart contract in real-time for funder model complete with status: {results.BlockHash}");
+                            break;
+                        }
+                        catch (Exception retryEx)
+                        {
+                            _logger.LogError($"Retry attempt failed with error: {retryEx.Message}");
+                            if (i == maxRetries - 1)
+                            {
+                                // If it's the last attempt and it fails, log the final error
+                                _logger.LogError($"Funder using name {item.Name} is not in the smart contract, however, this funder is using id: {item.Id} and this is the final error after retries: {ex}");
+                            }
+                        }
+                    }
+                }
             }
         }
         else
