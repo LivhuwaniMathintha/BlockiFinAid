@@ -57,7 +57,7 @@ public class PaymentInitiator : BackgroundService
         var twoDaysFromNow = DateTime.UtcNow.AddDays(2);
         var currentMonth = DateTime.UtcNow.Month;
         var allFunders = await funderContract.GetAllFundersAsync();
-        _logger.LogInformation("[Paymwent Initiator] - Found {count} Funders in the smart contract", allFunders.Count());
+        _logger.LogInformation("[Payment Initiator] - Found {count} Funders in the smart contract", allFunders.Count());
         foreach (var funder in allFunders)
         {
             var now = DateTime.UtcNow;
@@ -86,11 +86,11 @@ public class PaymentInitiator : BackgroundService
                         var bankAccounts = await bankingAccountContract
                             .GetByStudentNumberAsync(getFunderUser.StudentNumber);
                         _logger.LogInformation(
-                            $"[Paymwent Initiator] - Found user for {funder.Name} with Student Number of {getFunderUser.StudentNumber}");
+                            $"[Payment Initiator] - Found user for {funder.Name} with Student Number of {getFunderUser.StudentNumber}");
                         if (bankAccounts is not null)
                         {
                             _logger.LogInformation(
-                                $"[Paymwent Initiator] - Found bank account for {funder.Name} with Student Number of {getFunderUser.StudentNumber}");
+                                $"[Payment Initiator] - Found bank account for {funder.Name} with Student Number of {getFunderUser.StudentNumber}");
                             var allStudents = await usersContract.GetAllUsersAsync();
                             var funderStudents = allStudents.FindAll(x => x.FunderContractId == funder.Id);
                             _logger.LogInformation(

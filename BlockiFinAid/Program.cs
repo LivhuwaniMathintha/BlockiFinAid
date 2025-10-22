@@ -12,6 +12,7 @@ using BlockiFinAid.Services.SmartContracts.Payment;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models; // Added for OpenApiInfo
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -45,7 +46,15 @@ try
 
     // Add services to the container.
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
+    // builder.Services.AddOpenApi(); // REMOVED: Replaced by AddSwaggerGen
+
+    // Configure Swagger/OpenAPI services
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "BlockiFinAid API", Version = "v1" });
+    });
+    // 
 
     // map the appsettings to my classes
     var ethereumNodeSettings = builder.Configuration.GetSection("EthereumNodeSettings");
@@ -238,7 +247,11 @@ try
         ContentSerializer = new NewtonsoftJsonContentSerializer(
             new JsonSerializerSettings
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                //ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                },
                 NullValueHandling = NullValueHandling.Ignore
             }),
     }).ConfigureHttpClient(configure =>
@@ -252,7 +265,14 @@ try
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
-        app.MapOpenApi();
+        // app.MapOpenApi(); // REMOVED: Since it's replaced by Swagger
+        // ADDED: Use Swagger and Swagger UI middleware
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "BlockiFinAid API V1");
+        });
+        // END ADDED
     }
     app.UseCors();
     app.UseHttpsRedirection();

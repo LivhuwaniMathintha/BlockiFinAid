@@ -1,4 +1,6 @@
+using System.Text.Json;
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Services.MachineLearning;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
@@ -6,6 +8,8 @@ using BlockiFinAid.Services.SmartContracts.Funding;
 using BlockiFinAid.Services.SmartContracts.Payment;
 using BlockiFinAid.Services.SmartContracts.User;
 using MassTransit;
+using Refit;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace BlockiFinAid.Services.Messaging;
 
@@ -294,12 +298,41 @@ public class PaymentDbConsumer : IConsumer<PaymentModel>
     private readonly ILogger<PaymentDbConsumer> _logger;
     private readonly PaymentContract _paymentContract;
     private readonly IBaseRepository<PaymentModel> _paymentRepo;
+    private readonly FunderContract _funderContract;
+    private readonly FundingContract _fundingContract;
+    private readonly UserContract _userContract;
+    private readonly IMachineLearningAPI _machineLearningApi;
 
-    public PaymentDbConsumer(ILogger<PaymentDbConsumer> logger, PaymentContract contract, IBaseRepository<PaymentModel> repository)
+    public PaymentDbConsumer(ILogger<PaymentDbConsumer> logger, 
+        PaymentContract contract, 
+        IBaseRepository<PaymentModel> repository, 
+        FunderContract funder, 
+        FundingContract fundingContract, 
+        UserContract userContract,
+        IMachineLearningAPI machineLearningApi)
     {
         _paymentContract = contract;
         _logger = logger;
         _paymentRepo = repository;
+        _funderContract = funder;
+        _fundingContract = fundingContract;
+        _userContract = userContract;
+        _machineLearningApi = machineLearningApi;
+    }
+
+    private float GetPaymentTypeBalance(string paymentType, FundingOutputDto funding)
+    {
+        switch (paymentType)
+        {
+            case "Food":
+                return funding.FoodBalance;
+            case "Laptop":
+                return funding.LaptopBalance;
+            case "Accommodation":
+                return funding.AccommodationBalance;
+            default:
+                return 0;
+        }
     }
     public async Task Consume(ConsumeContext<PaymentModel> context)
     {
@@ -328,54 +361,114 @@ public class PaymentDbConsumer : IConsumer<PaymentModel>
                 FulfilmentDate = DateTime.UtcNow,
                 Funder = context.Message.Funder,
             };
+            
+            // test for fraud here
 
-            var item = new PaymentInputDto
+            var funder = await _funderContract.GetFunderByNameAsync(updatePayment.Funder);
+            var student = await _userContract.GetUserByStudentNumberAsync(updatePayment.StudentNumber);
+            var funding = await _fundingContract.GetFundingByStudentIdAsync(student.Id);
+            var allFunding = await _fundingContract.GetAllFundingsAsync();
+            var allFundingForStudent = allFunding.Where(x => x.StudentId == updatePayment.StudentId);
+            if(student != null && funder != null && funding != null)
             {
-                Id = context.Message.Id.ToString(),
-                AccountNumber = context.Message.AccountNumber,
-                StudentNumber = context.Message.StudentNumber,
-                BranchCode = context.Message.BranchCode,
-                BankName = context.Message.BankName,
-                Amount = context.Message.Amount,
-                PaymentType = context.Message.PaymentType,
-                Status = updatePayment.Status,
-                IsFraud = context.Message.IsFraud,
-                InitiationDate = context.Message.InitiationDate.ToString("G"),
-                FulfilmentDate = updatePayment.FulfilmentDate.ToString("G"),
-                ModifiedBy = context.Message.ModifiedBy,
-            };
-            try
-            {
-                await _paymentRepo.CreateAsync(updatePayment, "admin-user");
-                var results = await _paymentContract.AddPaymentAsync(item);
-                _logger.LogInformation($"[Payment Consumer] - Payment  added to the smart contract with status: {results.BlockHash}");
+                // create request to the ml api
+                DateTime.TryParse(funding.SignedOn, out DateTime fundingSignedOnDate);
+                var mlRequest = new MachineLearningRequest(
+                   Guid.NewGuid().ToString(),
+                   updatePayment.TransactionId,
+                   updatePayment.TransactionGroupId,
+                   updatePayment.StudentId.ToString(),
+                   updatePayment.StudentNumber,
+                   updatePayment.InstitutionServiceId.ToString(),
+                   updatePayment.Amount,
+                   updatePayment.Amount,
+                   GetPaymentTypeBalance(updatePayment.PaymentType, funding),
+                   updatePayment.InitiationDate.ToString("o"),
+                   updatePayment.FulfilmentDate.ToString("o"),
+                   DateTime.UtcNow.ToString("o"),
+                   updatePayment.InitiationDate.ToString("o"),
+                   updatePayment.AccountNumber,
+                   updatePayment.BankName,
+                   updatePayment.BranchCode,
+                   updatePayment.Funder,
+                   updatePayment.Institution,
+                   updatePayment.ModifiedBy,
+                   updatePayment.UserIdPerformingAction.ToString(),
+                   Guid.NewGuid().ToString(),
+                   updatePayment.PaymentType,
+                   updatePayment.Status,
+                   "N/A",
+                   1,
+                   fundingSignedOnDate.Month,
+                   updatePayment.InitiationDate.Year,
+                   updatePayment.InitiationDate.Month,
+                   false,
+                   true,
+                   false, 
+                   false, 
+                   false,  
+                   allFundingForStudent.Count() > 1 ? true : false, 
+                   funding.IsActive,
+                   false, true
+                );
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"[Payment Consumer] - Payment for {context.Message.StudentNumber} is not in the smart contract, however, this payment is using id: {context.Message.Id} and this is the error: {ex.Message}");
-                if (ex.Message.Contains("Nonce"))
+                var transactionsList = new List<MachineLearningRequest> { mlRequest };
+               
+                ApiResponse<MachineLearningResponse> mlResponse = await _machineLearningApi.ProcessMachineLearningRequest(transactionsList);
+                _logger.LogInformation($"ML Endpoint has response status code: {mlResponse.StatusCode}");
+              
+                if (mlResponse is { IsSuccessStatusCode: true, Content.FraudPredicted: false })
                 {
-                    //Retry Logic
-                    int maxRetries = 5;
-                    for (int i = 0; i < 5; i++)
+                    
+                    var item = new PaymentInputDto
                     {
-                        try
+                        Id = context.Message.Id.ToString(),
+                        AccountNumber = context.Message.AccountNumber,
+                        StudentNumber = context.Message.StudentNumber,
+                        BranchCode = context.Message.BranchCode,
+                        BankName = context.Message.BankName,
+                        Amount = context.Message.Amount,
+                        PaymentType = context.Message.PaymentType,
+                        Status = updatePayment.Status,
+                        IsFraud = context.Message.IsFraud,
+                        InitiationDate = context.Message.InitiationDate.ToString("G"),
+                        FulfilmentDate = updatePayment.FulfilmentDate.ToString("G"),
+                        ModifiedBy = context.Message.ModifiedBy,
+                    };
+                    try
+                    {
+                        await _paymentRepo.CreateAsync(updatePayment, "admin-user");
+                        var results = await _paymentContract.AddPaymentAsync(item);
+                        _logger.LogInformation($"[Payment Consumer] - Payment  added to the smart contract with status: {results.BlockHash}");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"[Payment Consumer] - Payment for {context.Message.StudentNumber} is not in the smart contract, however, this payment is using id: {context.Message.Id} and this is the error: {ex.Message}");
+                        if (ex.Message.Contains("Nonce"))
                         {
-                            _logger.LogWarning(
-                                $"[Payment Consumer] - Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
-                            var results = await _paymentContract.AddPaymentAsync(item);
-                            _logger.LogInformation(
-                                $"[Payment Consumer] - Adding data from db to smart contract in real-time for payment model complete with status: {results.BlockHash}");
-                            break;
-                        }
-                        catch (Exception retryEx)
-                        {
-                            _logger.LogError($"[Payment Consumer] - Retry attempt failed with error: {retryEx.Message}");
-                            if (i == maxRetries - 1)
+                            //Retry Logic
+                            int maxRetries = 5;
+                            for (int i = 0; i < 5; i++)
                             {
-                                // If it's the last attempt and it fails, log the final error
-                                _logger.LogError($"[Payment Consumer] - Payment for {item.StudentNumber} is not in the smart contract, however, this payment is using id: {item.Id} and this is the final error after retries: {ex}");
+                                try
+                                {
+                                    _logger.LogWarning(
+                                        $"[Payment Consumer] - Nonce error detected, Retrying transaction. Attempt {i + 1} of {maxRetries}");
+                                    var results = await _paymentContract.AddPaymentAsync(item);
+                                    _logger.LogInformation(
+                                        $"[Payment Consumer] - Adding data from db to smart contract in real-time for payment model complete with status: {results.BlockHash}");
+                                    break;
+                                }
+                                catch (Exception retryEx)
+                                {
+                                    _logger.LogError($"[Payment Consumer] - Retry attempt failed with error: {retryEx.Message}");
+                                    if (i == maxRetries - 1)
+                                    {
+                                        // If it's the last attempt and it fails, log the final error
+                                        _logger.LogError($"[Payment Consumer] - Payment for {item.StudentNumber} is not in the smart contract, however, this payment is using id: {item.Id} and this is the final error after retries: {ex}");
+                                    }
+                                }
                             }
                         }
                     }

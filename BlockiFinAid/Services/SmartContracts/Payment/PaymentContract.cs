@@ -1,7 +1,12 @@
 
 
+using BlockiFinAid.Data.Models;
 using BlockiFinAid.Data.Responses;
 using BlockiFinAid.Services.MachineLearning;
+using BlockiFinAid.Services.Repository;
+using BlockiFinAid.Services.SmartContracts.Funder;
+using BlockiFinAid.Services.SmartContracts.Funding;
+using BlockiFinAid.Services.SmartContracts.User;
 using Refit;
 
 namespace BlockiFinAid.Services.SmartContracts.Payment;
@@ -194,12 +199,16 @@ public class PaymentContract
     private readonly SmartContractByteCodes _byteCodes;
     private readonly IMachineLearningAPI _mlApi;
     private readonly ILogger<PaymentContract> _logger;
+    private readonly FundingContract _fundingContract;
+    private readonly UserContract _userContract;
+    private readonly FunderContract _funderContract;
+    private readonly IBaseRepository<PaymentModel> _paymentRepo;
 
     public PaymentContract(IOptions<EthereumNodeSettings> nodeSettings, 
         IOptions<SmartContractAddressSettings> addressSettings, 
         IOptions<SmartContractByteCodes> byteCodes, 
         IMachineLearningAPI mlApi,
-        ILogger<PaymentContract> logger)
+        ILogger<PaymentContract> logger, FundingContract fundingContract, UserContract  userContract, FunderContract funderContract, IBaseRepository<PaymentModel> paymentRepository)
     {
         _nodeSettings = nodeSettings.Value;
         _addressSettings = addressSettings.Value;
@@ -208,36 +217,15 @@ public class PaymentContract
         _byteCodes = byteCodes.Value;
         _mlApi = mlApi;
         _logger = logger;
+        _fundingContract = fundingContract;
+        _userContract = userContract;
+        _funderContract = funderContract;
+        _paymentRepo = paymentRepository;
     }
 
     public async Task<SmartContractResponse<string>> AddPaymentAsync(PaymentInputDto dto)
     {
-        bool isContinue = false, apiCallSucceeded = false;
-        try
-        {
-            var mlRequest = new MachineLearningRequest(dto.Amount, "NSFAS", dto.PaymentType,
-                DateTime.Parse(dto.InitiationDate), false);
-            
-            ApiResponse<MachineLearningResponse> mlResponse = await _mlApi.ProcessMachineLearningRequest(mlRequest);
-            _logger.LogInformation($"ML Endpoint has response status code: {mlResponse.StatusCode}");
-            if (mlResponse.IsSuccessStatusCode)
-            {
-                isContinue = true;
-                apiCallSucceeded = true;
-                
-                //Add payment to training data
-            }
-
-            {
-                isContinue = true;
-                apiCallSucceeded = true;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error while trying to access the Machine Learning API: {ex.Message}");
-        }
-
+        
         var function = new AddPaymentFunction
         {
             Id = GuidHelper.GuidToBytes16OrZero(dto.Id),
@@ -256,28 +244,25 @@ public class PaymentContract
             FromAddress = _nodeSettings.ContractAddress
         };
         var contract = _web3.Eth.GetContractTransactionHandler<AddPaymentFunction>();
-        if (apiCallSucceeded && isContinue)
+      
+        var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
+        var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Payment");
+
+        if (receipt.HasErrors().Value)
         {
-            var receipt = await contract.SendRequestAndWaitForReceiptAsync(_addressSettings.PaymentsContractAddress, function);
-            var functionsSigHashes = FunctionSignatureCalculator.GetStateChangingFunctionSignaturesByGroup("Payment");
-
-            if (receipt.HasErrors().Value)
-            {
-                return new SmartContractResponse<string>();
-            }
-
-            return new SmartContractResponse<string>()
-            {
-                BlockHash = receipt.BlockHash,
-                BlockNumber = receipt.BlockNumber,
-                ByteCode = _byteCodes.BankAccountByteCode,
-                FunctionSigHashes = functionsSigHashes,
-                ContractAddress = receipt.ContractAddress,
-                Data = receipt.TransactionHash,
-                IsSuccess = true
-            };
+            return new SmartContractResponse<string>();
         }
-        return new SmartContractResponse<string>();
+
+        return new SmartContractResponse<string>()
+        {
+            BlockHash = receipt.BlockHash,
+            BlockNumber = receipt.BlockNumber,
+            ByteCode = _byteCodes.BankAccountByteCode,
+            FunctionSigHashes = functionsSigHashes,
+            ContractAddress = receipt.ContractAddress,
+            Data = receipt.TransactionHash,
+            IsSuccess = true
+        };
     }
 
     public async Task<SmartContractResponse<string>> UpdatePaymentByIdAsync(PaymentUpdateDto dto)

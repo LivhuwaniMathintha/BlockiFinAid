@@ -66,7 +66,7 @@ public class DatabaseSeeder
         if (existingUser != null)
         {
             await SeedFundersAsync(existingUser.Id.ToString());
-            await SeedPaymentsFromJsonAsync();
+            //await SeedPaymentsFromJsonAsync();
             await SeedUsersFromJsonAsync(existingUser.Id.ToString());
         }
         else
