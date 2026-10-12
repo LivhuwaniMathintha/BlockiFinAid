@@ -2,6 +2,7 @@ using BlockiFinAid.Data.Configs;
 using BlockiFinAid.Data.DTOs;
 using BlockiFinAid.Data.Models;
 using BlockiFinAid.Services.AccessControl;
+using BlockiFinAid.Services.Observability;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.User;
 using Microsoft.Azure.Cosmos.Linq;
@@ -24,6 +25,8 @@ public class DatabaseSeeder
     private readonly IBaseRepository<BankAccountModel> _bankAccounts;
     private readonly IBaseRepository<FundingConditionsModel> _fundingConditions;
     private readonly IBaseRepository<FundingModel> _funding;
+    private readonly OperationTimingTracker _timingTracker;
+    private readonly SeedingLifecycle _seedingLifecycle;
     private readonly Random _random = new Random();
     public DatabaseSeeder(ILogger<DatabaseSeeder> logger, 
         IWebHostEnvironment env, 
@@ -34,7 +37,9 @@ public class DatabaseSeeder
         IBaseRepository<FunderModel> funders,
         IBaseRepository<BankAccountModel> bankAccounts,
         IBaseRepository<FundingConditionsModel> fundingConditions,
-        IBaseRepository<FundingModel> funding)
+        IBaseRepository<FundingModel> funding,
+        OperationTimingTracker timingTracker,
+        SeedingLifecycle seedingLifecycle)
     {
         _logger = logger;
         _env = env;
@@ -46,13 +51,56 @@ public class DatabaseSeeder
         _bankAccounts = bankAccounts;
         _fundingConditions = fundingConditions;
         _funding = funding;
+        _timingTracker = timingTracker;
+        _seedingLifecycle = seedingLifecycle;
+    }
+
+    private async Task TagExistingSeedUserAsync(string email, string adminId)
+    {
+        var users = await _userRepo.GetAllAsync();
+        var student = users.FirstOrDefault(user =>
+            string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(user.Role, "student", StringComparison.OrdinalIgnoreCase));
+        if (student is null)
+        {
+            return;
+        }
+
+        if (student.DataSource != DataSources.Seed)
+        {
+            student.DataSource = DataSources.Seed;
+            if (!await _userRepo.UpdateAsync(student, adminId))
+            {
+                _logger.LogWarning("Could not tag existing seed student {StudentId} as seed data.", student.Id);
+                return;
+            }
+        }
+
+        var studentFundings = (await _funding.GetAllAsync())
+            .Where(funding => funding.StudentId == student.Id)
+            .ToList();
+        foreach (var funding in studentFundings)
+        {
+            var needsUpdate = funding.DataSource != DataSources.Seed;
+            funding.DataSource = DataSources.Seed;
+            if (_env.IsDevelopment() && !funding.IsActive)
+            {
+                funding.IsActive = true;
+                needsUpdate = true;
+            }
+
+            if (needsUpdate && !await _funding.UpdateAsync(funding, adminId))
+            {
+                _logger.LogWarning("Could not tag existing seed funding {FundingId} as active seed data.", funding.Id);
+            }
+        }
     }
 
     public async Task SeedDataAsync()
     {
+        var startedAt = DateTime.UtcNow;
         _logger.LogInformation("Seeding users...");
         
-        // seed users including admin
         try
         {
             await SeedAdminUserAsync();
@@ -66,13 +114,16 @@ public class DatabaseSeeder
         if (existingUser != null)
         {
             await SeedFundersAsync(existingUser.Id.ToString());
-            //await SeedPaymentsFromJsonAsync();
             await SeedUsersFromJsonAsync(existingUser.Id.ToString());
         }
         else
         {
             _logger.LogError($"There is no admin-user with email {UAMHelper.GetAminEmail()}. Please check your configuration.");
         }
+
+        var totalElapsedMs = (long)(DateTime.UtcNow - startedAt).TotalMilliseconds;
+        _timingTracker.RecordStep("seed", "all", "total_processing", totalElapsedMs, "seed_run");
+        _seedingLifecycle.MarkComplete();
     }
 
     private async Task SeedAdminUserAsync()
@@ -128,7 +179,16 @@ public class DatabaseSeeder
                 var doesUserExists = allUsers.FirstOrDefault(x => x.Name == user.Name);
                 if (doesUserExists != null)
                 {
-                    _logger.LogError($"UserFunder {user.Name} already exists. Skipping user seeding");
+                    if (doesUserExists.DataSource != DataSources.Seed)
+                    {
+                        doesUserExists.DataSource = DataSources.Seed;
+                        if (!await _userRepo.UpdateAsync(doesUserExists, userPerformingAction))
+                        {
+                            _logger.LogWarning("Could not tag existing seed user {UserId} as seed data.", doesUserExists.Id);
+                        }
+                    }
+
+                    _logger.LogInformation($"UserFunder {user.Name} already exists. Skipping user creation.");
                 }
                 else
                 {
@@ -151,6 +211,7 @@ public class DatabaseSeeder
                         InstitutionId = Guid.Empty,
                         IsActive = true,
                         FunderContractId = Guid.Empty,
+                        DataSource = DataSources.Seed,
                         IsChangeConfirmed = false,
                         Name = user.Name
                     };
@@ -241,7 +302,8 @@ public class DatabaseSeeder
                         UserIdPerformingAction = item.UserIdPerformingAction,
                         ModifiedBy = item.ModifiedBy,
                         UpdatedAt = item.UpdatedAt,
-                        IsActive = true
+                        IsActive = true,
+                        DataSource = DataSources.Seed
                     };
 
                     _logger.LogInformation(
@@ -255,6 +317,15 @@ public class DatabaseSeeder
                 }
                 else
                 {
+                    if (existingFunder.DataSource != DataSources.Seed)
+                    {
+                        existingFunder.DataSource = DataSources.Seed;
+                        if (!await _funders.UpdateAsync(existingFunder, adminId))
+                        {
+                            _logger.LogWarning("Could not tag existing seed funder {FunderId} as seed data.", existingFunder.Id);
+                        }
+                    }
+
                     _logger.LogInformation($"Funder {item.Name} already exists. Ignoring it.");
                 }
             }
@@ -312,7 +383,7 @@ public class DatabaseSeeder
                         _logger.LogInformation($"Payment with Id {item.Id} does not exist...");
                         var newPayment = new PaymentModel
                         {
-                            Id = Guid.NewGuid(),
+                            Id = item.Id == Guid.Empty ? Guid.NewGuid() : item.Id,
                             Amount = item.Amount,
                             AccountNumber = item.AccountNumber,
                             BankName = item.BankName,
@@ -328,7 +399,8 @@ public class DatabaseSeeder
                             PaymentType = item.PaymentType,
                             Status = item.Status,
                             Institution = item.Institution,
-                            StudentNumber = item.StudentNumber
+                            StudentNumber = item.StudentNumber,
+                            DataSource = DataSources.Seed
                         };
 
                         _logger.LogInformation(
@@ -430,6 +502,7 @@ public class DatabaseSeeder
                                 InstitutionId = Guid.Empty,
                                 IsActive = true,
                                 FunderContractId = funderId,
+                                DataSource = DataSources.Seed,
                                 IsChangeConfirmed = false,
                                 Name = user.Name,
                                 
@@ -491,10 +564,12 @@ public class DatabaseSeeder
                                                    TuitionBalance = fundingConditions.TuitionAmount,
                                                    FoodBalance = fundingConditions.FoodAmount,
                                                    FunderId = funderId,
+                                                   DataSource = DataSources.Seed,
                                                    FunderContractConditionId = fundingConditionsOutputDto.Id,
                                                    SignedOn = DateTime.UtcNow,
                                                    ModifiedBy = "api-admin",
                                                    UpdatedAt = DateTime.UtcNow,
+                                                   IsActive = true,
                                                };
                                                
                                                await _funding.CreateAsync(fundingDto, adminId);
@@ -517,6 +592,7 @@ public class DatabaseSeeder
                     }
                     else
                     {
+                        await TagExistingSeedUserAsync(user.Email, adminId);
                         _logger.LogInformation($"[User Seeder] - User with email {user.Email} already exists...");
                     }
                 }

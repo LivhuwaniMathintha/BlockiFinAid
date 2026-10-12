@@ -1,0 +1,4 @@
+BlockiFinAid Timing Drill-down
+Generated UTC: 2026-10-12T15:45:18.8060280Z
+
+- pipeline=seed model=all step=total_processing count=1 avgMs=265,0 minMs=265 maxMs=265 p95Ms=265 lastMs=265

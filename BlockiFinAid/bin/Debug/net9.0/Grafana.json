@@ -1,0 +1,152 @@
+{
+  "id": null,
+  "uid": "blockifinaid-live",
+  "title": "BlockiFinAid - Live Data",
+  "tags": ["blockifinaid", "live"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "barchart",
+      "title": "Total Students Funded per Funder",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "blockifinaid_students_funded_total{data_source=\"live\"}",
+          "legendFormat": "{{funder}}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {"showLegend": false},
+        "tooltip": {"mode": "single", "sort": "desc"}
+      }
+    },
+    {
+      "id": 2,
+      "type": "barchart",
+      "title": "Payments Created per Funder (Last 24 Hours)",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "blockifinaid_payments_created_last_24_hours{data_source=\"live\"}",
+          "legendFormat": "{{funder}}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {"showLegend": false},
+        "tooltip": {"mode": "single", "sort": "desc"}
+      }
+    },
+    {
+      "id": 3,
+      "type": "piechart",
+      "title": "Payment Statuses (Last 24 Hours)",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 9},
+      "targets": [
+        {
+          "expr": "sum by (status) (blockifinaid_payment_status_last_24_hours{data_source=\"live\"})",
+          "legendFormat": "{{status}}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "legend": {"showLegend": true, "displayMode": "list", "placement": "right"},
+        "pieType": "pie",
+        "reduceOptions": {"values": true, "calcs": ["lastNotNull"], "fields": ""},
+        "tooltip": {"mode": "single", "sort": "desc"}
+      }
+    },
+    {
+      "id": 4,
+      "type": "barchart",
+      "title": "Failed Payments by Reason (Last 24 Hours)",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 9},
+      "targets": [
+        {
+          "expr": "sum by (reason) (blockifinaid_payment_failures_last_24_hours{data_source=\"live\"})",
+          "legendFormat": "{{reason}}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {"showLegend": false},
+        "tooltip": {"mode": "single", "sort": "desc"}
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "API and Dependency Health",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 7, "w": 24, "x": 0, "y": 18},
+      "targets": [
+        {"expr": "blockifinaid_api_up", "legendFormat": "API", "refId": "A"},
+        {"expr": "blockifinaid_dependency_up", "legendFormat": "{{dependency}}", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"min": 0, "max": 1}, "overrides": []},
+      "options": {
+        "legend": {"displayMode": "list", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "none"}
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "HTTP Endpoint Latency (p95, ms)",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "targets": [
+        {
+          "expr": "blockifinaid_http_request_duration_ms_p95",
+          "legendFormat": "{{method}} {{route}} ({{status}})",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {"displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Background Operation Latency (p95, ms)",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+      "targets": [
+        {
+          "expr": "blockifinaid_operation_duration_ms_p95",
+          "legendFormat": "{{pipeline}} / {{model}} / {{step}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "legend": {"displayMode": "table", "placement": "bottom"},
+        "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    }
+  ]
+}

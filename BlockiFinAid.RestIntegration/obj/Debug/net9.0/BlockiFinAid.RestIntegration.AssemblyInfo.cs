@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlockiFinAid.RestIntegration")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+daf94871544e25f0ae84ccf12b8e7600b0a0b1d6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b0277a85246d8643e230a6f3f593855a174f8c7")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlockiFinAid.RestIntegration")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlockiFinAid.RestIntegration")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

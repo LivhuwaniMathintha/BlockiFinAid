@@ -4,6 +4,25 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace BlockiFinAid.Data.Models;
 
+public static class PaymentStatuses
+{
+    public const string Initiated = "Initiated";
+    public const string Processing = "Processing";
+    public const string Failed = "Failed";
+    public const string FraudCheckFailed = "FraudCheckFailed";
+    public const string FraudRejected = "FraudRejected";
+    public const string FraudCheckPassed = "FraudCheckPassed";
+    public const string RecordedOnChain = "RecordedOnChain";
+    public const string Fulfilled = "Fulfilled";
+}
+
+public static class DataSources
+{
+    public const string Live = "live";
+    public const string Seed = "seed";
+    public const string Demo = "demo";
+}
+
 public class PaymentModel : IModel
 {
     [BsonId]
@@ -27,6 +46,9 @@ public class PaymentModel : IModel
     public uint Amount { get; set; }
     public string PaymentType { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    public string DataSource { get; set; } = DataSources.Live;
+    public string DemoRunId { get; set; } = string.Empty;
+    public string FailureReason { get; set; } = string.Empty;
     public DateTime UpdatedAt { get; set; }
     public DateTime InitiationDate { get; set; } 
     public DateTime FulfilmentDate { get; set; }

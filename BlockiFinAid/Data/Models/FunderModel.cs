@@ -11,6 +11,7 @@ public class FunderModel : IModel
     public Guid Id { get; set; }
 
     public string Name { get; set; } = string.Empty;
+    public string DataSource { get; set; } = DataSources.Live;
     public bool IsActive { get; set; }
     [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid FunderContractId { get; set; }

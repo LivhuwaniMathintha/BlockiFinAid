@@ -18,12 +18,31 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
+    depends_on:
+      - prometheus
     networks:
       - grafana-net
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./BlockiFinAid/Grafana.json:/var/lib/grafana/dashboards/blockifinaid.json:ro
+      - ./BlockiFinAid/Grafana.Demo.json:/var/lib/grafana/dashboards/blockifinaid-demo.json:ro
     extra_hosts:
-      - "host.docker.internal:host-gateway"  
+      - "host.docker.internal:host-gateway"
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - grafana-net
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-storage:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   grafana-storage:
+  prometheus-storage:

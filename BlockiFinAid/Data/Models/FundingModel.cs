@@ -26,6 +26,7 @@ public class FundingModel : IModel
     public DateTime SignedOn { get; set; }
 
     public bool IsActive { get; set; }
+    public string DataSource { get; set; } = DataSources.Live;
     public uint FoodBalance { get; set; }
     public uint TuitionBalance { get; set; }
     public uint LaptopBalance { get; set; }

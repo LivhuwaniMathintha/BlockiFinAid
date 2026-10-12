@@ -36,6 +36,7 @@ public class UserModel : IModel
     public string CourseName { get; set; } = string.Empty;
    // [BsonElement("role")]
     public string Role { get; set; } =  string.Empty;
+    public string DataSource { get; set; } = DataSources.Live;
     [BsonIgnore]
     public Guid UserIdPerformingAction { get; set; }
 }

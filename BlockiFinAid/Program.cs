@@ -4,6 +4,7 @@ using BlockiFinAid.Helpers;
 using BlockiFinAid.Services.AccessControl;
 using BlockiFinAid.Services.MachineLearning;
 using BlockiFinAid.Services.Messaging;
+using BlockiFinAid.Services.Observability;
 using BlockiFinAid.Services.Repository;
 using BlockiFinAid.Services.SmartContracts.BankAccount;
 using BlockiFinAid.Services.SmartContracts.Funder;
@@ -237,9 +238,12 @@ try
 
     // Add a background service for mongo db publishing to rabbit mq
     builder.Services.AddScoped<DatabaseSeeder>();
+    builder.Services.AddSingleton<OperationTimingTracker>();
+    builder.Services.AddSingleton<SeedingLifecycle>();
     
     builder.Services.AddHostedService<MongoSeederBackgroundService>();
     builder.Services.AddHostedService<MongoDbBackgroundPublisherService>();
+    builder.Services.AddHostedService<DemoPaymentSimulator>();
     
    
     builder.Services.AddRefitClient<IMachineLearningAPI>(new RefitSettings
@@ -274,8 +278,10 @@ try
         });
         // END ADDED
     }
+    app.UseRouting();
     app.UseCors();
     app.UseHttpsRedirection();
+    app.UseMiddleware<HttpRequestTimingMiddleware>();
    
     app.MapControllers();
 

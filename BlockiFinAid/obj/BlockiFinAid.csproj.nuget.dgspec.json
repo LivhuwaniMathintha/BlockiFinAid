@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/BlockiFinAid.csproj": {}
+    "/Users/nando/Livhu_Revamp/BlockiFinAid/BlockiFinAid/BlockiFinAid.csproj": {}
   },
   "projects": {
-    "/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/BlockiFinAid.csproj": {
+    "/Users/nando/Livhu_Revamp/BlockiFinAid/BlockiFinAid/BlockiFinAid.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/BlockiFinAid.csproj",
+        "projectUniqueName": "/Users/nando/Livhu_Revamp/BlockiFinAid/BlockiFinAid/BlockiFinAid.csproj",
         "projectName": "BlockiFinAid",
-        "projectPath": "/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/BlockiFinAid.csproj",
+        "projectPath": "/Users/nando/Livhu_Revamp/BlockiFinAid/BlockiFinAid/BlockiFinAid.csproj",
         "packagesPath": "/Users/nando/.nuget/packages/",
-        "outputPath": "/Users/nando/RiderProjects/BlockiFindAid/BlockiFinAid/obj/",
+        "outputPath": "/Users/nando/Livhu_Revamp/BlockiFinAid/BlockiFinAid/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/nando/.nuget/NuGet/NuGet.Config"
@@ -135,6 +135,22 @@
             "Serilog.Sinks.File": {
               "target": "Package",
               "version": "[7.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Swashbuckle.AspNetCore.Swagger": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerGen": {
+              "target": "Package",
+              "version": "[9.0.6, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerUI": {
+              "target": "Package",
+              "version": "[9.0.6, )"
             }
           },
           "imports": [
@@ -156,7 +172,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.318/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

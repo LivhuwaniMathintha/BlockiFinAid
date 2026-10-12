@@ -1,4 +1,5 @@
 using BlockiFinAid.Data.Models;
+using BlockiFinAid.Services.Observability;
 using BlockiFinAid.Services.Repository;
 
 namespace BlockiFinAid.Services.Messaging;
@@ -7,11 +8,13 @@ public class MongoDbBackgroundPublisherService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MongoDbBackgroundPublisherService> _logger;
+    private readonly OperationTimingTracker _timingTracker;
 
-    public MongoDbBackgroundPublisherService(IServiceScopeFactory scopeFactory, ILogger<MongoDbBackgroundPublisherService> logger)
+    public MongoDbBackgroundPublisherService(IServiceScopeFactory scopeFactory, ILogger<MongoDbBackgroundPublisherService> logger, OperationTimingTracker timingTracker)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _timingTracker = timingTracker;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -50,18 +53,32 @@ public class MongoDbBackgroundPublisherService : BackgroundService
 
     private async Task Publish<T>(T model, CancellationToken stoppingToken) where T : class
     {
+        if (model is PaymentModel { DataSource: not DataSources.Live } payment)
+        {
+            _logger.LogInformation(
+                "Skipping RabbitMQ publication for {DataSource} payment {PaymentId}.",
+                payment.DataSource,
+                payment.Id);
+            return;
+        }
+
         using var scope = _scopeFactory.CreateScope();
         var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+        var publishStartedAt = DateTime.UtcNow;
+        var modelName = typeof(T).Name;
         try
         {
+            _timingTracker.RecordQueuePublish(modelName, publishStartedAt);
             await publisher.Publish(model);
-            _logger.LogInformation($"Publishing to Rabbit MQ has completed for {typeof(T).Name}");
+            var elapsedMs = (long)(DateTime.UtcNow - publishStartedAt).TotalMilliseconds;
+            _timingTracker.RecordStep("mongo_stream", modelName, "publish_to_rabbit", elapsedMs, modelName);
+            _logger.LogInformation($"Publishing to Rabbit MQ has completed for {modelName} in {elapsedMs}ms");
         }
         catch (Exception ex)
         {
+            var elapsedMs = (long)(DateTime.UtcNow - publishStartedAt).TotalMilliseconds;
+            _timingTracker.RecordStep("mongo_stream", modelName, "publish_to_rabbit", elapsedMs, modelName, "error");
             _logger.LogError(ex, ex.Message);
         }
-
-        // Removed the Task.Delay here as the stream will naturally wait for new inserts.
     }
 }

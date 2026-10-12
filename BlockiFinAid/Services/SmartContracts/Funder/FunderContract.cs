@@ -54,7 +54,7 @@ public class FunderUpdateDto
   
 }
 
-[Function("getAllFunders", "tuple[]")]
+[Function("getAllFunders", typeof(GetAllFundersOutputDTO))]
 public class GetAllFundersFunction : FunctionMessage { }
 
 [Function("getFunderById", "tuple")]
@@ -255,8 +255,35 @@ public class FunderContract
         var function = new GetAllFundersFunction();
         var contract = _web3.Eth.GetContractHandler(_addressSettings.FunderAddress);
         var result = await contract.QueryDeserializingToObjectAsync<GetAllFundersFunction, GetAllFundersOutputDTO>(function);
+
+        if (result?.Ids is null ||
+            result.Names is null ||
+            result.IsActives is null ||
+            result.FunderContractIds is null ||
+            result.IsChangeConfirmeds is null ||
+            result.PaymentDates is null ||
+            result.ModifiedBys is null ||
+            result.UpdatedAts is null)
+        {
+            throw new InvalidOperationException(
+                "The getAllFunders smart-contract response did not contain all expected fields. Verify the deployed contract ABI and SmartContractAddressSettings:FunderAddress.");
+        }
+
+        var funderCount = result.Ids.Count;
+        if (result.Names.Count != funderCount ||
+            result.IsActives.Count != funderCount ||
+            result.FunderContractIds.Count != funderCount ||
+            result.IsChangeConfirmeds.Count != funderCount ||
+            result.PaymentDates.Count != funderCount ||
+            result.ModifiedBys.Count != funderCount ||
+            result.UpdatedAts.Count != funderCount)
+        {
+            throw new InvalidOperationException(
+                "The getAllFunders smart-contract response returned arrays with different lengths. Verify the deployed contract ABI.");
+        }
+
         var funders = new List<FunderOutputDto>();
-        for (int i = 0; i < result.Ids.Count; i++)
+        for (var i = 0; i < funderCount; i++)
         {
             funders.Add(new FunderOutputDto
             {
@@ -358,4 +385,3 @@ public class FunderContract
         };
     }
 }
-
