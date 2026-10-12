@@ -15,17 +15,20 @@ public sealed class DemoPaymentSimulator : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IConfiguration _configuration;
     private readonly SeedingLifecycle _seedingLifecycle;
+    private readonly DemoRunMetrics _demoRunMetrics;
     private readonly ILogger<DemoPaymentSimulator> _logger;
 
     public DemoPaymentSimulator(
         IServiceScopeFactory scopeFactory,
         IConfiguration configuration,
         SeedingLifecycle seedingLifecycle,
+        DemoRunMetrics demoRunMetrics,
         ILogger<DemoPaymentSimulator> logger)
     {
         _scopeFactory = scopeFactory;
         _configuration = configuration;
         _seedingLifecycle = seedingLifecycle;
+        _demoRunMetrics = demoRunMetrics;
         _logger = logger;
     }
 
@@ -60,43 +63,85 @@ public sealed class DemoPaymentSimulator : BackgroundService
         var funders = await scope.ServiceProvider
             .GetRequiredService<IBaseRepository<FunderModel>>()
             .GetAllAsync();
-        var fundingRecords = await scope.ServiceProvider
-            .GetRequiredService<IBaseRepository<FundingModel>>()
-            .GetAllAsync();
+        var userRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<UserModel>>();
+        var fundingRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<FundingModel>>();
         var paymentRepository = scope.ServiceProvider.GetRequiredService<IBaseRepository<PaymentModel>>();
-
-        var activeStudentFundings = fundingRecords
-            .Where(funding => funding.IsActive)
-            .Select(funding => (funding.StudentId, funding.FunderId))
-            .ToHashSet();
-        var fundersById = funders.ToDictionary(funder => funder.Id);
-        var eligibleStudents = users
-            .Where(user =>
-                user.IsActive &&
-                string.Equals(user.Role, "student", StringComparison.OrdinalIgnoreCase) &&
-                fundersById.ContainsKey(user.FunderContractId) &&
-                activeStudentFundings.Contains((user.Id, user.FunderContractId)))
-            .GroupBy(user => user.Id)
-            .Select(group => group.First())
-            .OrderBy(_ => Random.Shared.Next())
-            .Take(Math.Clamp(_configuration.GetValue("DemoSimulation:MaxPaymentsPerRun", 20), 1, 100))
-            .ToList();
-
-        if (eligibleStudents.Count == 0)
+        var activeFunders = funders.Where(funder => funder.IsActive).ToList();
+        if (activeFunders.Count == 0)
         {
-            _logger.LogWarning(
-                "Demo payment simulation created no records because there are no active students with matching active funding.");
-            return;
+            throw new InvalidOperationException("Demo simulation requires at least one active funder.");
         }
 
+        var minStudents = _configuration.GetValue("DemoSimulation:MinStudentsPerRun", 50);
+        var maxStudents = _configuration.GetValue("DemoSimulation:MaxStudentsPerRun", 150);
+        if (minStudents is < 50 or > 150 || maxStudents is < 50 or > 150 || minStudents > maxStudents)
+        {
+            throw new InvalidOperationException(
+                "DemoSimulation student limits must satisfy 50 <= MinStudentsPerRun <= MaxStudentsPerRun <= 150.");
+        }
+
+        var studentCount = Random.Shared.Next(minStudents, maxStudents + 1);
         var runId = Guid.NewGuid().ToString("N");
         var random = Random.Shared;
-        var pending = new List<SimulatedPayment>(eligibleStudents.Count);
-        for (var index = 0; index < eligibleStudents.Count; index++)
+        var institutionId = users
+            .Where(user => user.InstitutionId != Guid.Empty)
+            .Select(user => user.InstitutionId)
+            .FirstOrDefault();
+        var pending = new List<SimulatedPayment>(studentCount);
+        var studentsByFunder = activeFunders.ToDictionary(funder => funder.Name, _ => 0L);
+        for (var index = 0; index < studentCount; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var student = eligibleStudents[index];
-            var funder = fundersById[student.FunderContractId];
+            var funder = activeFunders[random.Next(activeFunders.Count)];
+            var studentId = Guid.NewGuid();
+            var studentNumber = $"DEMO-{runId[..8]}-{index + 1:D3}";
+            var now = DateTime.UtcNow;
+            var student = new UserModel
+            {
+                Id = studentId,
+                InstitutionId = institutionId,
+                FunderContractId = funder.Id,
+                BankAccountId = Guid.NewGuid(),
+                StudentNumber = studentNumber,
+                Name = $"Demo Student {runId[..8]}-{index + 1:D3}",
+                Email = $"demo-{runId}-{index + 1:D3}@blockifinaid.invalid",
+                IsActive = true,
+                IsChangeConfirmed = true,
+                ModifiedBy = "demo-simulator",
+                UpdatedAt = now.ToString("O"),
+                CourseName = "Demo course",
+                Role = "student",
+                DataSource = DataSources.Demo
+            };
+            var createdStudent = await userRepository.CreateAsync(student, "demo-simulator");
+            if (createdStudent is not UserModel)
+            {
+                throw new InvalidOperationException(
+                    $"Could not persist demo student {student.Id}; repository returned {createdStudent?.GetType().Name ?? "null"}.");
+            }
+
+            var funding = new FundingModel
+            {
+                Id = Guid.NewGuid(),
+                FunderId = funder.Id,
+                StudentId = student.Id,
+                SignedOn = now,
+                IsActive = true,
+                DataSource = DataSources.Demo,
+                FoodBalance = (uint)random.Next(500, 5001),
+                TuitionBalance = (uint)random.Next(5000, 25001),
+                LaptopBalance = (uint)random.Next(0, 5001),
+                AccommodationBalance = (uint)random.Next(1000, 10001),
+                ModifiedBy = "demo-simulator",
+                UpdatedAt = now
+            };
+            var createdFunding = await fundingRepository.CreateAsync(funding, "demo-simulator");
+            if (createdFunding is not FundingModel)
+            {
+                throw new InvalidOperationException(
+                    $"Could not persist demo funding {funding.Id}; repository returned {createdFunding?.GetType().Name ?? "null"}.");
+            }
+
             var payment = new PaymentModel
             {
                 Id = Guid.NewGuid(),
@@ -125,7 +170,8 @@ public sealed class DemoPaymentSimulator : BackgroundService
                     $"Could not persist demo payment {payment.Id}; repository returned {created?.GetType().Name ?? "null"}.");
             }
 
-            var shouldFail = index == eligibleStudents.Count - 1 ||
+            studentsByFunder[funder.Name]++;
+            var shouldFail = index == studentCount - 1 ||
                              (index > 0 && random.NextDouble() < 0.25);
             var failureReason = shouldFail
                 ? SimulatedFailureReasons[random.Next(SimulatedFailureReasons.Length)]
@@ -133,8 +179,9 @@ public sealed class DemoPaymentSimulator : BackgroundService
             pending.Add(new SimulatedPayment(payment, shouldFail ? PaymentStatuses.Failed : PaymentStatuses.Fulfilled, failureReason));
         }
 
+        _demoRunMetrics.SetCurrentRun(runId, studentsByFunder);
         _logger.LogInformation(
-            "Created {PaymentCount} tagged demo payments for run {DemoRunId}. No real payment, fraud-check, or blockchain processing was performed.",
+            "Created {StudentCount} tagged demo students and one payment per student for run {DemoRunId}. No real payment, fraud-check, or blockchain processing was performed.",
             pending.Count,
             runId);
 

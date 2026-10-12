@@ -1,4 +1,12 @@
 BlockiFinAid Timing Drill-down
-Generated UTC: 2026-10-12T15:45:18.8060280Z
+Generated UTC: 2026-10-12T17:07:38.8256830Z
 
-- pipeline=seed model=all step=total_processing count=1 avgMs=265,0 minMs=265 maxMs=265 p95Ms=265 lastMs=265
+- pipeline=funding_sync model=FundingModel step=smart_contract_write count=93 avgMs=27,7 minMs=10 maxMs=283 p95Ms=47 lastMs=27
+- pipeline=funding_sync model=FundingModel step=total_processing count=93 avgMs=4036,5 minMs=4014 maxMs=4299 p95Ms=4065 lastMs=4036
+- pipeline=mongo_stream model=FundingModel step=publish_to_rabbit count=93 avgMs=4,4 minMs=1 maxMs=73 p95Ms=10 lastMs=7
+- pipeline=mongo_stream model=UserModel step=publish_to_rabbit count=93 avgMs=4,6 minMs=1 maxMs=80 p95Ms=14 lastMs=3
+- pipeline=rabbitmq model=FundingModel step=queue_latency count=93 avgMs=185141,5 minMs=193 maxMs=370013 p95Ms=353909 lastMs=370013
+- pipeline=rabbitmq model=UserModel step=queue_latency count=93 avgMs=277277,9 minMs=194 maxMs=553983 p95Ms=530068 lastMs=553983
+- pipeline=seed model=all step=total_processing count=1 avgMs=286,0 minMs=286 maxMs=286 p95Ms=286 lastMs=286
+- pipeline=user_sync model=UserModel step=smart_contract_write count=93 avgMs=25,9 minMs=6 maxMs=176 p95Ms=46 lastMs=20
+- pipeline=user_sync model=UserModel step=total_processing count=93 avgMs=6034,7 minMs=6014 maxMs=6200 p95Ms=6080 lastMs=6026

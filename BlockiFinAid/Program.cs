@@ -239,6 +239,7 @@ try
     // Add a background service for mongo db publishing to rabbit mq
     builder.Services.AddScoped<DatabaseSeeder>();
     builder.Services.AddSingleton<OperationTimingTracker>();
+    builder.Services.AddSingleton<DemoRunMetrics>();
     builder.Services.AddSingleton<SeedingLifecycle>();
     
     builder.Services.AddHostedService<MongoSeederBackgroundService>();

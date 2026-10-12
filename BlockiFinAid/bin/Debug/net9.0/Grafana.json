@@ -1,68 +1,78 @@
 {
   "id": null,
-  "uid": "blockifinaid-live",
+  "uid": "blockifinaid-observability",
   "title": "BlockiFinAid - Live Data",
   "tags": ["blockifinaid", "live"],
   "timezone": "browser",
   "schemaVersion": 39,
   "version": 1,
-  "refresh": "30s",
+  "refresh": "5s",
   "time": {
-    "from": "now-24h",
+    "from": "now-1h",
     "to": "now"
   },
   "panels": [
     {
       "id": 1,
-      "type": "barchart",
-      "title": "Total Students Funded per Funder",
+      "type": "bargauge",
+      "title": "Total Number of Students Funded per Funder",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 0},
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 0},
       "targets": [
         {
           "expr": "blockifinaid_students_funded_total{data_source=\"live\"}",
           "legendFormat": "{{funder}}",
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "interval": "1s"
         }
       ],
       "options": {
         "orientation": "horizontal",
-        "showValue": "always",
-        "legend": {"showLegend": false},
+        "displayMode": "gradient",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "valuePlacement": "right",
+        "showUnfilled": true,
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
         "tooltip": {"mode": "single", "sort": "desc"}
       }
     },
     {
       "id": 2,
-      "type": "barchart",
+      "type": "bargauge",
       "title": "Payments Created per Funder (Last 24 Hours)",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 0},
+      "gridPos": {"h": 6, "w": 12, "x": 12, "y": 0},
       "targets": [
         {
           "expr": "blockifinaid_payments_created_last_24_hours{data_source=\"live\"}",
           "legendFormat": "{{funder}}",
           "refId": "A",
-          "instant": true
+          "instant": true,
+          "interval": "1s"
         }
       ],
       "options": {
         "orientation": "horizontal",
-        "showValue": "always",
-        "legend": {"showLegend": false},
+        "displayMode": "gradient",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "valuePlacement": "right",
+        "showUnfilled": true,
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
         "tooltip": {"mode": "single", "sort": "desc"}
       }
     },
     {
       "id": 3,
       "type": "piechart",
-      "title": "Payment Statuses (Last 24 Hours)",
+      "title": "Persisted Payment Statuses",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 9},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 6},
       "targets": [
         {
-          "expr": "sum by (status) (blockifinaid_payment_status_last_24_hours{data_source=\"live\"})",
+          "expr": "sum by (status) (blockifinaid_payments_persisted_by_status_total{data_source=\"live\"})",
           "legendFormat": "{{status}}",
           "refId": "A",
           "instant": true
@@ -77,10 +87,10 @@
     },
     {
       "id": 4,
-      "type": "barchart",
+      "type": "bargauge",
       "title": "Failed Payments by Reason (Last 24 Hours)",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 9},
+      "gridPos": {"h": 4, "w": 12, "x": 12, "y": 6},
       "targets": [
         {
           "expr": "sum by (reason) (blockifinaid_payment_failures_last_24_hours{data_source=\"live\"})",
@@ -91,8 +101,12 @@
       ],
       "options": {
         "orientation": "horizontal",
-        "showValue": "always",
-        "legend": {"showLegend": false},
+        "displayMode": "gradient",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "valuePlacement": "right",
+        "showUnfilled": true,
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
         "tooltip": {"mode": "single", "sort": "desc"}
       }
     },
@@ -101,10 +115,10 @@
       "type": "timeseries",
       "title": "API and Dependency Health",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 7, "w": 24, "x": 0, "y": 18},
+      "gridPos": {"h": 7, "w": 24, "x": 0, "y": 12},
       "targets": [
-        {"expr": "blockifinaid_api_up", "legendFormat": "API", "refId": "A"},
-        {"expr": "blockifinaid_dependency_up", "legendFormat": "{{dependency}}", "refId": "B"}
+        {"expr": "blockifinaid_api_up", "legendFormat": "API", "refId": "A", "interval": "1s"},
+        {"expr": "blockifinaid_dependency_up", "legendFormat": "{{dependency}}", "refId": "B", "interval": "1s"}
       ],
       "fieldConfig": {"defaults": {"min": 0, "max": 1}, "overrides": []},
       "options": {
@@ -117,12 +131,13 @@
       "type": "timeseries",
       "title": "HTTP Endpoint Latency (p95, ms)",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 19},
       "targets": [
         {
           "expr": "blockifinaid_http_request_duration_ms_p95",
           "legendFormat": "{{method}} {{route}} ({{status}})",
-          "refId": "A"
+          "refId": "A",
+          "interval": "1s"
         }
       ],
       "options": {
@@ -135,17 +150,65 @@
       "type": "timeseries",
       "title": "Background Operation Latency (p95, ms)",
       "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 19},
       "targets": [
         {
           "expr": "blockifinaid_operation_duration_ms_p95",
           "legendFormat": "{{pipeline}} / {{model}} / {{step}}",
-          "refId": "A"
+          "refId": "A",
+          "interval": "1s"
         }
       ],
       "options": {
         "legend": {"displayMode": "table", "placement": "bottom"},
         "tooltip": {"mode": "multi", "sort": "desc"}
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Persisted Payments",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 27},
+      "targets": [
+        {
+          "expr": "sum(blockifinaid_payments_persisted_total{data_source=\"live\"})",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto"
+      }
+    },
+    {
+      "id": 9,
+      "type": "bargauge",
+      "title": "Persisted Payments by Funder",
+      "datasource": {"type": "prometheus", "uid": "blockifinaid-prometheus"},
+      "gridPos": {"h": 6, "w": 18, "x": 6, "y": 27},
+      "targets": [
+        {
+          "expr": "blockifinaid_payments_persisted_total{data_source=\"live\"}",
+          "legendFormat": "{{funder}}",
+          "refId": "A",
+          "instant": true
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "valueMode": "text",
+        "namePlacement": "left",
+        "valuePlacement": "right",
+        "showUnfilled": true,
+        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+        "tooltip": {"mode": "single", "sort": "desc"}
       }
     }
   ]

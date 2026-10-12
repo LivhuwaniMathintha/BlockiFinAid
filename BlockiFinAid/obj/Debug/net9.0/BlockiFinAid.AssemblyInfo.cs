@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlockiFinAid")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b0277a85246d8643e230a6f3f593855a174f8c7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d96f887be5e9c6fee347aaf18dde270803a7092d")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlockiFinAid")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlockiFinAid")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

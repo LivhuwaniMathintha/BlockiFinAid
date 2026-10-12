@@ -6,21 +6,29 @@ and Prometheus metrics at `/api/grafana/metrics`.
 
 ## Data and attribution
 
-- “Total Students Funded per Funder” counts distinct active students with an active
+- “Total Number of Students Funded per Funder” counts distinct active students with an active
   funding record, matching `FundingModel.StudentId` / `FunderId` to the student and
   funder. Student-to-funder membership must also match
   `UserModel.FunderContractId` to `FunderModel.Id`.
 - Seeded records are tagged with `DataSource=seed`; ordinary records default to
-  `DataSource=live`. The live dashboard filters to `live`; the demo dashboard shows
-  `seed` and `demo` records and includes their source/run tags.
-- Payment totals/statuses use records initiated in the last 24 hours, based on
-  `InitiationDate`. Failure counts include `Failed`, `FraudCheckFailed`, and
+  `DataSource=live`. The **Live Data** dashboard filters to `live`; **Observability**
+  aggregates sources so seeded/demo data is visible alongside live metrics. Its demo
+  run table includes the source and run ID.
+- The payment-created and failure panels use records initiated in the last 24 hours,
+  based on `InitiationDate`. Failure counts include `Failed`, `FraudCheckFailed`, and
   `FraudRejected` statuses.
-- In Development, `DemoSimulation:Enabled` creates a new batch at each API start,
-  with one synthetic payment per eligible student (capped by
-  `DemoSimulation:MaxPaymentsPerRun`). Older batches are retained and each batch has a
-  unique run ID. Records move through `Initiated`, `Processing`, then `Fulfilled` or
-  `Failed`; random amounts and outcomes make the demo data vary between starts.
+- Persisted payment count/status panels include all retained payment records, even
+  when their initiation date is older than 24 hours. Funder/status gauges include
+  zero-valued series for known funders so Grafana shows zero rather than “No data”.
+- In Development, `DemoSimulation:Enabled` creates between 50 and 150 new demo-tagged
+  students and active funding records at each API start, with exactly one synthetic
+  payment per generated student. Configure the inclusive bounds with
+  `DemoSimulation:MinStudentsPerRun` and `DemoSimulation:MaxStudentsPerRun`; both must
+  be between 50 and 150. Older records are retained. The funder distribution panels
+  show matching student and payment counts for the most recent run, while the separate
+  payment total and status panels continue to include retained history. Each payment
+  moves through `Initiated`, `Processing`, then `Fulfilled` or `Failed`; random
+  amounts, funder assignments, and outcomes vary between runs.
 - Demo failures such as “Simulated blockchain unavailable” and “Simulated database
   unavailable” are labels for simulated outcomes, not actual outages. Demo and seed
   payments are prevented from reaching the real RabbitMQ payment consumer, and the
@@ -43,11 +51,17 @@ and Prometheus metrics at `/api/grafana/metrics`.
    profile binds to `0.0.0.0` so Prometheus in Docker can reach the host API through
    `host.docker.internal`; this also makes the HTTP listener reachable on the host's
    network interfaces, so use this profile only on a trusted network.
-3. Open Grafana at `http://localhost:3000` and choose **BlockiFinAid - Live Data**
-   or **BlockiFinAid - Demo and Seed Data** from the provisioned dashboards in the
-   **BlockiFinAid** folder.
+3. Open Grafana at `http://localhost:3000` and choose **BlockiFinAid Observability**
+   for aggregate live/seed/demo metrics or **BlockiFinAid - Live Data** for live-only
+   records in the **BlockiFinAid** folder.
 
-Prometheus scrapes `host.docker.internal:5017/api/grafana/metrics` every 15 seconds.
+Prometheus scrapes `host.docker.internal:5017/api/grafana/metrics` every second.
+Both dashboards refresh every 5 seconds and use a 1-second minimum query interval;
+the Observability dashboard defaults to a 5-minute range to make dense samples easier
+to inspect. Grafana automatically thins x-axis tick labels to fit the panel, but the
+time-series data is sampled at 1-second intervals.
+Recreate Prometheus and Grafana after changing the provisioning files with
+`docker compose up -d --force-recreate prometheus grafana`.
 If the API uses another host or port, update `observability/prometheus.yml` to match.
 Set `DemoSimulation:Enabled` to `false` to disable synthetic payment batches; keep it
 disabled outside a demo environment. The API metrics endpoint is intended for the

@@ -20,6 +20,7 @@ public sealed class GrafanaController : ControllerBase
     private readonly IMongoDatabase _accessDatabase;
     private readonly IConfiguration _configuration;
     private readonly OperationTimingTracker _timingTracker;
+    private readonly DemoRunMetrics _demoRunMetrics;
     private readonly ILogger<GrafanaController> _logger;
 
     public GrafanaController(
@@ -29,6 +30,7 @@ public sealed class GrafanaController : ControllerBase
         [FromKeyedServices("DB.UserAccessControl")] IMongoDatabase accessDatabase,
         IConfiguration configuration,
         OperationTimingTracker timingTracker,
+        DemoRunMetrics demoRunMetrics,
         ILogger<GrafanaController> logger)
     {
         _funderRepository = funderRepository;
@@ -37,6 +39,7 @@ public sealed class GrafanaController : ControllerBase
         _accessDatabase = accessDatabase;
         _configuration = configuration;
         _timingTracker = timingTracker;
+        _demoRunMetrics = demoRunMetrics;
         _logger = logger;
     }
 
@@ -90,6 +93,23 @@ public sealed class GrafanaController : ControllerBase
             AppendOverviewMetrics(output, overview);
         }
 
+        AddMetric(output, "blockifinaid_demo_run_students_funded", "Students funded by each funder in the most recent demo run.", "gauge");
+        AddMetric(output, "blockifinaid_demo_run_payments_created", "Payments created by each funder in the most recent demo run.", "gauge");
+        var demoRun = _demoRunMetrics.GetCurrentRun();
+        if (demoRun is not null)
+        {
+            foreach (var (funder, count) in demoRun.CountsByFunder)
+            {
+                var labels = new Dictionary<string, string>
+                {
+                    ["funder"] = funder,
+                    ["demo_run_id"] = demoRun.RunId
+                };
+                AddMetricSample(output, "blockifinaid_demo_run_students_funded", labels, count);
+                AddMetricSample(output, "blockifinaid_demo_run_payments_created", labels, count);
+            }
+        }
+
         AddMetric(output, "blockifinaid_operation_duration_ms_avg", "Average duration of recent recorded background operation samples.", "gauge");
         AddMetric(output, "blockifinaid_operation_duration_ms_p95", "P95 duration of recent recorded background operation samples.", "gauge");
         foreach (var timing in _timingTracker.GetTimingSummaries())
@@ -138,7 +158,26 @@ public sealed class GrafanaController : ControllerBase
             .Project(funding => new { funding.StudentId, funding.FunderId, funding.DataSource })
             .ToListAsync();
         var initiatedSince = DateTime.UtcNow.AddHours(-24);
-        var paymentGroupsTask = _fundsDatabase.GetCollection<PaymentModel>("payments")
+        var paymentsCollection = _fundsDatabase.GetCollection<PaymentModel>("payments");
+        var persistedPaymentGroupsTask = paymentsCollection
+            .Aggregate()
+            .Group(
+                payment => new
+                {
+                    payment.Status,
+                    payment.Funder,
+                    payment.DataSource,
+                },
+                group => new
+                {
+                    Status = group.Key.Status,
+                    Funder = group.Key.Funder,
+                    DataSource = group.Key.DataSource,
+                    Count = group.Count(),
+                    AmountTotal = group.Sum(payment => (long)payment.Amount)
+                })
+            .ToListAsync();
+        var recentPaymentGroupsTask = paymentsCollection
             .Aggregate()
             .Match(Builders<PaymentModel>.Filter.Gte(payment => payment.InitiationDate, initiatedSince))
             .Group(
@@ -161,7 +200,7 @@ public sealed class GrafanaController : ControllerBase
                     AmountTotal = group.Sum(payment => (long)payment.Amount)
                 })
             .ToListAsync();
-        var demoRunGroupsTask = _fundsDatabase.GetCollection<PaymentModel>("payments")
+        var demoRunGroupsTask = paymentsCollection
             .Aggregate()
             .Match(Builders<PaymentModel>.Filter.And(
                 Builders<PaymentModel>.Filter.Eq(payment => payment.DataSource, DataSources.Demo),
@@ -176,12 +215,13 @@ public sealed class GrafanaController : ControllerBase
                     Count = group.Count()
                 })
             .ToListAsync();
-        await Task.WhenAll(fundersTask, studentsTask, activeFundingsTask, paymentGroupsTask, demoRunGroupsTask);
+        await Task.WhenAll(fundersTask, studentsTask, activeFundingsTask, persistedPaymentGroupsTask, recentPaymentGroupsTask, demoRunGroupsTask);
 
         var funders = (await fundersTask).ToList();
         var students = await studentsTask;
         var activeFundings = await activeFundingsTask;
-        var paymentGroups = await paymentGroupsTask;
+        var persistedPaymentGroups = await persistedPaymentGroupsTask;
+        var recentPaymentGroups = await recentPaymentGroupsTask;
         var demoRunGroups = await demoRunGroupsTask;
         var fundersById = funders.ToDictionary(funder => funder.Id);
         var studentsById = students.ToDictionary(student => student.Id);
@@ -199,17 +239,79 @@ public sealed class GrafanaController : ControllerBase
                     student.Id,
                     FunderId = funder.Id,
                     Funder = funder.Name,
-                    DataSource = CombineDataSources(student.DataSource, funding.DataSource)
+                    StudentDataSource = student.DataSource,
+                    FundingDataSource = funding.DataSource
                 };
             })
-            .DistinctBy(student => (student.Id, student.FunderId, student.DataSource))
+            .GroupBy(student => (student.Id, student.FunderId, student.Funder))
+            .Select(group => new
+            {
+                group.Key.Id,
+                group.Key.FunderId,
+                group.Key.Funder,
+                DataSource = CombineDataSources(
+                    group.Select(student => student.StudentDataSource)
+                        .Concat(group.Select(student => student.FundingDataSource))
+                        .ToArray())
+            })
             .GroupBy(student => (student.FunderId, student.Funder, student.DataSource))
             .Select(group => new FundedStudentCount(group.Key.FunderId, group.Key.Funder, group.Key.DataSource, group.LongCount()))
             .OrderBy(group => group.Funder)
             .ThenBy(group => group.DataSource)
             .ToList();
 
-        var paymentsLast24Hours = paymentGroups
+        var fundedStudentCounts = funders
+            .SelectMany(funder => new[] { DataSources.Live, DataSources.Seed, DataSources.Demo }
+                .Select(source =>
+                {
+                    var existing = fundedStudents.FirstOrDefault(student =>
+                        student.FunderId == funder.Id && student.DataSource == source);
+                    return existing ?? new FundedStudentCount(funder.Id, funder.Name, source, 0);
+                }))
+            .ToList();
+        var persistedPayments = persistedPaymentGroups
+            .Select(payment => new PaymentGroup(
+                NormalizeLabel(payment.Funder),
+                NormalizeDataSource(payment.DataSource),
+                NormalizeLabel(payment.Status),
+                string.Empty,
+                string.Empty,
+                payment.Count,
+                payment.AmountTotal))
+            .ToList();
+        var persistedPaymentDetails = funders
+            .SelectMany(funder => new[] { DataSources.Live, DataSources.Seed, DataSources.Demo }
+                .SelectMany(source =>
+                {
+                    var sourcePayments = persistedPayments
+                        .Where(payment => payment.Funder == funder.Name && payment.DataSource == source)
+                        .ToList();
+                    var observedStatuses = sourcePayments.Count == 0
+                        ? new[] { PaymentStatuses.Initiated, PaymentStatuses.Processing, PaymentStatuses.Fulfilled, PaymentStatuses.Failed }
+                        : sourcePayments.Select(payment => payment.Status).Distinct(StringComparer.OrdinalIgnoreCase);
+                    return observedStatuses.Select(status => new PaymentGroup(
+                        funder.Name,
+                        source,
+                        status,
+                        string.Empty,
+                        string.Empty,
+                        sourcePayments
+                            .Where(payment => payment.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
+                            .Sum(payment => payment.Count),
+                        0));
+                }))
+            .ToList();
+        var persistedPaymentCounts = funders
+            .SelectMany(funder => new[] { DataSources.Live, DataSources.Seed, DataSources.Demo }
+                .Select(source =>
+                {
+                    var existing = persistedPayments
+                        .Where(payment => payment.Funder == funder.Name && payment.DataSource == source)
+                        .Sum(payment => payment.Count);
+                    return new PersistedPaymentCount(funder.Id, funder.Name, source, existing);
+                }))
+            .ToList();
+        var paymentsLast24Hours = recentPaymentGroups
             .Select(payment => new PaymentGroup(
                 NormalizeLabel(payment.Funder),
                 NormalizeDataSource(payment.DataSource),
@@ -224,8 +326,10 @@ public sealed class GrafanaController : ControllerBase
 
         return new OverviewSnapshot(
             DateTime.UtcNow,
-            fundedStudents,
+            fundedStudentCounts,
+            persistedPaymentCounts,
             paymentsLast24Hours,
+            persistedPaymentDetails,
             demoRunGroups
                 .Select(payment => new DemoPaymentGroup(
                     payment.DemoRunId,
@@ -315,32 +419,27 @@ public sealed class GrafanaController : ControllerBase
                 student.Count);
         }
 
-        AddMetric(output, "blockifinaid_payments_created_last_24_hours", "Payments initiated during the last 24 hours, by funder and data source.", "gauge");
-        AddMetric(output, "blockifinaid_payment_status_last_24_hours", "Payments initiated during the last 24 hours, grouped by status and data source.", "gauge");
-        AddMetric(output, "blockifinaid_payment_failures_last_24_hours", "Failed payments initiated during the last 24 hours, by recorded reason and data source.", "gauge");
-        AddMetric(output, "blockifinaid_demo_payments_total", "Tagged demo payment records by run, funder, and current status.", "gauge");
-        foreach (var payment in overview.PaymentsLast24Hours
-                     .GroupBy(payment => (payment.Funder, payment.DataSource))
-                     .Select(group => new { group.Key.Funder, group.Key.DataSource, Count = group.Sum(payment => payment.Count) }))
+        AddMetric(output, "blockifinaid_payments_persisted_total", "All persisted payment records by funder and data source.", "gauge");
+        AddMetric(output, "blockifinaid_payments_persisted_by_status_total", "All persisted payment records grouped by status, funder, and data source.", "gauge");
+        foreach (var payment in overview.PersistedPayments)
         {
             AddMetricSample(
                 output,
-                "blockifinaid_payments_created_last_24_hours",
+                "blockifinaid_payments_persisted_total",
                 new Dictionary<string, string>
                 {
                     ["funder"] = payment.Funder,
+                    ["funder_id"] = payment.FunderId.ToString(),
                     ["data_source"] = payment.DataSource
                 },
                 payment.Count);
         }
 
-        foreach (var payment in overview.PaymentsLast24Hours
-                     .GroupBy(payment => (payment.Funder, payment.Status, payment.DataSource))
-                     .Select(group => new { group.Key.Funder, group.Key.Status, group.Key.DataSource, Count = group.Sum(payment => payment.Count) }))
+        foreach (var payment in overview.PersistedPaymentDetails)
         {
             AddMetricSample(
                 output,
-                "blockifinaid_payment_status_last_24_hours",
+                "blockifinaid_payments_persisted_by_status_total",
                 new Dictionary<string, string>
                 {
                     ["funder"] = payment.Funder,
@@ -348,6 +447,58 @@ public sealed class GrafanaController : ControllerBase
                     ["data_source"] = payment.DataSource
                 },
                 payment.Count);
+        }
+
+        AddMetric(output, "blockifinaid_payments_created_last_24_hours", "Payments initiated during the last 24 hours, by funder and data source.", "gauge");
+        AddMetric(output, "blockifinaid_payment_status_last_24_hours", "Payments initiated during the last 24 hours, grouped by status and data source.", "gauge");
+        AddMetric(output, "blockifinaid_payment_failures_last_24_hours", "Failed payments initiated during the last 24 hours, by recorded reason and data source.", "gauge");
+        AddMetric(output, "blockifinaid_demo_payments_total", "Tagged demo payment records initiated during the last 24 hours, by run, funder, and current status.", "gauge");
+        var recentPaymentsByFunder = overview.PaymentsLast24Hours
+            .GroupBy(payment => (payment.Funder, payment.DataSource))
+            .ToDictionary(group => group.Key, group => group.Sum(payment => payment.Count));
+        var recentStatusesByFunder = overview.PaymentsLast24Hours
+            .GroupBy(payment => (payment.Funder, payment.DataSource, payment.Status))
+            .ToDictionary(group => group.Key, group => group.Sum(payment => payment.Count));
+        foreach (var funder in overview.FundedStudents
+                     .Select(student => (student.Funder, student.FunderId))
+                     .Distinct())
+        {
+            foreach (var source in new[] { DataSources.Live, DataSources.Seed, DataSources.Demo })
+            {
+                AddMetricSample(
+                    output,
+                    "blockifinaid_payments_created_last_24_hours",
+                    new Dictionary<string, string>
+                    {
+                        ["funder"] = funder.Funder,
+                        ["data_source"] = source
+                    },
+                    recentPaymentsByFunder.GetValueOrDefault((funder.Funder, source)));
+
+                foreach (var status in new[]
+                         {
+                             PaymentStatuses.Initiated,
+                             PaymentStatuses.Processing,
+                             PaymentStatuses.Fulfilled,
+                             PaymentStatuses.Failed,
+                             PaymentStatuses.FraudCheckFailed,
+                             PaymentStatuses.FraudRejected,
+                             PaymentStatuses.FraudCheckPassed,
+                             PaymentStatuses.RecordedOnChain
+                         })
+                {
+                    AddMetricSample(
+                        output,
+                        "blockifinaid_payment_status_last_24_hours",
+                        new Dictionary<string, string>
+                        {
+                            ["funder"] = funder.Funder,
+                            ["status"] = status,
+                            ["data_source"] = source
+                        },
+                        recentStatusesByFunder.GetValueOrDefault((funder.Funder, source, status)));
+                }
+            }
         }
 
         foreach (var payment in overview.PaymentsLast24Hours
@@ -454,9 +605,12 @@ public sealed class GrafanaController : ControllerBase
     private sealed record OverviewSnapshot(
         DateTime GeneratedAtUtc,
         IReadOnlyList<FundedStudentCount> FundedStudents,
+        IReadOnlyList<PersistedPaymentCount> PersistedPayments,
         IReadOnlyList<PaymentGroup> PaymentsLast24Hours,
+        IReadOnlyList<PaymentGroup> PersistedPaymentDetails,
         IReadOnlyList<DemoPaymentGroup> DemoRuns);
     private sealed record FundedStudentCount(Guid FunderId, string Funder, string DataSource, long Count);
+    private sealed record PersistedPaymentCount(Guid FunderId, string Funder, string DataSource, long Count);
     private sealed record PaymentGroup(string Funder, string DataSource, string Status, string FailureReason, string DemoRunId, long Count, long AmountTotal);
     private sealed record DemoPaymentGroup(string RunId, string Funder, string Status, long Count);
     private sealed record DependencySnapshot(string Name, bool IsHealthy, string? Error);
